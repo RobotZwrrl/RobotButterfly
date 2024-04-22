@@ -1,4 +1,4 @@
-23132705631816875
+23146423404432194
 !Conservify
 2N2222-SOT-23-3
 SOT, 3 Pin (https://www.jedec.org/sites/default/files/docs/Mo-178D.PDF inferred 3-pin variant), generated with kicad-footprint-generator ipc_gullwing_generator.py
@@ -196,7 +196,7 @@ USBC_TH_2
 20
 20
 !RobotButterfly
-2xAA_Battery_Module
+2xAA_Battery_Module_prev
 
 
 0
@@ -217,11 +217,25 @@ Aux_Header
 6
 6
 !RobotButterfly
+Batt_Header
+
+
+0
+2
+2
+!RobotButterfly
 Boostlet_v1.2
 
 
 0
 10
+10
+!RobotButterfly
+Boostlet_v1.3
+
+
+0
+11
 10
 !RobotButterfly
 DHT11_Module
@@ -252,7 +266,21 @@ Keystone-ESP_v1.1
 27
 27
 !RobotButterfly
+Keystone-ESP_v1.2
+
+
+0
+27
+27
+!RobotButterfly
 MPU6050_Module
+
+
+0
+8
+8
+!RobotButterfly
+MPU6050_Module_prev
 
 
 0
@@ -260,6 +288,13 @@ MPU6050_Module
 9
 !RobotButterfly
 Mic_Module
+
+
+0
+3
+3
+!RobotButterfly
+Mic_Module_prev
 
 
 0
@@ -279,6 +314,20 @@ Oval_1x02_P2.54mm
 0
 2
 2
+!RobotButterfly
+Oval_1x03_P2.54mm
+
+
+0
+3
+3
+!RobotButterfly
+Oval_1x04_P2.54mm
+
+
+0
+4
+4
 !RobotButterfly
 Oval_1x10_P2.54mm
 
@@ -323,6 +372,13 @@ Servo_Header
 3
 !RobotButterfly
 Switch_Header
+
+
+0
+2
+2
+!RobotButterfly
+Switch_Header_prev
 
 
 0
