@@ -95,11 +95,11 @@ https://github.com/RobotGrrl/RobotButterfly/tree/main/firmware/RobotButterflyBas
 
 ## License
 
-Boostlet! (C) Copyright Erin RobotZwrrl, Robot Missions Inc.
+Robot Butterfly (C) Copyright Erin RobotZwrrl, Robot Missions Inc.
 
-12-30-23 v1.0
+05-30-24 v1.0
 
-[RobotZwrrl.xyz/boostlet](http://RobotZwrrl.xyz/boostlet)
+[RobotZwrrl.xyz/robot-butterfly](http://RobotZwrrl.xyz/robot-butterfly)
 
 [RobotMissions.org](https://RobotMissions.org)
 
