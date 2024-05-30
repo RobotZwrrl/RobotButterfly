@@ -4,6 +4,7 @@
 
 For more information: [robotzwrrl.xyz/robot-butterfly](http://robotzwrrl.xyz/robot-butterfly/)
 
+Robot Butterfly's design files are released as open source hardware, provided under these unique terms: If you replicate it, please take a photo of it in nature and email it to me with the city and its nickname!
 
 ![Robot Butterfly](https://github.com/RobotGrrl/RobotButterfly/blob/main/robot_butterfly.jpg?raw=true)
 
