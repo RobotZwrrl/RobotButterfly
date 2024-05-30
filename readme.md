@@ -73,12 +73,12 @@ Here’s how you can upload code to your Robot Butterfly!
 There are library dependencies that will need to be downloaded
 
 Search for the following and download the library by the following authours:
-ESP32Servo (by Kevin Harrington and John K. Bennett)
-Streaming (by Mikal Hart)
-Adafruit_NeoPixel (by Adafruit)
-Bounce2 (by Thomas O Fredericks)
-HCSR04 (by Dirk Sarodnick)
-movingAvg (by Jack Christensen)
+- ESP32Servo (by Kevin Harrington and John K. Bennett)
+- Streaming (by Mikal Hart)
+- Adafruit_NeoPixel (by Adafruit)
+- Bounce2 (by Thomas O Fredericks)
+- HCSR04 (by Dirk Sarodnick)
+- movingAvg (by Jack Christensen)
 
 9. Download this sketch and open it:
 https://github.com/RobotGrrl/RobotButterfly/tree/main/firmware/RobotButterflyBasic 
