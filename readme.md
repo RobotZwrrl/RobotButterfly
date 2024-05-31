@@ -35,8 +35,8 @@ https://github.com/RobotGrrl/Keystone
 | cover_v1.0.stl            | 0.25 mm DRAFT   | None                       | 15%    | 2      | Cool!' faces up                                    |
 | spacer_back_v1.0.stl      | 0.25 mm DRAFT   | None                       | 15%    | 2      | Chamfer side down                                  |
 | spacer_front_v1.0.stl     | 0.25 mm DRAFT   | None                       | 15%    | 2      | Chamfer side down                                  |
-| wing_L_v1.0.stl           | 0.25 mm DRAFT   | None                       | 15%    | 3      | Top & bottom fill pattern: Archimedian Chords      |
-| wing_R_v1.0.stl           | 0.25 mm DRAFT   | None                       | 15%    | 3      | Top & bottom fill pattern: Archimedian Chords      |
+| wing_L_v1.0.stl           | 0.25 mm DRAFT   | None                       | 15%    | 3      | Top & bottom fill pattern: Archimedian Chords. Print 1st layer at a very slow speed.      |
+| wing_R_v1.0.stl           | 0.25 mm DRAFT   | None                       | 15%    | 3      | Top & bottom fill pattern: Archimedian Chords. Print 1st layer at a very slow speed.      |
 
 ---
 
