@@ -197,6 +197,7 @@ void updateTempHumid() {
   if(store_window) {
     
     log_previous = log_ind;
+    if(log_ind == -1) log_previous = 0; // edge case
     if(log_ind >= DATA_LOG_STORAGE-1) log_ind = -1;
     log_ind++;
     log_current = log_ind;
@@ -222,6 +223,8 @@ void updateTempHumid() {
 
 
 void analysisTempHumid() {
+
+  if(log_previous == 0 && log_current == 0) return; // not enough data yet
 
   struct DataPoint d_current = data_log[log_current];
   struct DataPoint d_previous = data_log[log_previous];
