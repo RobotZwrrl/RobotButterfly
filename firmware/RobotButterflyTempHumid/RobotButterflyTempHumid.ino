@@ -161,7 +161,15 @@ void behaviourHumidity(int delta_humid) {
 
 void updateTempHumid() {
 
-  if(sample_dht11) {
+  bool sample_dht11_copy = false;
+  bool store_window_copy = false;
+
+  noInterrupts(); // same as portDISABLE_INTERRUPTS();
+  sample_dht11_copy = sample_dht11;
+  store_window_copy = store_window;
+  interrupts(); // same as portENABLE_INTERRUPTS();
+
+  if(sample_dht11_copy) {
 
     if(dht11.readTemperatureHumidity(temp_raw, humid_raw) != 0) {
       Serial << millis() << " ERROR" << endl;
@@ -194,7 +202,7 @@ void updateTempHumid() {
 
   // store this window every 15 seconds as per timer
   // that's ~10 readings (which are done every 1.5 seconds)
-  if(store_window) {
+  if(store_window_copy) {
     
     log_previous = log_ind;
     if(log_ind == -1) log_previous = 0; // edge case
@@ -264,7 +272,7 @@ void heartbeatUpdate() {
 /*
  * Additional notes:
  * 
- * dht11 lib requires lines 52-58 in DHT11.cpp commented out
+ * dht11 lib requires TIMEOUT_DURATION = 0; in DHT11.h
  *
  * timers info
  * https://deepbluembedded.com/esp32-timers-timer-interrupt-tutorial-arduino-ide/
