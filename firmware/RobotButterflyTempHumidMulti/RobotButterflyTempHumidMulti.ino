@@ -18,6 +18,7 @@
  */
 
 #include "Board.h"
+#include "RBParams.h"
 #include <Streaming.h>
 // dht11 lib requires modifying TIMEOUT_DURATION = 0; in DHT11.h
 #include <DHT11.h>      // DHT11 library by Dhruba Saha
@@ -33,10 +34,9 @@ DHT11 dht11(DHT11_PIN);
 
 hw_timer_t *timer0_cfg = NULL;
 volatile bool updateTH = false;
-
-void IRAM_ATTR Timer0_ISR() {
-  updateTH = true;
-}
+volatile bool restartTH = false;
+volatile uint32_t restartTH_count = 0;
+uint32_t valuesTH_count = 0;
 
 struct RawDataPoint_TH {
   int temp_raw;
@@ -44,6 +44,18 @@ struct RawDataPoint_TH {
   long record_time;
 };
 struct RawDataPoint_TH raw_data_th;
+
+void IRAM_ATTR Timer0_ISR() {
+  updateTH = true;
+
+  // check that the sensor is still sending data recently
+  if(millis()-raw_data_th.record_time > 1500 && millis() > STARTUP_WAIT_TH && restartTH == false) {//SAMPLE_FREQ_TH) {
+    restartTH = true;
+    restartTH_count++;
+  }
+
+}
+
 
 long last_print;
 
@@ -65,13 +77,23 @@ void setup() {
   timerAlarmWrite(timer0_cfg, 2500, true);
   timerAlarmEnable(timer0_cfg);
 
-  // create the queue with 1 slots of 4 bytes
-  // more slots = more numbers
-	Queue_TH1 = xQueueCreate(1, sizeof(int));
-  Queue_TH2 = xQueueCreate(1, sizeof(int));
-  Queue_TH3 = xQueueCreate(1, sizeof(long));
+  initTempHumid();
 
-  //create a task that will be executed in the Task2code() function, with priority 1 and executed on core 1
+}
+
+
+void initTempHumid() {
+
+  if(Queue_TH1 == NULL && Queue_TH2 == NULL && Queue_TH3 == NULL) {
+    // create the queue with 1 slots of 4 bytes
+    // more slots = more numbers
+    Queue_TH1 = xQueueCreate(1, sizeof(int));
+    Queue_TH2 = xQueueCreate(1, sizeof(int));
+    Queue_TH3 = xQueueCreate(1, sizeof(long));
+  }
+
+  // core 0 has task watchdog enabled to protect wifi service etc
+  // core 1 does not have watchdog enabled
   xTaskCreatePinnedToCore(
                     Task_TH_code,  // task function
                     "Task_TH",     // name of task
@@ -86,22 +108,18 @@ void setup() {
 
 void Task_TH_code(void * pvParameters) {
 
-  bool DEBUG_TH = false;
-
   if(DEBUG_TH) Serial << "Task_TH_code" << endl;
 
-  // DHT11 reliably gives readings every 1.5 seconds, 
-  // as seen through validation testing
-  const TickType_t SAMPLE_FREQ_TH = 1500;  // sample dht11 every 1.5 seconds
-  TickType_t xLastWakeTime = xTaskGetTickCount();
-  
   int temp_raw = 0;
   int humid_raw = 0;
   long last_sample = 0;
+  TickType_t xLastWakeTime = xTaskGetTickCount();
   
   while(1) {
 
     if(DEBUG_TH) Serial << "Reading DHT11" << endl;
+
+    if(millis() < STARTUP_WAIT_TH) continue; // doesn't work on startup
 
     if(dht11.readTemperatureHumidity(temp_raw, humid_raw) != 0) {
       Serial << millis() << " [" << xPortGetCoreID() << "] ";
@@ -132,6 +150,9 @@ void Task_TH_code(void * pvParameters) {
     vTaskDelayUntil( &xLastWakeTime, SAMPLE_FREQ_TH );
 
   }
+
+  // task destructor prevents the task from doing damage to the other tasks in case a task jumps its stack
+  vTaskDelete(NULL);
 }
 
 
@@ -148,6 +169,15 @@ void loop() {
 
 
 void updateTempHumid() {
+
+  if(restartTH) {
+    Serial << "Restarting Task_TH " << restartTH_count << endl;
+    vTaskSuspend(Task_TH);
+    vTaskDelete(Task_TH);
+    delay(50); // necessary delay it seems, 10 ms is too short
+    initTempHumid();
+    restartTH = false;
+  }
 
   if(!updateTH) return;
 
@@ -174,8 +204,9 @@ void updateTempHumid() {
   raw_data_th.temp_raw = a;
   raw_data_th.humid_raw = b;
   raw_data_th.record_time = c;
+  valuesTH_count++;
 
-  Serial << millis() << " Received from queue: " << raw_data_th.temp_raw << ", " << raw_data_th.humid_raw << ", " << raw_data_th.record_time << endl;
+  Serial << millis() << " Received from queue (" << valuesTH_count << "): " << raw_data_th.temp_raw << ", " << raw_data_th.humid_raw << ", " << raw_data_th.record_time << endl;
   
   // flush the queues
   xQueueReset(Queue_TH1);
