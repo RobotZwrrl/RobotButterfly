@@ -2,11 +2,7 @@
  * Robot Butterfly Temperature & Humidity Multitask
  * -------------------------------------------------
  * Sample the DHT11 sensor in a separate task, transfer
- * the data via a queue, moving average filter the data, 
- * and then analyse the changes
- * 
- * Behaviour functions are called where custom 
- * animations can be added
+ * the data via a queue. Restart the task if needed.
  * 
  * Board: ESP32 Dev Module
  * CPU speed: 80 MHz
@@ -18,11 +14,10 @@
  */
 
 #include "Board.h"
-#include "RBParams.h"
+#include "Params.h"
 #include <Streaming.h>
 // dht11 lib requires modifying TIMEOUT_DURATION = 0; in DHT11.h
-#include <DHT11.h>      // DHT11 library by Dhruba Saha
-#include <movingAvg.h>  // https://github.com/JChristensen/movingAvg
+#include <DHT11.h>      // DHT11 library v2.1.0 by Dhruba Saha https://github.com/dhrubasaha08/DHT11 
 
 
 TaskHandle_t Task_TH;
