@@ -3,7 +3,7 @@
  * -------------------------------------------------
  * Sample the DHT11 sensor in a separate task, transfer
  * the data via a queue. Timer to stop and restart the 
- * task if data not received before the core 1 watchdog 
+ * task if data not received before the core 0 watchdog 
  * restarts the ESP.
  * 
  * Board: ESP32 Dev Module
