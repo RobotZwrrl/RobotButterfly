@@ -28,7 +28,7 @@ https://github.com/RobotGrrl/Keystone
 | enclosure_v1.0.stl        | 0.25 mm DRAFT   | Everwhere, Organic         | 15%    | 2      | \-                                                 |
 | neopixel_bracket_v1.0.stl | 0.25 mm DRAFT   | Everwhere, Organic         | 15%    | 3      | Prints standing up                                 |
 | battery_bracket_v1.0.stl  | 0.25 mm DRAFT   | Supports to build platform | 15%    | 2      | Hiya!' faces up, Top fill pattern: Octogram Spiral |
-| lid_v1.0.stl              | 0.25 mm DRAFT   | None                       | 15%    | 3      | \-                                                 |
+| lid_v1.1.stl              | 0.25 mm DRAFT   | None                       | 15%    | 3      | Chamfer side down                                                 |
 | servo_bracket_v1.0.stl    | 0.25 mm DRAFT   | None                       | 15%    | 2      | Prints face down                                   |
 | servo_horn_L_v1.0.stl     | 0.20 mm QUALITY | None                       | 20%    | 4      | \-                                                 |
 | servo_horn_R_v1.0.stl     | 0.20 mm QUALITY | None                       | 20%    | 4      | \-                                                 |
