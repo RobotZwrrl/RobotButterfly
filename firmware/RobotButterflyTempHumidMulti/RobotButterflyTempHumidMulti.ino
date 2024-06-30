@@ -68,9 +68,8 @@ void setup() {
   // set up timer 0 for every 0.5 second
   timer0_cfg = timerBegin(16000);
   timerAttachInterrupt(timer0_cfg, &Timer0_ISR);
-  timerWrite(timer0_cfg, 2500);
   // params: timer, tick count, auto-reload (true), reload count (0 = infinite)
-  timerAlarm(timer0_cfg, 0, true, 0);
+  timerAlarm(timer0_cfg, 2500, true, 0);
   timerStart(timer0_cfg);
 
   initTempHumid();
@@ -106,16 +105,14 @@ void Task_TH_code(void * pvParameters) {
 
   if(DEBUG_TH) Serial << "Task_TH_code" << endl;
 
-  int temp_raw = 0;
-  int humid_raw = 0;
-  long last_sample = 0;
-  TickType_t xLastWakeTime = xTaskGetTickCount();
-  
   while(1) {
 
     if(DEBUG_TH) Serial << "Reading DHT11" << endl;
 
     if(millis() < STARTUP_WAIT_TH) continue; // let sensor warm up
+
+    int temp_raw = 0;
+    int humid_raw = 0;
 
     if(dht11.readTemperatureHumidity(temp_raw, humid_raw) != 0) {
       Serial << millis() << " [" << xPortGetCoreID() << "] ";
@@ -131,7 +128,7 @@ void Task_TH_code(void * pvParameters) {
       continue;
     }
 
-    last_sample = millis();
+    long last_sample = millis();
 
     if(DEBUG_TH) Serial << millis() << " [" << xPortGetCoreID() << "] ";
     if(DEBUG_TH) Serial << "Adding to queue " << temp_raw << ", " << humid_raw << ", " << last_sample << endl;
@@ -142,7 +139,7 @@ void Task_TH_code(void * pvParameters) {
     xQueueSend(Queue_TH2, &humid_raw, (TickType_t)0);
     xQueueSend(Queue_TH3, &last_sample, (TickType_t)0);
 
-    xLastWakeTime = xTaskGetTickCount();
+    TickType_t xLastWakeTime = xTaskGetTickCount();
     vTaskDelayUntil( &xLastWakeTime, SAMPLE_FREQ_TH );
 
   }
