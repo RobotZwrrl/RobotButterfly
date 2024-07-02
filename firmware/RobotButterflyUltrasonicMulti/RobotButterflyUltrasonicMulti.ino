@@ -137,6 +137,7 @@ void Task_US_code(void * pvParameters) {
     xQueueSend(Queue_US2, &neo_map, (TickType_t)0);
     xQueueSend(Queue_US3, &last_sample, (TickType_t)0);
 
+    if(DEBUG_US) Serial << "task delay now" << endl;
     vTaskDelay(1);
     TickType_t xLastWakeTime = xTaskGetTickCount();
     vTaskDelayUntil( &xLastWakeTime, SAMPLE_FREQ_US );
@@ -170,13 +171,46 @@ void loop() {
 }
 
 
+
+// /** Task states returned by eTaskGetState. */
+// typedef enum
+// {
+//     eRunning = 0,     /* A task is querying the state of itself, so must be running. */
+//     eReady,           /* The task being queried is in a read or pending ready list. */
+//     eBlocked,         /* The task being queried is in the Blocked state. */
+//     eSuspended,       /* The task being queried is in the Suspended state, or is in the Blocked state with an infinite time out. */
+//     eDeleted,         /* The task being queried has been deleted, but its TCB has not yet been freed. */
+//     eInvalid          /* Used as an 'invalid state' value. */
+// } eTaskState;
+
 void updateUltrasonic() {
 
   if(restartUS) {
     Serial << "Restarting Task_US " << restartUS_count << endl;
+    
+    eTaskState ts = eTaskGetState(Task_US);
+    Serial << "state: " << ts << endl;
+    Serial << "step A" << endl;
     xTaskAbortDelay(Task_US);
+
+    ts = eTaskGetState(Task_US);
+    Serial << "state: " << ts << endl;
+    Serial << "step B1" << endl;
+    vTaskSuspend(Task_US);
+
+    ts = eTaskGetState(Task_US);
+    Serial << "state: " << ts << endl;
+    Serial << "step B2" << endl;
     vTaskDelete(Task_US);
+
+    ts = eTaskGetState(Task_US);
+    Serial << "state: " << ts << endl;
+    Serial << "step C" << endl;
     initUltrasonic();
+
+    ts = eTaskGetState(Task_US);
+    Serial << "state: " << ts << endl;
+    Serial << "step D" << endl;
     restartUS = false;
   }
 
