@@ -20,6 +20,9 @@
 #include "Params.h"
 #include <Streaming.h>
 #include <HCSR04.h>     // HCSR04 library v1.1.2 by Dirk Sarodnick https://github.com/d03n3rfr1tz3/HC-SR04 
+#include "esp_task_wdt.h" // this is included to feed the dog
+#include "soc/timer_group_struct.h" // this is included to write to the wdt registers directly
+#include "soc/timer_group_reg.h" // this is included to write to the wdt registers directly
 
 TaskHandle_t Task_US;
 QueueHandle_t Queue_US1;
@@ -44,7 +47,9 @@ void IRAM_ATTR Timer0_ISR() {
   updateUS = true;
 
   // check that the sensor is still sending data recently
-  if(millis()-raw_us.record_time > CHECK_FREQ_US && millis() > STARTUP_WAIT_US && restartUS == false) {
+  if(millis()-raw_us.record_time > CHECK_FREQ_US && 
+     millis() > STARTUP_WAIT_US && 
+     restartUS == false) {
     restartUS = true;
     restartUS_count++;
   }
@@ -83,12 +88,14 @@ void initUltrasonic() {
     Queue_US3 = xQueueCreate(1, sizeof(long));
   }
 
+  //disableCore0WDT(); // can do this if we want
+
   // core 0 has task watchdog enabled to protect wifi service etc
   // core 1 does not have watchdog enabled
   xTaskCreatePinnedToCore(
                     Task_US_code,  // task function
                     "Task_US",     // name of task
-                    2056,          // stack size of task
+                    5000,          // stack size of task
                     NULL,          // parameter of the task
                     1,             // priority of the task
                     &Task_US,      // task handle to keep track of created task
@@ -165,6 +172,7 @@ void loop() {
     char c = Serial.read();
     if(c == 'r') {
       restartUS = true;
+      Serial << "\r\n\r\n\r\n" << endl;
     }
   }
 
@@ -186,22 +194,85 @@ void loop() {
 void updateUltrasonic() {
 
   if(restartUS) {
+
+    if(Task_US == NULL) {
+      Serial << "Restarting Task_US" << endl;
+      initUltrasonic();
+      Serial << "\r\n\r\n\r\n" << endl;
+      restartUS = false;
+      return;
+    }
+
+    eTaskState ts = eTaskGetState(Task_US);
+    Serial << millis() << " Task_US state: " << ts << endl;
+    if(ts == eDeleted) { // deleted
+      Serial << "Restarting Task_US" << endl;
+      initUltrasonic();
+      Serial << "\r\n\r\n\r\n" << endl;
+      restartUS = false;
+      return;
+    } else if(ts == eBlocked || ts == eSuspended) { // suspended or blocked
+      // 8681 Task_US state: 2
+      // Deleting Task_US
+      // ^ crash
+      Serial << "Deleting Task_US" << endl;
+      vTaskDelete(Task_US);
+      Task_US == NULL;
+      restartUS = false;
+      return;
+    // } else if(ts == 2) { // blocked
+    //   // not sure what to do here
+    //   // 27729 Task_US state: 2
+    //   // Suspending Task_US
+    //   // ^ this is when it crash
+    //   // maybe try doing nothing and see what happens?
+    //   // could be a good time to feed the watchdog
+    //   Serial << "Doing nothing Task_US" << endl;
+    //   restartUS = false;
+    } else { // other
+      Serial << "Suspending Task_US" << endl;
+      //102524 Task_US state: 0
+      //Suspending Task_US
+      // ^ crash
+      // 9321 Task_US state: 1
+      // Suspending Task_US
+      // ^ crash
+      vTaskSuspend(Task_US);
+    }
+
+    /*
     Serial << "Restarting Task_US " << restartUS_count << endl;
     
+    // notes:
+    // this is the correct way to feed the dog
+    // this method will not work if there are any other threads,
+    // because it checks to make sure all threads have called 
+    // esp_task_wdt_reset() recently, and only feeds the dog 
+    // if so
+    // via: https://forum.arduino.cc/t/esp32-a-better-way-than-vtaskdelay-to-get-around-watchdog-crash/596889/13
+    // esp_task_wdt_reset();
+
     eTaskState ts = eTaskGetState(Task_US);
     Serial << "state: " << ts << endl;
-    Serial << "step A" << endl;
-    xTaskAbortDelay(Task_US);
 
-    ts = eTaskGetState(Task_US);
-    Serial << "state: " << ts << endl;
-    Serial << "step B1" << endl;
-    vTaskSuspend(Task_US);
+    // check if the task was able to delete itself
+    if(ts < 4) { 
+      Serial << "step A" << endl;
+      xTaskAbortDelay(Task_US);
 
-    ts = eTaskGetState(Task_US);
-    Serial << "state: " << ts << endl;
-    Serial << "step B2" << endl;
-    vTaskDelete(Task_US);
+      ts = eTaskGetState(Task_US);
+      Serial << "state: " << ts << endl;
+      Serial << "step B1" << endl;
+      vTaskSuspend(Task_US);
+
+      ts = eTaskGetState(Task_US);
+      Serial << "state: " << ts << endl;
+      Serial << "step B2" << endl;
+      vTaskDelete(Task_US);
+
+      ts = eTaskGetState(Task_US);
+      Serial << "state: " << ts << endl;
+    }
 
     ts = eTaskGetState(Task_US);
     Serial << "state: " << ts << endl;
@@ -211,7 +282,9 @@ void updateUltrasonic() {
     ts = eTaskGetState(Task_US);
     Serial << "state: " << ts << endl;
     Serial << "step D" << endl;
+
     restartUS = false;
+    */
   }
 
   //if(!updateUS) return; // not needed, this updates continuously
@@ -253,4 +326,20 @@ void updateUltrasonic() {
 
 }
 
+
+// source: https://forum.arduino.cc/t/esp32-a-better-way-than-vtaskdelay-to-get-around-watchdog-crash/596889/13
+void feedTheDog() {
+  // feed dog 0
+  // TIMERG0.wdtwprotect=TIMG_WDT_WKEY_VALUE; // write enable
+
+  // const timg_wdtfeed_reg_t wdtfeed_val;
+  // wdtfeed_val.val = 1;
+
+  // TIMERG0.wdtfeed=wdtfeed_val;    // feed dog
+  //TIMERG0.wdtwprotect=(timg_wdtwprotect_reg_t)0;                   // write protect
+  // // feed dog 1
+  // TIMERG1.wdtwprotect=TIMG_WDT_WKEY_VALUE; // write enable
+  // TIMERG1.wdtfeed=1;                       // feed dog
+  // TIMERG1.wdtwprotect=0;                   // write protect
+}
 
