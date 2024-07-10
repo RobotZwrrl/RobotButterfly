@@ -7,3 +7,6 @@
 #define STACK_SM         16000   // Task_US stack size
 #define DIST_MIN         5      // cm
 #define DIST_MAX         30     // cm
+
+
+#define LUT_PARAMS 4

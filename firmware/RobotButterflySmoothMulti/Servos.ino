@@ -59,7 +59,7 @@ void initServos() {
   if(Queue_SM1 == NULL && Queue_SM2 == NULL && Queue_SM3 == NULL) {
     // create the queue with 1 slots of 4 bytes
     // more slots = more numbers
-    Queue_SM1 = xQueueCreate(1, sizeof(Animation));
+    Queue_SM1 = xQueueCreate(1, sizeof(Keyframe));
     Queue_SM2 = xQueueCreate(1, sizeof(uint8_t));
     Queue_SM3 = xQueueCreate(1, sizeof(uint8_t));
   }
@@ -95,7 +95,7 @@ void Task_SM_code(void * pvParameters) {
 
     // check the queues
     uint8_t ready = 0;
-    struct Keyframe Anim[ANIM_MAX];
+    struct Keyframe Anim;
     uint8_t anim_steps;
     uint8_t anim_index;
 
@@ -113,7 +113,7 @@ void Task_SM_code(void * pvParameters) {
 
       if(DEBUG_SM) Serial << millis() << " [" << xPortGetCoreID() << "] ";
       if(DEBUG_SM) Serial << millis() << " Received from queue SM (" << valuesSM_count << "): " << anim_steps << ", " << anim_index << endl;
-      if(DEBUG_SM) Serial << "Frame 1 dwell time: " << Anim[0].dwell << endl;
+      if(DEBUG_SM) Serial << "Frame 1 dwell time: " << Anim.dwell << endl;
       if(DEBUG_SM) Serial << "Lol 1 dwell time: " << Animation[0].dwell << endl;
       if(DEBUG_SM) Serial << "Lolb 1 dwell time: " << HomeFrames[0].dwell << endl;
 
@@ -125,7 +125,7 @@ void Task_SM_code(void * pvParameters) {
 
     // -------------------------- part 2
 
-    if(Anim[anim_index].moving) {
+    if(Anim.moving) {
       if(DEBUG_SM) Serial << "moving" << endl;
     } else {
       if(DEBUG_SM) Serial << "not moving" << endl;
@@ -133,32 +133,32 @@ void Task_SM_code(void * pvParameters) {
 
 
     // dwell wait at the end of the frame
-    if(millis()-Anim[anim_index].start >= Anim[anim_index].dwell) {
+    if(millis()-Anim.start >= Anim.dwell) {
       // done! move to next frame
       if(DEBUG_SM) Serial << "Animation done dwell" << endl;
-      Anim[anim_index].moving = false;
+      Anim.moving = false;
       anim_index++;
       if(anim_index >= anim_steps) {
         anim_index = 0;
       }
     }
 
-    if(Anim[anim_index].moving == false) {
+    if(Anim.moving == false) {
 
       if(DEBUG_SM) Serial << "Animation frame " << anim_index << " start" << endl;
 
-      if(Anim[anim_index].servo_L != 9999) {
+      if(Anim.servo_L != 9999) {
         wing_left.current_pos = Anim[anim_index].servo_L;
         //wing_left.motor.startEaseTo(wing_left.current_pos, Anim[flap_index].velocity);
       }
 
-      if(Anim[anim_index].servo_R != 9999) {
-        wing_right.current_pos = Anim[anim_index].servo_R;
+      if(Anim.servo_R != 9999) {
+        wing_right.current_pos = Anim.servo_R;
         //wing_right.motor.startEaseTo(wing_right.current_pos, Anim[flap_index].velocity);
       }
 
-      Anim[anim_index].moving = true;
-      Anim[anim_index].start = millis();
+      Anim.moving = true;
+      Anim.start = millis();
 
       //TickType_t xLastWakeTime = xTaskGetTickCount();
       //vTaskDelayUntil( &xLastWakeTime, Anim[anim_index].dwell );

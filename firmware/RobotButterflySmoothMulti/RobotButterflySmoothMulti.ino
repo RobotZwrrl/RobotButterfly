@@ -65,20 +65,15 @@ struct Keyframe {
   bool moving;
 };
 
-struct Keyframe *allocateFrames(int count) {
-  struct Keyframe *frames = (struct Keyframe *)malloc(sizeof(struct Keyframe)*count);
-  return frames;
-}
+struct Animation {
+  uint8_t index;
+  uint8_t steps;
+  bool repeat;
+  bool active;
+  uint8_t id;
+};
 
-const uint8_t flap_steps = 2;
-uint8_t flap_index = 0;
-struct Keyframe *FlapFrames = allocateFrames(flap_steps);
 
-const uint8_t home_steps = 1;
-uint8_t home_index = 0;
-struct Keyframe *HomeFrames = allocateFrames(home_steps);
-
-struct Keyframe *Animation = allocateFrames(ANIM_MAX);
 // ----------------------------------
 
 void IRAM_ATTR Timer0_ISR() {

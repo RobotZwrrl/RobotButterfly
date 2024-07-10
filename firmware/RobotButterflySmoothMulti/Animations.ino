@@ -1,36 +1,9 @@
-void animationGentleFlap() {
 
-  // dwell wait at the end of the frame
-  if(millis()-FlapFrames[flap_index].start >= FlapFrames[flap_index].dwell) {
-    // done! move to next frame
-    if(DEBUG_ANIM) Serial << "Animation done dwell" << endl;
-    FlapFrames[flap_index].moving = false;
-    flap_index++;
-    if(flap_index >= flap_steps) {
-      flap_index = 0;
-    }
-  }
-
-  if(FlapFrames[flap_index].moving == false) {
-
-    if(DEBUG_ANIM) Serial << "Animation frame " << flap_index << " start" << endl;
-
-    if(FlapFrames[flap_index].servo_L != 9999) {
-      wing_left.current_pos = FlapFrames[flap_index].servo_L;
-    }
-
-    if(FlapFrames[flap_index].servo_R != 9999) {
-      wing_right.current_pos = FlapFrames[flap_index].servo_R;
-    }
-
-    FlapFrames[flap_index].moving = true;
-    FlapFrames[flap_index].start = millis();
-    wing_left.motor.startEaseTo(wing_left.current_pos, FlapFrames[flap_index].velocity);
-    wing_right.motor.startEaseTo(wing_right.current_pos, FlapFrames[flap_index].velocity);
-
-  }
-
-}
+const uint8_t num_frames1 = 2;
+int example_lut1[num_frames1][LUT_PARAMS] = {
+  {2500, 2500, 30, 1000},
+  {2000, 2000, 30, 1000}
+};
 
 
 void initAnimations() {
@@ -66,7 +39,20 @@ void initAnimations() {
 }
 
 
-void loadAnimation(struct Keyframe *a, uint8_t steps, uint8_t index) {
+
+void loadAnimation(struct Animation *a, int[][] lut, uint8_t steps) {
+
+  struct Keyframe f;
+
+  f.servo_L = lut[index][0];
+  f.servo_R = lut[index][1];
+  f.velocity = lut[index][2];
+  f.dwell = lut[index][3];
+
+  
+
+
+  
 
   // reset the animation first
   if(DEBUG_ANIM) Serial << "resetting animation" << endl;
@@ -95,12 +81,50 @@ void loadAnimation(struct Keyframe *a, uint8_t steps, uint8_t index) {
 
   // send it to the queue
   // time of 0 says don't block if the queue is already full
-  // TODO: check if queue is null
   if(DEBUG_ANIM) Serial << "sending animation to queue" << endl;
-  if(Queue_SM1 != NULL) xQueueSend(Queue_SM1, &Animation, (TickType_t)0);
+  if(Queue_SM1 != NULL) xQueueSend(Queue_SM1, &a, (TickType_t)0);
+  if(Queue_SM1 != NULL) xQueueSend(Queue_SM1, &f, (TickType_t)0);
   if(Queue_SM2 != NULL) xQueueSend(Queue_SM2, &steps, (TickType_t)0);
   if(Queue_SM3 != NULL) xQueueSend(Queue_SM3, &index, (TickType_t)0);
 
 }
 
+
+
+
+
+
+void animationGentleFlap() {
+
+  // dwell wait at the end of the frame
+  if(millis()-FlapFrames[flap_index].start >= FlapFrames[flap_index].dwell) {
+    // done! move to next frame
+    if(DEBUG_ANIM) Serial << "Animation done dwell" << endl;
+    FlapFrames[flap_index].moving = false;
+    flap_index++;
+    if(flap_index >= flap_steps) {
+      flap_index = 0;
+    }
+  }
+
+  if(FlapFrames[flap_index].moving == false) {
+
+    if(DEBUG_ANIM) Serial << "Animation frame " << flap_index << " start" << endl;
+
+    if(FlapFrames[flap_index].servo_L != 9999) {
+      wing_left.current_pos = FlapFrames[flap_index].servo_L;
+    }
+
+    if(FlapFrames[flap_index].servo_R != 9999) {
+      wing_right.current_pos = FlapFrames[flap_index].servo_R;
+    }
+
+    FlapFrames[flap_index].moving = true;
+    FlapFrames[flap_index].start = millis();
+    wing_left.motor.startEaseTo(wing_left.current_pos, FlapFrames[flap_index].velocity);
+    wing_right.motor.startEaseTo(wing_right.current_pos, FlapFrames[flap_index].velocity);
+
+  }
+
+}
 
