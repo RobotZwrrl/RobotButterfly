@@ -20,6 +20,7 @@
 #include "Params.h"
 #include <Streaming.h>
 #include <ESP32Servo.h> //3.0.5 by Kevin Harrington, John K. Bennett
+#define REFRESH_INTERVAL 0 // define this before including the ServoEasing library
 #include "ServoEasing.hpp"
 
 hw_timer_t *timer0_cfg = NULL;
@@ -28,9 +29,8 @@ long last_print;
 
 // ----------- servos -----------
 TaskHandle_t Task_SM;
-QueueHandle_t Queue_SM1;
-QueueHandle_t Queue_SM2;
-QueueHandle_t Queue_SM3;
+static QueueHandle_t Queue_SM1;   // struct Animation
+static QueueHandle_t Queue_SM2;   // uint8_t ANIM_STATE
 
 uint16_t valuesSM_count = 0;
 
@@ -56,24 +56,22 @@ bool initialised_servos = false;
 // ----------------------------------
 
 // ----------- animation -----------
-struct Keyframe {
-  uint16_t servo_L;
-  uint16_t servo_R;
-  uint8_t velocity; // degrees per second
-  uint16_t dwell; // milliseconds
-  long start;
-  bool moving;
-};
-
 struct Animation {
-  uint8_t index;
-  uint8_t steps;
-  bool repeat;
-  bool active;
   uint8_t id;
+  uint16_t servo_L[ANIM_MAX];
+  uint16_t servo_R[ANIM_MAX];
+  uint8_t velocity[ANIM_MAX]; // degrees per second
+  uint16_t dwell[ANIM_MAX];   // milliseconds
+  long start;
+  bool active;
+  uint8_t frames;
+  uint8_t index;
+  bool loop;
+  bool reverse;
 };
 
-
+struct Animation GentleFlap;
+struct Animation HomeFrame;
 // ----------------------------------
 
 void IRAM_ATTR Timer0_ISR() {
@@ -95,7 +93,6 @@ void setup() {
 
   initAnimations();
   initServos(); // this also inits the queues
-  loadAnimation(HomeFrames, home_steps, home_index);
 
   Serial << "Ready" << endl;
 
@@ -118,14 +115,18 @@ void loop() {
         initServos();
       break;
       case '1':
-        loadAnimation(FlapFrames, flap_steps, flap_index);
-        Serial << "dwell time set: " << FlapFrames[0].dwell << endl;
+        Serial << "dwell time set: " << GentleFlap.dwell[0] << endl;
+        sendAnimation(&GentleFlap, 1);
       break;
       case '2':
-        loadAnimation(HomeFrames, home_steps, home_index);
-        Serial << "dwell time set: " << HomeFrames[0].dwell << endl;
+        Serial << "dwell time set: " << HomeFrame.dwell[0] << endl;
+        sendAnimation(&HomeFrame, 1);
       break;
       case '3':
+      break;
+      case 's':
+        Serial << "stop" << endl;
+        sendAnimation(&HomeFrame, 0);
       break;
     }
   }

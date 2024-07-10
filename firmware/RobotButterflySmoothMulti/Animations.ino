@@ -6,40 +6,74 @@ int example_lut1[num_frames1][LUT_PARAMS] = {
 };
 
 
+// TODO
+// params: lut, info for struct
+// returns: Animation struct
+void newAnimation() {
+  // TODO
+}
+
+
 void initAnimations() {
 
   // --------------------------------------------
 
-  uint16_t flap_offset = 500;
+  const uint16_t flap_offset = 500;
+  GentleFlap.id = 0;
+  GentleFlap.frames = 2;
+  GentleFlap.start = 0;
+  GentleFlap.active = false;
+  GentleFlap.index = 0;
+  GentleFlap.loop = true;
+  GentleFlap.reverse = false;
 
   // frame 0: up (closed) to down (open)
-  FlapFrames[0].servo_L = SERVO_LEFT_HOME+flap_offset; 
-  FlapFrames[0].servo_R = SERVO_RIGHT_HOME-flap_offset; 
-  FlapFrames[0].velocity = 30;
-  FlapFrames[0].dwell = 100;
-  FlapFrames[0].moving = false;
-
+  GentleFlap.servo_L[0] = SERVO_LEFT_HOME+flap_offset;
+  GentleFlap.servo_R[0] = SERVO_RIGHT_HOME-flap_offset;
+  GentleFlap.velocity[0] = 30;
+  GentleFlap.dwell[0] = 100;
+  
   // frame 1: down (open) to up (closed)
-  FlapFrames[1].servo_L = SERVO_LEFT_UP; 
-  FlapFrames[1].servo_R = SERVO_RIGHT_UP; 
-  FlapFrames[1].velocity = 30;
-  FlapFrames[1].dwell = 250;
-  FlapFrames[1].moving = false;
+  GentleFlap.servo_L[1] = SERVO_LEFT_UP;
+  GentleFlap.servo_R[1] = SERVO_RIGHT_UP;
+  GentleFlap.velocity[1] = 30;
+  GentleFlap.dwell[1] = 250;
 
   // --------------------------------------------
 
-  HomeFrames[0].servo_L = SERVO_LEFT_HOME; 
-  HomeFrames[0].servo_R = SERVO_RIGHT_HOME; 
-  HomeFrames[0].velocity = 30;
-  HomeFrames[0].dwell = 1000;
-  HomeFrames[0].moving = false;
+  HomeFrame.id = 2;
+  HomeFrame.frames = 1;
+  HomeFrame.start = 0;
+  HomeFrame.active = false;
+  HomeFrame.index = 0;
+  HomeFrame.loop = true;
+  HomeFrame.reverse = false;
 
+  HomeFrame.servo_L[0] = SERVO_LEFT_HOME; 
+  HomeFrame.servo_R[0] = SERVO_RIGHT_HOME; 
+  HomeFrame.velocity[0] = 30;
+  HomeFrame.dwell[0] = 1000;
+  
   // --------------------------------------------
 
 }
 
 
+void sendAnimation(struct Animation *a, uint8_t state) {
 
+  //struct Animation *structPtr = &GentleFlap; // this works
+
+  // send it to the queue
+  // time of 0 says don't block if the queue is already full
+  if(DEBUG_ANIM) Serial << "sending animation to queue" << endl;
+  //if(Queue_SM1 != NULL) xQueueSend(Queue_SM1, (void *)&structPtr, (TickType_t)0); // this works
+  if(Queue_SM1 != NULL) xQueueSend(Queue_SM1, (void *)&a, (TickType_t)0);
+  if(Queue_SM2 != NULL) xQueueSend(Queue_SM2, (void *)&state, (TickType_t)0);
+
+}
+
+
+/*
 void loadAnimation(struct Animation *a, int[][] lut, uint8_t steps) {
 
   struct Keyframe f;
@@ -83,17 +117,14 @@ void loadAnimation(struct Animation *a, int[][] lut, uint8_t steps) {
   // time of 0 says don't block if the queue is already full
   if(DEBUG_ANIM) Serial << "sending animation to queue" << endl;
   if(Queue_SM1 != NULL) xQueueSend(Queue_SM1, &a, (TickType_t)0);
-  if(Queue_SM1 != NULL) xQueueSend(Queue_SM1, &f, (TickType_t)0);
-  if(Queue_SM2 != NULL) xQueueSend(Queue_SM2, &steps, (TickType_t)0);
-  if(Queue_SM3 != NULL) xQueueSend(Queue_SM3, &index, (TickType_t)0);
-
+  
 }
+*/
 
 
 
 
-
-
+/*
 void animationGentleFlap() {
 
   // dwell wait at the end of the frame
@@ -127,4 +158,4 @@ void animationGentleFlap() {
   }
 
 }
-
+*/

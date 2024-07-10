@@ -56,12 +56,11 @@ void initServos() {
     initialised_servos = true;
   }
 
-  if(Queue_SM1 == NULL && Queue_SM2 == NULL && Queue_SM3 == NULL) {
+  if(Queue_SM1 == NULL && Queue_SM2 == NULL) {
     // create the queue with 1 slots of 4 bytes
     // more slots = more numbers
-    Queue_SM1 = xQueueCreate(1, sizeof(Keyframe));
+    Queue_SM1 = xQueueCreate(1, sizeof(struct Animation));
     Queue_SM2 = xQueueCreate(1, sizeof(uint8_t));
-    Queue_SM3 = xQueueCreate(1, sizeof(uint8_t));
   }
   
   //disableCore0WDT();
@@ -95,77 +94,76 @@ void Task_SM_code(void * pvParameters) {
 
     // check the queues
     uint8_t ready = 0;
-    struct Keyframe Anim;
-    uint8_t anim_steps;
-    uint8_t anim_index;
-
+    struct Animation *Anim;
+    uint8_t ANIM_STATE;
+    
     // check the queues
     if(uxQueueMessagesWaiting(Queue_SM1) > 0) ready++;
     if(uxQueueMessagesWaiting(Queue_SM2) > 0) ready++;
-    if(uxQueueMessagesWaiting(Queue_SM3) > 0) ready++;
     
-    if(ready >= 3) {
+    if(ready >= 2) {
       // read the queues
       xQueueReceive(Queue_SM1, &Anim, 0);
-      xQueueReceive(Queue_SM2, &anim_steps, 0);
-      xQueueReceive(Queue_SM3, &anim_index, 0);
+      xQueueReceive(Queue_SM2, &ANIM_STATE, 0);
       valuesSM_count++;
 
       if(DEBUG_SM) Serial << millis() << " [" << xPortGetCoreID() << "] ";
-      if(DEBUG_SM) Serial << millis() << " Received from queue SM (" << valuesSM_count << "): " << anim_steps << ", " << anim_index << endl;
-      if(DEBUG_SM) Serial << "Frame 1 dwell time: " << Anim.dwell << endl;
-      if(DEBUG_SM) Serial << "Lol 1 dwell time: " << Animation[0].dwell << endl;
-      if(DEBUG_SM) Serial << "Lolb 1 dwell time: " << HomeFrames[0].dwell << endl;
+      if(DEBUG_SM) Serial << " Received from queue SM (" << valuesSM_count << ") ANIM_STATE: " << ANIM_STATE << endl;
+      if(DEBUG_SM) Serial << "Frame 0 dwell time: " << Anim->dwell[0] << endl;
+      if(DEBUG_SM) Serial << "Actual 0 dwell time: " << GentleFlap.dwell[0] << endl;
+      if(DEBUG_SM) Serial << "Frame 0 servo L: " << Anim->servo_L[0] << endl;
+      if(DEBUG_SM) Serial << "Actual 0 servo L: " << GentleFlap.servo_L[0] << endl;
 
       // flush the queues
       xQueueReset(Queue_SM1);
       xQueueReset(Queue_SM2);
-      xQueueReset(Queue_SM3);
     }
 
     // -------------------------- part 2
 
-    if(Anim.moving) {
-      if(DEBUG_SM) Serial << "moving" << endl;
-    } else {
-      if(DEBUG_SM) Serial << "not moving" << endl;
+    // state check: 1 = go, 0 = stop
+    if(ANIM_STATE == 0) {
+      continue;
     }
-
 
     // dwell wait at the end of the frame
-    if(millis()-Anim.start >= Anim.dwell) {
+    if(millis()-Anim->start >= Anim->dwell[Anim->index]) {
       // done! move to next frame
-      if(DEBUG_SM) Serial << "Animation done dwell" << endl;
-      Anim.moving = false;
-      anim_index++;
-      if(anim_index >= anim_steps) {
-        anim_index = 0;
+      if(DEBUG_SM) Serial << millis() << " Animation done dwell" << endl;
+      Anim->active = false;
+      Anim->index++;
+      if(Anim->index >= Anim->frames) {
+        Anim->index = 0;
       }
     }
 
-    if(Anim.moving == false) {
+    // servo update
+    if(Anim->active == true) {
+      do {
+        delay(20); // optional 20ms delay
+      } while (!updateAllServos());
+    }
 
-      if(DEBUG_SM) Serial << "Animation frame " << anim_index << " start" << endl;
+    // set the target positions
+    if(Anim->active == false) {
 
-      if(Anim.servo_L != 9999) {
-        wing_left.current_pos = Anim[anim_index].servo_L;
-        //wing_left.motor.startEaseTo(wing_left.current_pos, Anim[flap_index].velocity);
+      if(DEBUG_SM) Serial << millis() << " Animation frame " << Anim->index << " start" << endl;
+
+      if(Anim->servo_L[Anim->index] != 9999) {
+        if(DEBUG_SM) Serial << "Servo L: " << Anim->servo_L[Anim->index] << endl;
+        wing_left.motor.setEaseTo(Anim->servo_L[Anim->index], Anim->velocity[Anim->index]);
       }
 
-      if(Anim.servo_R != 9999) {
-        wing_right.current_pos = Anim.servo_R;
-        //wing_right.motor.startEaseTo(wing_right.current_pos, Anim[flap_index].velocity);
+      if(Anim->servo_R[Anim->index] != 9999) {
+        if(DEBUG_SM) Serial << "Servo R: " << Anim->servo_R[Anim->index] << endl;
+        wing_right.motor.setEaseTo(Anim->servo_R[Anim->index], Anim->velocity[Anim->index]);
       }
 
-      Anim.moving = true;
-      Anim.start = millis();
-
-      //TickType_t xLastWakeTime = xTaskGetTickCount();
-      //vTaskDelayUntil( &xLastWakeTime, Anim[anim_index].dwell );
-      
+      synchronizeAllServosAndStartInterrupt(false);
+      Anim->active = true;
+      Anim->start = millis();
     }
     
-    //if(DEBUG_SM) Serial << "Task_SM delay now" << endl;
     vTaskDelay(1);
   }
 
