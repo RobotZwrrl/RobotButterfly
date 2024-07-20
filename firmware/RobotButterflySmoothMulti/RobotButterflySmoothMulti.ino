@@ -19,8 +19,8 @@
 #include "Board.h"
 #include "Params.h"
 #include <Streaming.h>
-#include <ESP32Servo.h> //3.0.5 by Kevin Harrington, John K. Bennett
-#define REFRESH_INTERVAL 0 // define this before including the ServoEasing library
+#include <ESP32Servo.h> // 3.0.5 by Kevin Harrington, John K. Bennett
+#define REFRESH_INTERVAL 1 // define this before including the ServoEasing library
 #include "ServoEasing.hpp"
 
 hw_timer_t *timer0_cfg = NULL;
@@ -115,14 +115,10 @@ void loop() {
         initServos();
       break;
       case '1':
-        Serial << "dwell time set: " << GentleFlap.dwell[0] << endl;
         sendAnimation(&GentleFlap, 1);
       break;
       case '2':
-        Serial << "dwell time set: " << HomeFrame.dwell[0] << endl;
         sendAnimation(&HomeFrame, 1);
-      break;
-      case '3':
       break;
       case 's':
         Serial << "stop" << endl;

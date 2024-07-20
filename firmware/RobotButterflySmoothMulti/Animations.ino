@@ -59,7 +59,10 @@ void initAnimations() {
 }
 
 
+// state: 1 = go, 0 = stop
 void sendAnimation(struct Animation *a, uint8_t state) {
+
+  Serial << "sending animation to queue" << endl;
 
   //struct Animation *structPtr = &GentleFlap; // this works
 

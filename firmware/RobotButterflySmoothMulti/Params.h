@@ -1,3 +1,5 @@
+#define REFRESH_INTERVAL_MILLIS 20 // delay while waiting for servos to complete their movement
+
 #define DEBUG_ANIM true
 #define ANIM_MAX       20 // max number of animation frames
 

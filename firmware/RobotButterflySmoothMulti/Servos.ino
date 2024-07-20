@@ -15,6 +15,14 @@ void moveBothWings() {
   // TODO
 }
 
+void animationDone() {
+  // TODO
+}
+
+void frameDone() {
+  // TODO
+}
+
 
 void initServos() {
 
@@ -109,10 +117,10 @@ void Task_SM_code(void * pvParameters) {
 
       if(DEBUG_SM) Serial << millis() << " [" << xPortGetCoreID() << "] ";
       if(DEBUG_SM) Serial << " Received from queue SM (" << valuesSM_count << ") ANIM_STATE: " << ANIM_STATE << endl;
-      if(DEBUG_SM) Serial << "Frame 0 dwell time: " << Anim->dwell[0] << endl;
-      if(DEBUG_SM) Serial << "Actual 0 dwell time: " << GentleFlap.dwell[0] << endl;
-      if(DEBUG_SM) Serial << "Frame 0 servo L: " << Anim->servo_L[0] << endl;
-      if(DEBUG_SM) Serial << "Actual 0 servo L: " << GentleFlap.servo_L[0] << endl;
+      // if(DEBUG_SM) Serial << "Frame 0 dwell time: " << Anim->dwell[0] << endl;
+      // if(DEBUG_SM) Serial << "Actual 0 dwell time: " << GentleFlap.dwell[0] << endl;
+      // if(DEBUG_SM) Serial << "Frame 0 servo L: " << Anim->servo_L[0] << endl;
+      // if(DEBUG_SM) Serial << "Actual 0 servo L: " << GentleFlap.servo_L[0] << endl;
 
       // flush the queues
       xQueueReset(Queue_SM1);
@@ -139,8 +147,10 @@ void Task_SM_code(void * pvParameters) {
 
     // servo update
     if(Anim->active == true) {
+      // source: https://github.com/ArminJo/ServoEasing/blob/bf7dedab267e11fc44b130e04542a2b7f4118343/examples/ThreeServos/ThreeServos.ino#L154
       do {
-        delay(20); // optional 20ms delay
+        vTaskDelay( REFRESH_INTERVAL_MILLIS / portTICK_PERIOD_MS );
+        //delay(20); // optional 20ms delay
       } while (!updateAllServos());
     }
 
