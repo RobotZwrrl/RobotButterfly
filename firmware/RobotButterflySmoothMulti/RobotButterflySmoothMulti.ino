@@ -11,7 +11,7 @@
  * Upload speed: 115200 baud
  * esp boards package: v 3.0.2
  *
- * 6 Jul 2024 - Erin RobotZwrrl for Robot Missions Inc
+ * 20 Jul 2024 - Erin RobotZwrrl for Robot Missions Inc
  * http://robotzwrrl.xyz/robot-butterfly
  * http://robotmissions.org
  */
@@ -23,12 +23,16 @@
 #define REFRESH_INTERVAL 1 // define this before including the ServoEasing library
 #include "ServoEasing.hpp"
 
-hw_timer_t *timer0_cfg = NULL;
+
 long last_print;
 
 
 // ----------- servos -----------
-TaskHandle_t Task_SM;
+static SemaphoreHandle_t semaphore_anim_frame;
+static SemaphoreHandle_t semaphore_anim_loop;
+static SemaphoreHandle_t semaphore_anim_done;
+
+static TaskHandle_t Task_SM;
 static QueueHandle_t Queue_SM1;   // struct Animation
 static QueueHandle_t Queue_SM2;   // uint8_t ANIM_STATE
 
@@ -68,14 +72,23 @@ struct Animation {
   uint8_t index;
   bool loop;
   bool reverse;
+  bool done;
 };
 
 struct Animation GentleFlap;
 struct Animation HomeFrame;
 // ----------------------------------
 
-void IRAM_ATTR Timer0_ISR() {
-  //updateUS = true;
+
+// 
+
+hw_timer_t *timer1_cfg = NULL;
+volatile bool callback_anim_frame = false;
+volatile bool callback_anim_loop = false;
+volatile bool callback_anim_done = false;
+
+void IRAM_ATTR Timer1_ISR() {
+  
 }
 
 
@@ -84,12 +97,12 @@ void setup() {
 
   print_wakeup_reason();
 
-  // data digester - set up timer 0 for every 0.5 second
-  timer0_cfg = timerBegin(16000);
-  timerAttachInterrupt(timer0_cfg, &Timer0_ISR);
+  // semaphore checker - set up timer 1 for every 50 ms
+  timer1_cfg = timerBegin(16000);
+  timerAttachInterrupt(timer1_cfg, &Timer1_ISR);
   // params: timer, tick count, auto-reload (true), reload count (0 = infinite)
-  timerAlarm(timer0_cfg, 2500, true, 0);
-  timerStart(timer0_cfg);
+  timerAlarm(timer1_cfg, 250, true, 0);
+  timerStart(timer1_cfg);
 
   initAnimations();
   initServos(); // this also inits the queues
@@ -106,7 +119,7 @@ void loop() {
     last_print = millis();
   }
 
-  //updateUltrasonic();
+  updateAnimation();
 
   if(Serial.available()) {
     char c = Serial.read();
