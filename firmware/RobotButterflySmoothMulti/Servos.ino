@@ -21,6 +21,7 @@ void initServos() {
 
   if(!initialised_servos) {
     
+    Mutex_SM = xSemaphoreCreateMutex();
     semaphore_anim_frame = xSemaphoreCreateBinary();
     semaphore_anim_loop = xSemaphoreCreateBinary();
     semaphore_anim_done = xSemaphoreCreateBinary();
@@ -89,7 +90,7 @@ void Task_SM_code(void * pvParameters) {
 
   uint8_t ready = 0;
   struct Animation *Anim;
-  uint8_t ANIM_STATE;
+  uint8_t THIS_ANIM_STATE;
 
   if(DEBUG_SM) Serial << "Task_SM_code" << endl;
   
@@ -101,11 +102,29 @@ void Task_SM_code(void * pvParameters) {
 
     // -------------------------- part 1
 
-    // Take mutex prior to critical section
-    // if(xSemaphoreTake(Mutex_SM, 0) == pdTRUE) {
-    //   ready = 2;
-    // }
+    // take mutex prior to critical section
+    if(xSemaphoreTake(Mutex_SM, 0) == pdTRUE) {
+      //ready = 2;
+      
+      //if(DEBUG_SM) Serial << "Mutex_SM taken" << endl;
 
+      // critical selection
+      Anim = &PresentAnimation; // TODO: is this correct?
+      THIS_ANIM_STATE = ANIM_STATE;
+
+      // if(DEBUG_SM) Serial << "Frame 0 dwell time: " << Anim->dwell[0] << endl;
+      // if(DEBUG_SM) Serial << "Actual 0 dwell time: " << GentleFlap.dwell[0] << endl;
+      // if(DEBUG_SM) Serial << "Frame 0 servo L: " << Anim->servo_L[0] << endl;
+      // if(DEBUG_SM) Serial << "Actual 0 servo L: " << GentleFlap.servo_L[0] << endl;
+
+      // give mutex after critical section
+      xSemaphoreGive(Mutex_SM);
+      //if(DEBUG_SM) Serial << "Mutex_SM given" << endl;
+    } else {
+      continue; // skip this iteration
+    }
+
+    /*
     // check the queues
     if(uxQueueMessagesWaiting(Queue_SM1) > 0) ready++;
     if(uxQueueMessagesWaiting(Queue_SM2) > 0) ready++;
@@ -127,11 +146,16 @@ void Task_SM_code(void * pvParameters) {
       xQueueReset(Queue_SM1);
       xQueueReset(Queue_SM2);
     }
+    */
 
     // -------------------------- part 2
 
     // state check: 1 = go, 0 = stop
-    if(ANIM_STATE == 0 || Anim->done == true) {
+    if(THIS_ANIM_STATE == 0 || Anim->done == true) {
+      continue;
+    }
+
+    if(Anim->done == true) {
       continue;
     }
 
@@ -140,16 +164,19 @@ void Task_SM_code(void * pvParameters) {
       // done! move to next frame
       if(DEBUG_SM) Serial << millis() << " Animation done dwell" << endl;
       Anim->active = false;
+      Anim->done = false;
       Anim->index++;
       xSemaphoreGive(semaphore_anim_frame); // send the semaphore that it's the next frame
 
       if(Anim->index >= Anim->frames) { // check for last frame
         Anim->index = 0;
-        if(!Anim->loop) {
+        if(Anim->loop == false) {
           Anim->active = false;
           Anim->done = true;          
           xSemaphoreGive(semaphore_anim_done); // send the semaphore that the animation is done
         } else {
+          Anim->active = false;
+          Anim->done = false; 
           xSemaphoreGive(semaphore_anim_loop); // send the semaphore that the animation is looped
         }
       }
@@ -182,9 +209,6 @@ void Task_SM_code(void * pvParameters) {
       synchronizeAllServosAndStartInterrupt(false);
       Anim->active = true;
       Anim->start = millis();
-
-      // Give mutex after critical section
-      // xSemaphoreGive(Mutex_SM);
 
     }
     

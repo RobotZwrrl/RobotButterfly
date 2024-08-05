@@ -77,6 +77,8 @@ struct Animation {
 
 struct Animation GentleFlap;
 struct Animation HomeFrame;
+static struct Animation PresentAnimation;
+static uint8_t ANIM_STATE = 1;
 // ----------------------------------
 
 
@@ -90,6 +92,9 @@ volatile bool callback_anim_done = false;
 void IRAM_ATTR Timer1_ISR() {
   
 }
+
+
+static SemaphoreHandle_t Mutex_SM;
 
 
 void setup() {
