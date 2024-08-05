@@ -2,17 +2,17 @@
 // TODO
 void callbackFrameDone() {
   // TODO
-  Serial << "---> Callback: Frame done" << endl;
+  //Serial << "---> Callback: Frame done" << endl;
 }
 
 void callbackAnimLoop() {
   // TODO
-  Serial << "---> Callback: Animation looped" << endl;
+  //Serial << "---> Callback: Animation looped" << endl;
 }
 
 void callbackAnimDone() {
   // TODO
-  Serial << "---> Callback: Animation done" << endl;
+  //Serial << "---> Callback: Animation done" << endl;
 }
 
 
@@ -54,7 +54,7 @@ void initAnimations() {
   // --------------------------------------------
 
   const uint16_t flap_offset = 500;
-  GentleFlap.id = 0;
+  GentleFlap.id = 1;
   GentleFlap.frames = 2;
   GentleFlap.start = 0;
   GentleFlap.active = false;
@@ -82,7 +82,7 @@ void initAnimations() {
   HomeFrame.start = 0;
   HomeFrame.active = false;
   HomeFrame.index = 0;
-  HomeFrame.loop = true;
+  HomeFrame.loop = false;
   HomeFrame.reverse = false;
   HomeFrame.done = false;
 
@@ -97,11 +97,32 @@ void initAnimations() {
 
 
 // state: 1 = go, 0 = stop
-void sendAnimation(struct Animation *a, uint8_t state) {
+bool sendAnimation(struct Animation *a, uint8_t state) {
 
-  Serial << "sending animation" << endl;
-  PresentAnimation = *a; // TODO: is this correct?
-  ANIM_STATE = state;
+  // take mutex prior to critical section
+  if(xSemaphoreTake(Mutex_SM, (TickType_t)1000) == pdTRUE) {
+
+    Serial << "sending animation" << endl;
+    
+    // -- critical selection
+    PresentAnimation = *a;
+    //memcpy(&PresentAnimation, a, sizeof(a));
+    //      ^dest,            ^src,   ^size to copy
+
+    ANIM_STATE = state;
+    // --
+
+    // give mutex after critical section
+    xSemaphoreGive(Mutex_SM);
+
+    // let the task know there's an update available
+    xSemaphoreGive(semaphore_anim_new);
+
+    return true;
+
+  }
+
+  return false;
 
 
   //Serial << "sending animation to queue" << endl;

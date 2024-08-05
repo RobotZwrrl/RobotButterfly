@@ -31,6 +31,7 @@ long last_print;
 static SemaphoreHandle_t semaphore_anim_frame;
 static SemaphoreHandle_t semaphore_anim_loop;
 static SemaphoreHandle_t semaphore_anim_done;
+static SemaphoreHandle_t semaphore_anim_new;
 
 static TaskHandle_t Task_SM;
 static QueueHandle_t Queue_SM1;   // struct Animation

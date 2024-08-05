@@ -25,6 +25,7 @@ void initServos() {
     semaphore_anim_frame = xSemaphoreCreateBinary();
     semaphore_anim_loop = xSemaphoreCreateBinary();
     semaphore_anim_done = xSemaphoreCreateBinary();
+    semaphore_anim_new = xSemaphoreCreateBinary();
 
     wing_left.motor = s1;
     wing_left.motor.attach(SERVO_LEFT_PIN, SERVO_LEFT_UP, DEFAULT_MICROSECONDS_FOR_0_DEGREE, DEFAULT_MICROSECONDS_FOR_180_DEGREE);
@@ -89,7 +90,7 @@ void initServos() {
 void Task_SM_code(void * pvParameters) {
 
   uint8_t ready = 0;
-  struct Animation *Anim;
+  static struct Animation Anim;
   uint8_t THIS_ANIM_STATE;
 
   if(DEBUG_SM) Serial << "Task_SM_code" << endl;
@@ -102,26 +103,58 @@ void Task_SM_code(void * pvParameters) {
 
     // -------------------------- part 1
 
-    // take mutex prior to critical section
-    if(xSemaphoreTake(Mutex_SM, 0) == pdTRUE) {
-      //ready = 2;
+    // event driven with this 'new anim' mutex, 
+    // rather than polling for the critical section mutex
+    // - and taking it (crit section mutex) in & out continuously
+    if(xSemaphoreTake(semaphore_anim_new, (TickType_t)10) == pdTRUE) {
       
-      //if(DEBUG_SM) Serial << "Mutex_SM taken" << endl;
+      // take mutex prior to critical section
+      if(xSemaphoreTake(Mutex_SM, (TickType_t)10) == pdTRUE) {
+        //ready = 2;
+        
+        //if(DEBUG_SM) Serial << "Mutex_SM taken" << endl;
 
-      // critical selection
-      Anim = &PresentAnimation; // TODO: is this correct?
-      THIS_ANIM_STATE = ANIM_STATE;
+        // -- critical selection
+        Anim = PresentAnimation;
+        //memcpy(&Anim, &PresentAnimation, sizeof(PresentAnimation));
+        //      ^dest,       ^src,       ^size to copy
 
-      // if(DEBUG_SM) Serial << "Frame 0 dwell time: " << Anim->dwell[0] << endl;
-      // if(DEBUG_SM) Serial << "Actual 0 dwell time: " << GentleFlap.dwell[0] << endl;
-      // if(DEBUG_SM) Serial << "Frame 0 servo L: " << Anim->servo_L[0] << endl;
-      // if(DEBUG_SM) Serial << "Actual 0 servo L: " << GentleFlap.servo_L[0] << endl;
+        THIS_ANIM_STATE = ANIM_STATE;
+        // --
 
-      // give mutex after critical section
-      xSemaphoreGive(Mutex_SM);
-      //if(DEBUG_SM) Serial << "Mutex_SM given" << endl;
+        if(DEBUG_SM) Serial << "ID: " << Anim.id << endl;
+        if(DEBUG_SM) Serial << "Actual ID: " << GentleFlap.id << endl;
+        if(DEBUG_SM) Serial << "Actual ID B: " << PresentAnimation.id << endl;
+        if(DEBUG_SM) Serial << "Frames: " << Anim.frames << endl;
+        if(DEBUG_SM) Serial << "Actual frames: " << GentleFlap.frames << endl;
+        if(DEBUG_SM) Serial << "Actual frames B: " << PresentAnimation.frames << endl;
+        // if(DEBUG_SM) Serial << "Frame 0 dwell time: " << Anim.dwell[0] << endl;
+        // if(DEBUG_SM) Serial << "Actual 0 dwell time: " << GentleFlap.dwell[0] << endl;
+        // if(DEBUG_SM) Serial << "Frame 1 dwell time: " << Anim.dwell[1] << endl;
+        // if(DEBUG_SM) Serial << "Actual 1 dwell time: " << GentleFlap.dwell[1] << endl;
+        // if(DEBUG_SM) Serial << "Frame 0 servo L: " << Anim.servo_L[0] << endl;
+        // if(DEBUG_SM) Serial << "Actual 0 servo L: " << GentleFlap.servo_L[0] << endl;
+
+        // give mutex after critical section
+        xSemaphoreGive(Mutex_SM);
+        //if(DEBUG_SM) Serial << "Mutex_SM given" << endl;
+      } else {
+        continue; // skip this iteration
+      }
+
     } else {
-      continue; // skip this iteration
+      
+      // if there's no new animation, then post our update to the global variable
+      
+      // TODO: what to do if it doesn't get the mutex?
+      // take mutex prior to critical section
+      if(xSemaphoreTake(Mutex_SM, (TickType_t)10) == pdTRUE) {
+        // critical section
+        PresentAnimation = Anim;
+        // give mutex after critical section
+        xSemaphoreGive(Mutex_SM);
+      }
+
     }
 
     /*
@@ -151,39 +184,41 @@ void Task_SM_code(void * pvParameters) {
     // -------------------------- part 2
 
     // state check: 1 = go, 0 = stop
-    if(THIS_ANIM_STATE == 0 || Anim->done == true) {
+    if(THIS_ANIM_STATE == 0 || Anim.done == true) {
       continue;
     }
 
-    if(Anim->done == true) {
+    if(Anim.done == true) {
       continue;
     }
+
+    // TODO: there's some bug with loop
 
     // dwell wait at the end of the frame
-    if(millis()-Anim->start >= Anim->dwell[Anim->index]) {
+    if(millis()-Anim.start >= Anim.dwell[Anim.index] && Anim.start > 0) {
       // done! move to next frame
-      if(DEBUG_SM) Serial << millis() << " Animation done dwell" << endl;
-      Anim->active = false;
-      Anim->done = false;
-      Anim->index++;
+      //if(DEBUG_SM) Serial << millis() << " Animation done dwell" << endl;
+      Anim.active = false;
+      Anim.done = false;
+      Anim.index++;
       xSemaphoreGive(semaphore_anim_frame); // send the semaphore that it's the next frame
 
-      if(Anim->index >= Anim->frames) { // check for last frame
-        Anim->index = 0;
-        if(Anim->loop == false) {
-          Anim->active = false;
-          Anim->done = true;          
+      if(Anim.index >= Anim.frames) { // check for last frame
+        Anim.index = 0;
+        if(Anim.loop == false) {
+          Anim.active = false;
+          Anim.done = true;          
           xSemaphoreGive(semaphore_anim_done); // send the semaphore that the animation is done
         } else {
-          Anim->active = false;
-          Anim->done = false; 
+          Anim.active = false;
+          Anim.done = false; 
           xSemaphoreGive(semaphore_anim_loop); // send the semaphore that the animation is looped
         }
       }
     }
 
     // servo update
-    if(Anim->active == true) {
+    if(Anim.active == true) {
       // source: https://github.com/ArminJo/ServoEasing/blob/bf7dedab267e11fc44b130e04542a2b7f4118343/examples/ThreeServos/ThreeServos.ino#L154
       do {
         vTaskDelay( REFRESH_INTERVAL_MILLIS / portTICK_PERIOD_MS );
@@ -192,26 +227,37 @@ void Task_SM_code(void * pvParameters) {
     }
 
     // set the target positions
-    if(Anim->active == false && Anim->done == false) {
+    if(Anim.active == false && Anim.done == false) {
 
-      if(DEBUG_SM) Serial << millis() << " Animation frame " << Anim->index << " start" << endl;
+      if(DEBUG_SM) Serial << millis() << " Animation frame " << Anim.index << " start" << endl;
 
-      if(Anim->servo_L[Anim->index] != 9999) {
-        if(DEBUG_SM) Serial << "Servo L: " << Anim->servo_L[Anim->index] << endl;
-        wing_left.motor.setEaseTo(Anim->servo_L[Anim->index], Anim->velocity[Anim->index]);
+      if(Anim.servo_L[Anim.index] != 9999) {
+        if(DEBUG_SM) Serial << "Servo L: " << Anim.servo_L[Anim.index] << endl;
+        wing_left.motor.setEaseTo(Anim.servo_L[Anim.index], Anim.velocity[Anim.index]);
       }
 
-      if(Anim->servo_R[Anim->index] != 9999) {
-        if(DEBUG_SM) Serial << "Servo R: " << Anim->servo_R[Anim->index] << endl;
-        wing_right.motor.setEaseTo(Anim->servo_R[Anim->index], Anim->velocity[Anim->index]);
+      if(Anim.servo_R[Anim.index] != 9999) {
+        if(DEBUG_SM) Serial << "Servo R: " << Anim.servo_R[Anim.index] << endl;
+        wing_right.motor.setEaseTo(Anim.servo_R[Anim.index], Anim.velocity[Anim.index]);
       }
 
       synchronizeAllServosAndStartInterrupt(false);
-      Anim->active = true;
-      Anim->start = millis();
+      Anim.active = true;
+      Anim.start = millis();
 
     }
-    
+
+
+    // TODO: what to do if it doesn't get the mutex?
+    // take mutex prior to critical section
+    // if(xSemaphoreTake(Mutex_SM, (TickType_t)10) == pdTRUE) {
+    //   // critical section
+    //   PresentAnimation = Anim;
+    //   // give mutex after critical section
+    //   xSemaphoreGive(Mutex_SM);
+    // }
+
+
     vTaskDelay(1);
   }
 
