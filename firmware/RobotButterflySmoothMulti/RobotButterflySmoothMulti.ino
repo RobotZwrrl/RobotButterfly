@@ -34,6 +34,7 @@ static SemaphoreHandle_t semaphore_anim_done;
 static SemaphoreHandle_t semaphore_anim_new;
 
 static TaskHandle_t Task_SM;
+static SemaphoreHandle_t Mutex_SM;
 static QueueHandle_t Queue_SM1;   // struct Animation
 static QueueHandle_t Queue_SM2;   // uint8_t ANIM_STATE
 
@@ -76,12 +77,26 @@ struct Animation {
   bool done;
 };
 
+static struct Animation PresentAnimation;
 struct Animation GentleFlap;
 struct Animation HomeFrame;
-static struct Animation PresentAnimation;
-static uint8_t ANIM_STATE = 1;
+struct Animation SwayAnim;
+struct Animation PartyAnim;
+
+enum anim_states {
+  ANIM_PLAY,
+  ANIM_STOP
+};
+//static enum anim_states ANIM_STATE = ANIM_PLAY;
+static uint8_t ANIM_STATE = ANIM_PLAY;
 // ----------------------------------
 
+
+// tests
+bool test_mode = true;
+long last_switch = 0;
+uint8_t test_anim = 0;
+// --
 
 // 
 
@@ -94,8 +109,6 @@ void IRAM_ATTR Timer1_ISR() {
   
 }
 
-
-static SemaphoreHandle_t Mutex_SM;
 
 
 void setup() {
@@ -115,7 +128,10 @@ void setup() {
 
   Serial << "Ready" << endl;
 
+  sendAnimation(&HomeFrame, ANIM_PLAY);
+
 }
+
 
 
 void loop() {
@@ -127,21 +143,71 @@ void loop() {
 
   updateAnimation();
 
+
+  if(test_mode) {
+
+    if(millis()-last_switch >= 15*1000) {
+      
+      switch(test_anim) {
+        case 0:
+          sendAnimation(&HomeFrame, ANIM_PLAY);
+        break;
+        case 1:
+          sendAnimation(&SwayAnim, ANIM_PLAY);
+        break;
+        case 2:
+          sendAnimation(&HomeFrame, ANIM_PLAY);
+        break;
+        case 3:
+          sendAnimation(&GentleFlap, ANIM_PLAY);
+        break;
+        case 4:
+          sendAnimation(&HomeFrame, ANIM_PLAY);
+        break;
+        case 5:
+          sendAnimation(&PartyAnim, ANIM_PLAY);
+        break;
+      }
+
+      test_anim++;
+      if(test_anim > 5) test_anim = 0;
+      last_switch = millis();
+    }
+
+  }
+
+
   if(Serial.available()) {
     char c = Serial.read();
     switch(c) {
-      case 'a':
-        initServos();
-      break;
       case '1':
-        sendAnimation(&GentleFlap, 1);
+        sendAnimation(&GentleFlap, ANIM_PLAY);
       break;
       case '2':
-        sendAnimation(&HomeFrame, 1);
+        sendAnimation(&HomeFrame, ANIM_PLAY);
+      break;
+      case '3':
+        sendAnimation(&SwayAnim, ANIM_PLAY);
+      break;
+      case '4':
+        sendAnimation(&PartyAnim, ANIM_PLAY);
+      break;
+      case 'a':
+        moveLeftWing(SERVO_LEFT_UP);
+      break;
+      case 'd':
+        moveRightWing(SERVO_RIGHT_UP);
+      break;
+      case 'w':
+        moveBothWings(SERVO_LEFT_UP, SERVO_RIGHT_UP);
       break;
       case 's':
         Serial << "stop" << endl;
-        sendAnimation(&HomeFrame, 0);
+        sendAnimation(&HomeFrame, ANIM_STOP);
+      break;
+      case 't':
+        Serial << "test mode" << endl;
+        test_mode = !test_mode;
       break;
     }
   }

@@ -2,17 +2,96 @@
  * Servo Motors
  */ 
 
-void moveLeftWing() {
-  // TODO
-  // create an animation frame here and send it to the queue
+void moveLeftWing(uint16_t pos) {
+
+  struct Animation temp;
+
+  // take mutex prior to critical section
+  if(xSemaphoreTake(Mutex_SM, (TickType_t)10) == pdTRUE) {
+    // critical section
+    temp = PresentAnimation;
+    // give mutex after critical section
+    xSemaphoreGive(Mutex_SM);
+  } else {
+    if(WARN_SM) Serial << "!! error A1" << endl;
+    return;
+  }
+
+  struct Animation a;
+
+  a.id = 99;
+  a.frames = 1;
+  a.start = 0;
+  a.active = false;
+  a.index = 0;
+  a.loop = false;
+  a.reverse = false;
+  a.done = false;
+
+  a.servo_L[0] = pos; 
+  a.servo_R[0] = temp.servo_R[temp.index];
+  a.velocity[0] = 50;
+  a.dwell[0] = SERVO_MIN_DWELL;
+
+  sendAnimation(&a, ANIM_PLAY);
+
 }
 
-void moveRightWing() {
-  // TODO
+void moveRightWing(uint16_t pos) {
+  
+  struct Animation temp;
+
+  // take mutex prior to critical section
+  if(xSemaphoreTake(Mutex_SM, (TickType_t)10) == pdTRUE) {
+    // critical section
+    temp = PresentAnimation;
+    // give mutex after critical section
+    xSemaphoreGive(Mutex_SM);
+  } else {
+    if(WARN_SM) Serial << "!! error A2" << endl;
+    return;
+  }
+
+  struct Animation a;
+
+  a.id = 99;
+  a.frames = 1;
+  a.start = 0;
+  a.active = false;
+  a.index = 0;
+  a.loop = false;
+  a.reverse = false;
+  a.done = false;
+
+  a.servo_L[0] = temp.servo_L[temp.index]; 
+  a.servo_R[0] = pos;
+  a.velocity[0] = 50;
+  a.dwell[0] = SERVO_MIN_DWELL;
+
+  sendAnimation(&a, ANIM_PLAY);
+
 }
 
-void moveBothWings() {
-  // TODO
+void moveBothWings(uint16_t pos_left, uint16_t pos_right) {
+  
+  struct Animation a;
+
+  a.id = 99;
+  a.frames = 1;
+  a.start = 0;
+  a.active = false;
+  a.index = 0;
+  a.loop = false;
+  a.reverse = false;
+  a.done = false;
+
+  a.servo_L[0] = pos_left; 
+  a.servo_R[0] = pos_right;
+  a.velocity[0] = 50;
+  a.dwell[0] = SERVO_MIN_DWELL;
+
+  sendAnimation(&a, ANIM_PLAY);
+
 }
 
 
@@ -63,13 +142,6 @@ void initServos() {
     initialised_servos = true;
   }
 
-  if(Queue_SM1 == NULL && Queue_SM2 == NULL) {
-    // create the queue with 1 slots of 4 bytes
-    // more slots = more numbers
-    Queue_SM1 = xQueueCreate(1, sizeof(struct Animation));
-    Queue_SM2 = xQueueCreate(1, sizeof(uint8_t));
-  }
-  
   //disableCore0WDT();
 
   // core 0 has task watchdog enabled to protect wifi service etc
@@ -87,11 +159,12 @@ void initServos() {
 }
 
 
+
 void Task_SM_code(void * pvParameters) {
 
   uint8_t ready = 0;
   static struct Animation Anim;
-  uint8_t THIS_ANIM_STATE;
+  uint8_t LOCAL_ANIM_STATE;
 
   if(DEBUG_SM) Serial << "Task_SM_code" << endl;
   
@@ -110,16 +183,12 @@ void Task_SM_code(void * pvParameters) {
       
       // take mutex prior to critical section
       if(xSemaphoreTake(Mutex_SM, (TickType_t)10) == pdTRUE) {
-        //ready = 2;
         
         //if(DEBUG_SM) Serial << "Mutex_SM taken" << endl;
 
         // -- critical selection
         Anim = PresentAnimation;
-        //memcpy(&Anim, &PresentAnimation, sizeof(PresentAnimation));
-        //      ^dest,       ^src,       ^size to copy
-
-        THIS_ANIM_STATE = ANIM_STATE;
+        LOCAL_ANIM_STATE = ANIM_STATE;
         // --
 
         if(DEBUG_SM) Serial << "ID: " << Anim.id << endl;
@@ -137,7 +206,7 @@ void Task_SM_code(void * pvParameters) {
 
         // give mutex after critical section
         xSemaphoreGive(Mutex_SM);
-        //if(DEBUG_SM) Serial << "Mutex_SM given" << endl;
+        
       } else {
         continue; // skip this iteration
       }
@@ -157,42 +226,17 @@ void Task_SM_code(void * pvParameters) {
 
     }
 
-    /*
-    // check the queues
-    if(uxQueueMessagesWaiting(Queue_SM1) > 0) ready++;
-    if(uxQueueMessagesWaiting(Queue_SM2) > 0) ready++;
-    
-    if(ready >= 2) {
-      // read the queues
-      xQueueReceive(Queue_SM1, &Anim, 0);
-      xQueueReceive(Queue_SM2, &ANIM_STATE, 0);
-      valuesSM_count++;
-
-      if(DEBUG_SM) Serial << millis() << " [" << xPortGetCoreID() << "] ";
-      if(DEBUG_SM) Serial << " Received from queue SM (" << valuesSM_count << ") ANIM_STATE: " << ANIM_STATE << endl;
-      // if(DEBUG_SM) Serial << "Frame 0 dwell time: " << Anim->dwell[0] << endl;
-      // if(DEBUG_SM) Serial << "Actual 0 dwell time: " << GentleFlap.dwell[0] << endl;
-      // if(DEBUG_SM) Serial << "Frame 0 servo L: " << Anim->servo_L[0] << endl;
-      // if(DEBUG_SM) Serial << "Actual 0 servo L: " << GentleFlap.servo_L[0] << endl;
-
-      // flush the queues
-      xQueueReset(Queue_SM1);
-      xQueueReset(Queue_SM2);
-    }
-    */
 
     // -------------------------- part 2
 
-    // state check: 1 = go, 0 = stop
-    if(THIS_ANIM_STATE == 0 || Anim.done == true) {
+    // state check
+    if(LOCAL_ANIM_STATE == ANIM_STOP || Anim.done == true) {
       continue;
     }
 
     if(Anim.done == true) {
       continue;
     }
-
-    // TODO: there's some bug with loop
 
     // dwell wait at the end of the frame
     if(millis()-Anim.start >= Anim.dwell[Anim.index] && Anim.start > 0) {
@@ -216,6 +260,8 @@ void Task_SM_code(void * pvParameters) {
         }
       }
     }
+
+    // -------------------------- part 3
 
     // servo update
     if(Anim.active == true) {
@@ -247,17 +293,6 @@ void Task_SM_code(void * pvParameters) {
 
     }
 
-
-    // TODO: what to do if it doesn't get the mutex?
-    // take mutex prior to critical section
-    // if(xSemaphoreTake(Mutex_SM, (TickType_t)10) == pdTRUE) {
-    //   // critical section
-    //   PresentAnimation = Anim;
-    //   // give mutex after critical section
-    //   xSemaphoreGive(Mutex_SM);
-    // }
-
-
     vTaskDelay(1);
   }
 
@@ -265,64 +300,4 @@ void Task_SM_code(void * pvParameters) {
   vTaskDelete(NULL);
 }
 
-
-
-
-/*
-void updateUltrasonic() {
-
-  // if wanting to only update based on the interrupt timer, uncomment this block
-  // accessing a variable that's updated in interrupts
-  // noInterrupts(); // same as portDISABLE_INTERRUPTS();
-  // if(!updateUS) return; // not needed, this updates continuously
-  // interrupts(); // same as portENABLE_INTERRUPTS();
-
-  if(millis()-last_print_us >= 100) {
-    Serial << millis();
-    Serial << " dist_cm_raw = " << raw_us.dist_cm_raw;
-    Serial << " dist_8_raw = " << raw_us.dist_8_raw;
-    Serial << endl;
-    last_print_us = millis();
-  }
-
-  uint8_t ready = 0;
-  double a;
-  int b;
-  long c;
-
-  // check the queues
-  if(uxQueueMessagesWaiting(Queue_US1) > 0) ready++;
-  if(uxQueueMessagesWaiting(Queue_US2) > 0) ready++;
-  if(uxQueueMessagesWaiting(Queue_US3) > 0) ready++;
-  
-  if(ready < 3) {
-    //Serial << "Queue messages not ready" << endl;
-    return;
-  }
-
-  // read the queues
-  xQueueReceive(Queue_US1, &a, 0);
-  xQueueReceive(Queue_US2, &b, 0);
-  xQueueReceive(Queue_US3, &c, 0);
-
-  raw_us.dist_cm_raw = a;
-  raw_us.dist_8_raw = b;
-  raw_us.record_time = c;
-  valuesUS_count++;
-
-  if(DEBUG_US) Serial << millis() << " Received from queue US (" << valuesUS_count << "): " << raw_us.dist_cm_raw << ", " << raw_us.dist_8_raw << ", " << raw_us.record_time << endl;
-  
-  // flush the queues
-  xQueueReset(Queue_US1);
-  xQueueReset(Queue_US2);
-  xQueueReset(Queue_US3);
-
-  // reset flag
-  // accessing a variable that's updated in interrupts
-  noInterrupts();
-  updateUS = false;
-  interrupts();
-
-}
-*/
 

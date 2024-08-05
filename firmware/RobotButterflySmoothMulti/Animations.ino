@@ -1,18 +1,17 @@
+/*
+ * Animations
+ */ 
 
-// TODO
 void callbackFrameDone() {
-  // TODO
-  //Serial << "---> Callback: Frame done" << endl;
+  Serial << "---> Callback: Frame done" << endl;
 }
 
 void callbackAnimLoop() {
-  // TODO
-  //Serial << "---> Callback: Animation looped" << endl;
+  Serial << "---> Callback: Animation looped" << endl;
 }
 
 void callbackAnimDone() {
-  // TODO
-  //Serial << "---> Callback: Animation done" << endl;
+  Serial << "---> Callback: Animation done" << endl;
 }
 
 
@@ -31,6 +30,7 @@ void newAnimation() {
 }
 
 
+
 // callbacks get processed here
 void updateAnimation() {
 
@@ -47,6 +47,33 @@ void updateAnimation() {
   }
 
 }
+
+
+
+bool sendAnimation(struct Animation *a, uint8_t state) {
+
+  // take mutex prior to critical section
+  if(xSemaphoreTake(Mutex_SM, (TickType_t)1000) == pdTRUE) {
+
+    Serial << "sending animation" << endl;
+    
+    // -- critical selection
+    PresentAnimation = *a;
+    ANIM_STATE = state;
+    // --
+
+    // give mutex after critical section
+    xSemaphoreGive(Mutex_SM);
+
+    // let the task know there's an update available
+    xSemaphoreGive(semaphore_anim_new);
+
+    return true;
+  }
+
+  return false;
+}
+
 
 
 void initAnimations() {
@@ -93,48 +120,53 @@ void initAnimations() {
   
   // --------------------------------------------
 
-}
+  const uint16_t sway_offset = 600;
+  SwayAnim.id = 3;
+  SwayAnim.frames = 2;
+  SwayAnim.start = 0;
+  SwayAnim.active = false;
+  SwayAnim.index = 0;
+  SwayAnim.loop = true;
+  SwayAnim.reverse = false;
+  SwayAnim.done = false;
 
+  // frame 0
+  SwayAnim.servo_L[0] = SERVO_LEFT_UP;
+  SwayAnim.servo_R[0] = SERVO_RIGHT_HOME-sway_offset;
+  SwayAnim.velocity[0] = 60;
+  SwayAnim.dwell[0] = 80;
+  
+  // frame 1
+  SwayAnim.servo_L[1] = SERVO_LEFT_HOME+sway_offset;
+  SwayAnim.servo_R[1] = SERVO_RIGHT_UP;
+  SwayAnim.velocity[1] = 60;
+  SwayAnim.dwell[1] = 80;
 
-// state: 1 = go, 0 = stop
-bool sendAnimation(struct Animation *a, uint8_t state) {
+  // --------------------------------------------
 
-  // take mutex prior to critical section
-  if(xSemaphoreTake(Mutex_SM, (TickType_t)1000) == pdTRUE) {
+  const uint16_t party_offset = 600;
+  PartyAnim.id = 4;
+  PartyAnim.frames = 2;
+  PartyAnim.start = 0;
+  PartyAnim.active = false;
+  PartyAnim.index = 0;
+  PartyAnim.loop = true;
+  PartyAnim.reverse = false;
+  PartyAnim.done = false;
 
-    Serial << "sending animation" << endl;
-    
-    // -- critical selection
-    PresentAnimation = *a;
-    //memcpy(&PresentAnimation, a, sizeof(a));
-    //      ^dest,            ^src,   ^size to copy
+  // frame 0
+  PartyAnim.servo_L[0] = SERVO_LEFT_UP;
+  PartyAnim.servo_R[0] = SERVO_RIGHT_DOWN;
+  PartyAnim.velocity[0] = 250;
+  PartyAnim.dwell[0] = 80;
+  
+  // frame 1
+  PartyAnim.servo_L[1] = SERVO_LEFT_DOWN;
+  PartyAnim.servo_R[1] = SERVO_RIGHT_UP;
+  PartyAnim.velocity[1] = 250;
+  PartyAnim.dwell[1] = 80;
 
-    ANIM_STATE = state;
-    // --
-
-    // give mutex after critical section
-    xSemaphoreGive(Mutex_SM);
-
-    // let the task know there's an update available
-    xSemaphoreGive(semaphore_anim_new);
-
-    return true;
-
-  }
-
-  return false;
-
-
-  //Serial << "sending animation to queue" << endl;
-
-  //struct Animation *structPtr = &GentleFlap; // this works
-
-  // send it to the queue
-  // time of 0 says don't block if the queue is already full
-  if(DEBUG_ANIM) Serial << "sending animation to queue" << endl;
-  //if(Queue_SM1 != NULL) xQueueSend(Queue_SM1, (void *)&structPtr, (TickType_t)0); // this works
-  if(Queue_SM1 != NULL) xQueueSend(Queue_SM1, (void *)&a, (TickType_t)0);
-  if(Queue_SM2 != NULL) xQueueSend(Queue_SM2, (void *)&state, (TickType_t)0);
+  // --------------------------------------------
 
 }
 
