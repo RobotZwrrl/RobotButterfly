@@ -20,12 +20,12 @@
 #define LDR_PIN             35
 
 #define BUTTON1_PIN         27   // right
-#define BUTTON2_PIN         14
+#define BUTTON2_PIN         14   // left
 #define BUTTON3_PIN         15
 
-#define ULTRASONIC_IN_PIN   36 // echo
-#define ULTRASONIC_OUT_PIN  25 // trig
-#define PROX_L_PIN          32 // cut solder bridge on chonky
+#define ULTRASONIC_IN_PIN   36   // echo
+#define ULTRASONIC_OUT_PIN  25   // trig
+#define PROX_L_PIN          32   // cut solder bridge on chonky
 #define EXTRA_PIN           32
-#define PROX_R_PIN          33 // cut solder bridge on chonky
+#define PROX_R_PIN          33   // cut solder bridge on chonky
 #define DHT11_PIN           33

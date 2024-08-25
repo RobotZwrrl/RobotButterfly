@@ -1,8 +1,7 @@
 /*
  * Robot Butterfly Buttons
  * -------------------------
- * Buttons pressed via interrupts with debouncing and 
- * raising semaphores for other tasks
+ * Buttons pressed via interrupts with debouncing
  * 
  * Board: ESP32 Dev Module
  * CPU speed: 80 MHz
@@ -19,15 +18,12 @@
 #include <Streaming.h>
 
 
-// tests
+// ------------ tests ------------
 long last_print;
-// --
+// -------------------------------
 
 
 // ----------- buttons -----------
-static SemaphoreHandle_t Mutex_BT_L;
-static SemaphoreHandle_t Mutex_BT_R;
-
 enum ButtonStates {
   BUTTON_RELEASED,
   BUTTON_PRESSED,
@@ -37,8 +33,8 @@ enum ButtonStates {
 struct Button {
   uint8_t state;
   bool pressed;
-  bool printed_pressed;
-  bool printed_released;
+  bool flag_pressed;
+  bool flag_released;
   long press_time;
   long release_time;
   char name;
@@ -46,6 +42,8 @@ struct Button {
 
 volatile static struct Button Button_L;
 volatile static struct Button Button_R;
+
+bool double_hold = false;
 // -----------------------------------
 
 // ----------- buttons isr -----------
@@ -57,15 +55,18 @@ void IRAM_ATTR button_L_isr() {
     if(millis()-b->press_time <= DEBOUNCE_TIME && b->press_time > 0) { // debounce time
       return;
     }
+    if(millis()-b->release_time <= ACCIDENTAL_CLICK_TIME && b->release_time > 0) { // accidental double click
+      return; 
+    }
     b->pressed = true;
-    b->printed_pressed = false;
+    b->flag_pressed = true;
     b->press_time = millis();
   } else { // released
     if(millis()-b->release_time <= DEBOUNCE_TIME && b->release_time > 0) { // debounce time
       return;
     }
-    b->printed_released = false;
-    if(b->pressed == false) b->printed_released = true; // this prevents the soft release from triggering print twice
+    b->flag_released = true;
+    //if(b->pressed == false) b->flag_released = false; // this prevents the soft release from triggering print twice
     b->pressed = false;
     b->release_time = millis();
   }
@@ -80,15 +81,18 @@ void IRAM_ATTR button_R_isr() {
     if(millis()-b->press_time <= DEBOUNCE_TIME && b->press_time > 0) { // debounce time
       return;
     }
+    if(millis()-b->release_time <= ACCIDENTAL_CLICK_TIME && b->release_time > 0) { // accidental double click
+      return; 
+    }
     b->pressed = true;
-    b->printed_pressed = false;
+    b->flag_pressed = true;
     b->press_time = millis();
   } else { // released
     if(millis()-b->release_time <= DEBOUNCE_TIME && b->release_time > 0) { // debounce time
       return;
     }
-    b->printed_released = false;
-    if(b->pressed == false) b->printed_released = true; // this prevents the soft release from triggering print twice
+    b->flag_released = true;
+    //if(b->pressed == false) b->flag_released = false; // this prevents the soft release from triggering print twice
     b->pressed = false;
     b->release_time = millis();
   }
@@ -105,7 +109,6 @@ void setup() {
   initButtons();
 
   Serial << "Ready" << endl;
-
 }
 
 
@@ -118,7 +121,6 @@ void loop() {
   }
 
   updateButtons();
-
 }
 
 
