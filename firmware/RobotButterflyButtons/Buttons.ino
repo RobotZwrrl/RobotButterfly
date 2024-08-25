@@ -2,10 +2,10 @@
 void updateButtons() {
   updateButton(&Button_L);
   updateButton(&Button_R);
-  
+
   if(Button_L.state == BUTTON_LONG_HOLD && Button_R.state == BUTTON_LONG_HOLD) {
     if(!double_hold) {
-      Serial << "both long hold" << endl;
+      if(DEBUG_BUTTONS) Serial << "both long hold" << endl;
       double_hold = true;
     }
   }

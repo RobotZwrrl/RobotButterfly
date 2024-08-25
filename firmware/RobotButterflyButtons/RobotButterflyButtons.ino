@@ -66,7 +66,6 @@ void IRAM_ATTR button_L_isr() {
       return;
     }
     b->flag_released = true;
-    //if(b->pressed == false) b->flag_released = false; // this prevents the soft release from triggering print twice
     b->pressed = false;
     b->release_time = millis();
   }
@@ -92,7 +91,6 @@ void IRAM_ATTR button_R_isr() {
       return;
     }
     b->flag_released = true;
-    //if(b->pressed == false) b->flag_released = false; // this prevents the soft release from triggering print twice
     b->pressed = false;
     b->release_time = millis();
   }
