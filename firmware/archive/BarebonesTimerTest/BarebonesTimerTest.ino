@@ -1,11 +1,14 @@
-// result = delta: 6250
 // this_apb_freq = 80000000
 
 #include <Streaming.h>
 #include "soc/rtc.h"
 uint32_t this_apb_freq = rtc_clk_apb_freq_get();
 
-#define TRANSITION_FRAME_TIME    50000
+//#define TRANSITION_FRAME_TIME    40000     // 5 seconds
+//#define TRANSITION_FRAME_TIME    32000     // 4 seconds
+//#define TRANSITION_FRAME_TIME    24000     // 3 seconds
+#define TRANSITION_FRAME_TIME    16000       // 2 seconds
+//#define TRANSITION_FRAME_TIME    8000      // 1 seconds
 #define STATE_TIMER_PRESCALER    8000
 
 volatile bool enter_state = false;
