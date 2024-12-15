@@ -5,20 +5,22 @@ HEADER;
  */
 
 FILE_DESCRIPTION(
-/* description */ (''),
+/* description */ ('',
+'CAx-IF Rec.Pracs.---Representation and Presentation of Product Manufa
+cturing Information (PMI)---4.0---2014-10-13'),
 /* implementation_level */ '2;1');
 
 FILE_NAME(
-/* name */ 'Lanyard Attachment v10.step',
-/* time_stamp */ '2024-09-03T08:22:34-04:00',
+/* name */ 'lanyard_attachment_v1.1.step',
+/* time_stamp */ '2024-12-15T12:45:13-05:00',
 /* author */ (''),
 /* organization */ (''),
 /* preprocessor_version */ 'ST-DEVELOPER v20',
-/* originating_system */ 'Autodesk Translation Framework v13.14.0.145',
+/* originating_system */ 'Autodesk Translation Framework v13.20.0.188',
 
 /* authorisation */ '');
 
-FILE_SCHEMA (('AUTOMOTIVE_DESIGN { 1 0 10303 214 3 1 1 }'));
+FILE_SCHEMA (('AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 1 1 4 }'));
 ENDSEC;
 
 DATA;
@@ -40618,9 +40620,8 @@ SOLID_ANGLE_UNIT()
 #36495=PRODUCT_RELATED_PRODUCT_CATEGORY('batt bracket','batt bracket',(#36509));
 #36496=PRODUCT_RELATED_PRODUCT_CATEGORY('Component3','Component3',(#36510));
 #36497=APPLICATION_PROTOCOL_DEFINITION('international standard',
-'automotive_design',2009,#36498);
-#36498=APPLICATION_CONTEXT(
-'Core Data for Automotive Mechanical Design Process');
+'ap242_managed_model_based_3d_engineering',2011,#36498);
+#36498=APPLICATION_CONTEXT('Managed model based 3d engineering');
 #36499=PRODUCT_CONTEXT('part definition',#36498,'mechanical');
 #36500=PRODUCT('Lanyard Attachment','Lanyard Attachment v10',$,(#36499));
 #36501=PRODUCT('Component1','Component1',$,(#36499));
