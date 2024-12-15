@@ -8,6 +8,27 @@ Robot Butterfly's design files are released as open source hardware, provided un
 
 ![Robot Butterfly](https://github.com/RobotGrrl/RobotButterfly/blob/main/robot_butterfly.jpg?raw=true)
 
+---
+
+## Bug Fix 12-15-24
+
+A 3D printable bugfix is available! The three pieces to print are:
+
+- [Servo Horn Indent L](https://github.com/RobotGrrl/RobotButterfly/blob/main/3dprint/servo_horn_indent_L_v1.0.stl)
+- [Servo Horn Indent R](https://github.com/RobotGrrl/RobotButterfly/blob/main/3dprint/servo_horn_indent_R_v1.0.stl)
+- [Spacer Back](https://github.com/RobotGrrl/RobotButterfly/blob/main/3dprint/spacer_back_v1.1.stl)
+
+The servo horn piece has been updated to work with the new horns that have an indent, rather than being flat in the previous version. The horn is placed on the side that has the arrow indicator. The fasteners go through holes #1 and #4. See photo below for reference.
+
+![Bugfix 01](https://github.com/RobotGrrl/RobotButterfly/blob/main/documentation/kit_bugfix01.jpg?raw=true)
+
+![Bugfix 02](https://github.com/RobotGrrl/RobotButterfly/blob/main/documentation/kit_bugfix02.jpg?raw=true)
+
+![Bugfix 03](https://github.com/RobotGrrl/RobotButterfly/blob/main/documentation/kit_bugfix03.jpg?raw=true)
+
+The spacer back piece has been updated to have clearance for the chamfer around the switch housing on the enclosure. This provides a cleaner fit and smoother lid installation process.
+
+![Bugfix 04](https://github.com/RobotGrrl/RobotButterfly/blob/main/documentation/kit_bugfix04.jpg?raw=true)
 
 ---
 
