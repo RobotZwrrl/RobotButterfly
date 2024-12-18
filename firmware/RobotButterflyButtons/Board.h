@@ -19,8 +19,8 @@
 #define BATT_SIG_PIN        34
 #define LDR_PIN             35
 
-#define BUTTON1_PIN         27   // right
-#define BUTTON2_PIN         14   // left
+#define BUTTON1_PIN         14   // left
+#define BUTTON2_PIN         27   // right
 #define BUTTON3_PIN         15
 
 #define ULTRASONIC_IN_PIN   36   // echo
