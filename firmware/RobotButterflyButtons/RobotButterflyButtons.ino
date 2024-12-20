@@ -46,7 +46,6 @@ struct Button {
   long release_time;
   long release_both_time;
   long click_time;
-  long both_click_time;
   char name;
 };
 

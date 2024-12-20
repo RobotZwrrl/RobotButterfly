@@ -1,26 +1,23 @@
 void buttonHold(volatile struct Button *b) {
 
   if(Button_L.state == BUTTON_BOTH_HOLD || Button_R.state == BUTTON_BOTH_HOLD) return;
-
+  
   if(b->flag_state_change) {
     if(DEBUG_BUTTONS) Serial << "!! ";
   }
   if(b->flag_button_hold_notif) {
     if(DEBUG_BUTTONS) Serial << "time !! ";
   }
-  if(DEBUG_BUTTONS) Serial << "button " << b->name << " hold" << endl;
+  if(DEBUG_BUTTONS) Serial << "buttonHold " << b->name << endl;
 }
 
 void buttonReleased(volatile struct Button *b) {
   if(b->flag_state_change) {
     if(DEBUG_BUTTONS) Serial << "!! ";
-    if(DEBUG_BUTTONS) Serial << "button " << b->name << " released" << endl;
+    if(DEBUG_BUTTONS) Serial << "buttonReleased " << b->name << endl;
   }
   b->flag_button_hold_notif = false;
 }
-
-
-
 
 void buttonHoldBoth() {
   if(Button_L.flag_state_change == true || Button_R.flag_state_change == true) {
@@ -29,47 +26,36 @@ void buttonHoldBoth() {
   if(Button_L.flag_button_hold_notif == true || Button_R.flag_button_hold_notif == true) {
     if(DEBUG_BUTTONS) Serial << "time !! ";
   }
-  if(DEBUG_BUTTONS) Serial << "buttons both hold" << endl;
+  if(DEBUG_BUTTONS) Serial << "buttonHoldBoth" << endl;
 }
 
 void buttonReleasedBoth() {
   if(Button_L.flag_state_change == true || Button_R.flag_state_change == true) {
     if(DEBUG_BUTTONS) Serial << "!! ";
   }
-  if(DEBUG_BUTTONS) Serial << "buttons both released" << endl;
+  if(DEBUG_BUTTONS) Serial << "buttonReleasedBoth" << endl;
 }
-
-
-
 
 void buttonClicked(volatile struct Button *b) {
   if(b->flag_state_change) {
     if(DEBUG_BUTTONS) Serial << "!! ";
   }
-  if(DEBUG_BUTTONS) Serial << "button " << b->name << " clicked" << endl;
+  if(DEBUG_BUTTONS) Serial << "buttonClicked " << b->name << endl;
   b->flag_button_hold_notif = false;
 }
 
-
 void buttonClickedBoth() {
-  Button_L.both_click_time = millis();
-  Button_R.both_click_time = millis();
   if(Button_L.flag_state_change == true || Button_R.flag_state_change == true) {
     if(DEBUG_BUTTONS) Serial << "!! ";
   }
-  if(DEBUG_BUTTONS) Serial << "buttons both clicked" << endl;
+  if(DEBUG_BUTTONS) Serial << "buttonClickedBoth" << endl;
 }
-
-
-
-
 
 
 
 void updateButtons() {
   updateButton(&Button_L);
   updateButton(&Button_R);
-
 
   // ------------ hold ------------
   if(Button_L.state == BUTTON_HOLD && Button_R.state == BUTTON_HOLD) {
@@ -102,25 +88,13 @@ void updateButtons() {
   }
   // ------------------------------
 
-
-
   // ---------- clicked ----------
   if(Button_L.state == BUTTON_CLICK || Button_R.state == BUTTON_CLICK) {
-
-    if(millis()-Button_L.click_time <= 40 && millis()-Button_R.click_time <= 40) {
-      buttonClickedBoth();
-      return;
-    } else {
-      if(millis()-Button_L.both_click_time >= 20 && millis()-Button_R.both_click_time >= 20) {
-        if(Button_L.state == BUTTON_CLICK) buttonClicked(&Button_L);
-        if(Button_R.state == BUTTON_CLICK) buttonClicked(&Button_R);
-        return;
-      }
-    }
+    if(Button_L.state == BUTTON_CLICK) buttonClicked(&Button_L);
+    if(Button_R.state == BUTTON_CLICK) buttonClicked(&Button_R);
+    return;
   }
   // ------------------------------
-
-
 
   // ---------- released ----------
   if(Button_L.state == BUTTON_RELEASED || Button_R.state == BUTTON_RELEASED) {
@@ -139,7 +113,6 @@ void updateButtons() {
     }
   }
   // ------------------------------
-
 
 }
 
@@ -201,7 +174,6 @@ void initButtons() {
   Button_L.release_time = 0;
   Button_L.release_both_time = 0;
   Button_L.click_time = 0;
-  Button_L.both_click_time = 0;
   Button_L.name = 'L';
 
   Button_R.state = BUTTON_IDLE;
@@ -215,7 +187,6 @@ void initButtons() {
   Button_R.release_time = 0;
   Button_R.release_both_time = 0;
   Button_R.click_time = 0;
-  Button_R.both_click_time = 0;
   Button_R.name = 'R';
   
   pinMode(BUTTON1_PIN, INPUT);
