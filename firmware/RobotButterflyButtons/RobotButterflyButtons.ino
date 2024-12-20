@@ -28,29 +28,29 @@ long last_print;
 enum ButtonStates {
   BUTTON_IDLE,
   BUTTON_RELEASED,
+  BUTTON_BOTH_HOLD,
+  BUTTON_HOLD,
   BUTTON_PRESSED,
-  BUTTON_LONG_HOLD
+  BUTTON_CLICK
 };
 
 struct Button {
   uint8_t state;
+  uint8_t state_prev;
   bool pressed;
   bool flag_pressed;
   bool flag_released;
-  bool flag_press_notif;
-  bool flag_notif;
+  bool flag_state_change;
+  bool flag_button_hold_notif;
   long press_time;
   long release_time;
+  long release_both_time;
+  long click_time;
   char name;
 };
 
 volatile static struct Button Button_L;
 volatile static struct Button Button_R;
-
-bool double_press = false;
-long double_press_release_time = 0;
-bool double_hold = false;
-long double_hold_release_time = 0;
 // -----------------------------------
 
 // ----------- buttons isr -----------
