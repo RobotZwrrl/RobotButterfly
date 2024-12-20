@@ -21,10 +21,17 @@
 
 // ------------ tests ------------
 long last_print;
+int counter = 0;
 // -------------------------------
 
 
 // ----------- buttons -----------
+enum ButtonNames {
+  BUTTON_LEFT,
+  BUTTON_RIGHT,
+  BUTTON_BOTH
+};
+
 enum ButtonStates {
   BUTTON_IDLE,
   BUTTON_RELEASED,
@@ -52,6 +59,15 @@ struct Button {
 volatile static struct Button Button_L;
 volatile static struct Button Button_R;
 // -----------------------------------
+
+
+// -------- button callbacks ---------
+void buttonHoldNotificationCallback(uint8_t n);
+void buttonHoldReleasedCallback(uint8_t n);
+void buttonClickCallback(uint8_t n);
+void buttonReleaseCallback(uint8_t n);
+// -----------------------------------
+
 
 // ----------- buttons isr -----------
 void IRAM_ATTR button_L_isr() {
@@ -129,93 +145,67 @@ void loop() {
 }
 
 
-// --------------------------
-// ---- Button Callbacks ----
-// --------------------------
+// ------------------------------------
+// --------- Button Callbacks ---------
+// ------------------------------------
 
-void buttonBothTouchdownCallback() {
+// give user feedback that they have held the
+// button and its time to to release the button
+void buttonHoldNotificationCallback(uint8_t n) {
+  switch(n) {
+    case BUTTON_BOTH:
+      tone(BUZZER_PIN, NOTE_F5, 500);
+      noTone(BUZZER_PIN);
+      tone(BUZZER_PIN, 0, 500);
+      noTone(BUZZER_PIN);
+    break;
+    case BUTTON_LEFT:
+      tone(BUZZER_PIN, NOTE_A5, 500);
+      noTone(BUZZER_PIN);
+    break;
+    case BUTTON_RIGHT:
+      tone(BUZZER_PIN, NOTE_A7, 500);
+      noTone(BUZZER_PIN);
+    break;
+  }
+}
+
+// do an action here
+void buttonHoldReleasedCallback(uint8_t n) {
+  switch(n) {
+    case BUTTON_BOTH:
+      counter *= 2;
+    break;
+    case BUTTON_LEFT:
+      counter += 10;
+    break;
+    case BUTTON_RIGHT:
+      counter -= 10;
+    break;
+  }
+  Serial << "count: " << counter << endl;
+}
+
+// do an action here
+void buttonClickCallback(uint8_t n) {
+  switch(n) {
+    case BUTTON_LEFT:
+      tone(BUZZER_PIN, NOTE_A5, 100);
+      noTone(BUZZER_PIN);
+      counter++;
+    break;
+    case BUTTON_RIGHT:
+      tone(BUZZER_PIN, NOTE_A7, 100);
+      noTone(BUZZER_PIN);
+      counter--;
+    break;
+  }
+  Serial << "count: " << counter << endl;
+}
+
+// probably not necessary to do anything here
+void buttonReleaseCallback(uint8_t n) {
 
 }
 
-void buttonLeftTouchdownCallback() {
-
-}
-
-void buttonRightTouchdownCallback() {
-
-}
-
-
-void buttonBothReleaseCallback() {
-
-}
-
-void buttonLeftReleaseCallback() {
-
-}
-
-void buttonRightReleaseCallback() {
-
-}
-
-
-void buttonBothHoldNotifCallback() { // give user feedback to release button
-  // tone(BUZZER_PIN, NOTE_F5, 500);
-  // noTone(BUZZER_PIN);
-}
-
-void buttonLeftHoldNotifCallback() { // give user feedback to release button
-  // tone(BUZZER_PIN, NOTE_A5, 500);
-  // noTone(BUZZER_PIN);
-}
-
-void buttonRightHoldNotifCallback() { // give user feedback to release button
-  // tone(BUZZER_PIN, NOTE_A7, 500);
-  // noTone(BUZZER_PIN);
-}
-
-void buttonBothHoldReleaseCallback() {
-
-}
-
-void buttonLeftHoldReleaseCallback() {
-
-}
-
-void buttonRightHoldReleaseCallback() {
-
-}
-
-
-/*
-void buttonBothPressCallback() { // on release of both buttons
-  noTone(BUZZER_PIN);
-  delay(200);
-  tone(BUZZER_PIN, NOTE_F5, 100);
-  noTone(BUZZER_PIN);
-  delay(200);
-  tone(BUZZER_PIN, NOTE_F5, 100);
-  noTone(BUZZER_PIN);
-  delay(200);
-}
-
-void buttonLeftPressCallback() { // on touchdown
-  tone(BUZZER_PIN, NOTE_A5, 100);
-  noTone(BUZZER_PIN);
-}
-
-void buttonRightPressCallback() { // on touchdown
-  tone(BUZZER_PIN, NOTE_A7, 100);
-  noTone(BUZZER_PIN);
-}
-
-void buttonLeftReleaseCallback() { // on release
-  Serial << ":: left released" << endl;
-}
-
-void buttonRightReleaseCallback() { // on release
-  Serial << ":: right released" << endl;
-}
-
-*/
 
