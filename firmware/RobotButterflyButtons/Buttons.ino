@@ -52,6 +52,8 @@ void buttonClicked(volatile struct Button *b) {
 
 
 void buttonClickedBoth() {
+  Button_L.both_click_time = millis();
+  Button_R.both_click_time = millis();
   if(Button_L.flag_state_change == true || Button_R.flag_state_change == true) {
     if(DEBUG_BUTTONS) Serial << "!! ";
   }
@@ -72,8 +74,8 @@ void updateButtons() {
   // ------------ hold ------------
   if(Button_L.state == BUTTON_HOLD && Button_R.state == BUTTON_HOLD) {
     Button_L.state = Button_L.state_prev;
-    Button_R.state = Button_L.state_prev;
     Button_L.state = BUTTON_BOTH_HOLD;
+    Button_R.state = Button_R.state_prev;
     Button_R.state = BUTTON_BOTH_HOLD;
     buttonHoldBoth();
     return;
@@ -103,42 +105,18 @@ void updateButtons() {
 
 
   // ---------- clicked ----------
-  if(millis()-Button_L.click_time <= 80 && millis()-Button_R.click_time <= 80) {
-    if(Button_L.state == BUTTON_CLICK || Button_R.state == BUTTON_CLICK) {
+  if(Button_L.state == BUTTON_CLICK || Button_R.state == BUTTON_CLICK) {
+
+    if(millis()-Button_L.click_time <= 40 && millis()-Button_R.click_time <= 40) {
       buttonClickedBoth();
       return;
-    }
-  } else if(Button_L.state == BUTTON_CLICK || Button_R.state == BUTTON_CLICK) {
-    
-    if(Button_L.state == BUTTON_CLICK) buttonClicked(&Button_L);
-    if(Button_R.state == BUTTON_CLICK) buttonClicked(&Button_R);
-    return;
-
-    /*
-    if(Button_L.state == BUTTON_CLICK && millis()-Button_L.press_time >= 40) {
-      if(Button_L.state_prev == BUTTON_CLICK) { // prevent click after both clicked
-        if(millis()-Button_L.click_time >= 80) { // prevent double clicks
-          buttonClicked(&Button_L);
-          return;
-        }
-      } else {
-        buttonClicked(&Button_L);
+    } else {
+      if(millis()-Button_L.both_click_time >= 20 && millis()-Button_R.both_click_time >= 20) {
+        if(Button_L.state == BUTTON_CLICK) buttonClicked(&Button_L);
+        if(Button_R.state == BUTTON_CLICK) buttonClicked(&Button_R);
         return;
       }
     }
-    if(Button_R.state == BUTTON_CLICK && millis()-Button_L.press_time >= 40) {
-      if(Button_R.state_prev == BUTTON_CLICK) { // prevent click after both clicked
-        if(millis()-Button_R.click_time >= 80) { // prevent double clicks
-          buttonClicked(&Button_R);
-          return;
-        }
-      } else {
-        buttonClicked(&Button_R);
-        return;
-      }
-    }
-    */
-
   }
   // ------------------------------
 
@@ -223,6 +201,7 @@ void initButtons() {
   Button_L.release_time = 0;
   Button_L.release_both_time = 0;
   Button_L.click_time = 0;
+  Button_L.both_click_time = 0;
   Button_L.name = 'L';
 
   Button_R.state = BUTTON_IDLE;
@@ -236,6 +215,7 @@ void initButtons() {
   Button_R.release_time = 0;
   Button_R.release_both_time = 0;
   Button_R.click_time = 0;
+  Button_R.both_click_time = 0;
   Button_R.name = 'R';
   
   pinMode(BUTTON1_PIN, INPUT);
