@@ -1,7 +1,8 @@
 /*
- * Robot Butterfly Buttons
- * -------------------------
+ * Robot Butterfly Buttons Multi
+ * ------------------------------
  * Buttons pressed via interrupts with debouncing
+ * Updates in a task with FreeRTOS
  * 
  * Board: ESP32 Dev Module
  * CPU speed: 80 MHz
@@ -26,6 +27,8 @@ int counter = 0;
 
 
 // ----------- buttons -----------
+TaskHandle_t Task_BUTTONS;
+
 enum ButtonNames {
   BUTTON_LEFT,
   BUTTON_RIGHT,
@@ -133,7 +136,6 @@ void setup() {
 }
 
 
-
 void loop() {
   
   // if(millis()-last_print >= 500) {
@@ -141,7 +143,7 @@ void loop() {
   //   last_print = millis();
   // }
 
-  updateButtons();
+  //updateButtons();
 }
 
 
