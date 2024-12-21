@@ -206,6 +206,8 @@ void initButtons() {
   attachInterrupt(BUTTON1_PIN, button_R_isr, CHANGE);
   attachInterrupt(BUTTON2_PIN, button_L_isr, CHANGE);
 
+  Mutex_BUTTONS = xSemaphoreCreateMutex();  
+
   // core 0 has task watchdog enabled to protect wifi service etc
   // core 1 does not have watchdog enabled
   // can do this if wdt gives trouble: disableCore0WDT();
@@ -223,7 +225,14 @@ void initButtons() {
 void Task_BUTTONS_code(void * pvParameters) {
   while(1) {
 
-    updateButtons();
+    // take mutex prior to critical section
+    if(xSemaphoreTake(Mutex_BUTTONS, (TickType_t)10) == pdTRUE) {
+      
+      updateButtons();
+      
+      // give mutex after critical section
+      xSemaphoreGive(Mutex_BUTTONS);
+    }
 
     //vTaskDelay(1);
     TickType_t xLastWakeTime = xTaskGetTickCount();

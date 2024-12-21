@@ -27,7 +27,8 @@ int counter = 0;
 
 
 // ----------- buttons -----------
-TaskHandle_t Task_BUTTONS;
+static TaskHandle_t Task_BUTTONS;
+static SemaphoreHandle_t Mutex_BUTTONS;
 
 enum ButtonNames {
   BUTTON_LEFT,

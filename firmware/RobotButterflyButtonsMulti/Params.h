@@ -8,7 +8,7 @@
 #define NEXT_INDIVIDUAL_BUTTON_HOLD      200   // amount of time after a both button hold til an individual button hold is registered
 
 // --------- RTOS ----------
-#define STACK_BUTTONS         2048   // Task_BUTTONS stack size
+#define STACK_BUTTONS         1024   // Task_BUTTONS stack size
 #define TASK_CORE_BUTTONS        0
 #define TASK_FREQ_BUTTONS        1
 #define PRIORITY_BUTTONS         1
