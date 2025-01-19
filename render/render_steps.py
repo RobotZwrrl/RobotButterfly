@@ -28,16 +28,11 @@ php_template = """
 {gallery_rows}
 
 <div class=\"row\">
-  <div class=\"col-2\">
-    &nbsp;
-  </div>
-  <div class=\"col-8\" style=\"opacity: 40%;\">
-    <div class=\"progress\" style=\"height: 10px;\">
-      <div class=\"progress-bar bg-info\" role=\"progressbar\" style=\"width: {progress};\" aria-valuenow=\"{progress_value}\" aria-valuemin=\"0\" aria-valuemax=\"100\"></div>
+  <div class=\"col-2\">&nbsp;</div>
+  <div class=\"col-8\">
+    <div class=\"progress\">
+      <div class=\"progress-bar bg-info\" role=\"progressbar\" style=\"width: {progress};\" aria-valuenow=\"{progress_value}\" aria-valuemin=\"0\" aria-valuemax=\"100\">{progress}</div>
     </div>
-  </div>
-  <div class=\"col-2\">
-    &nbsp;
   </div>
 </div>
 

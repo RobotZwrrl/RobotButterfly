@@ -15,6 +15,9 @@ csv_data['Chapter'] = csv_data['Chapter'].astype(int)
 # Debugging: Print the column names to verify correctness
 print("CSV Columns:", csv_data.columns)
 
+# Determine the total number of chapters
+total_chapters = csv_data['Chapter'].nunique()
+
 # Group the steps by chapter
 chapters = csv_data.groupby('Chapter')
 
@@ -38,9 +41,9 @@ for chapter, steps in chapters:
             f"      <a href=\"chapter{int(chapter) - 1:02d}.php\" class=\"ch-title\"><i class=\"bi bi-arrow-left-circle-fill\"></i></a>\n"
         )
 
-    # Add the chapter title
+    # Add the chapter title with current chapter and total chapters
     php_includes_content += (
-        f"      Robot Butterfly Assembly - Chapter {int(chapter)}\n"
+        f"      Robot Butterfly Assembly - Chapter {int(chapter)}/{total_chapters}\n"
     )
 
     # Add next chapter link if applicable
