@@ -2,7 +2,7 @@
 
 [Robot Butterfly](http://robotzwrrl.xyz/robot-butterfly/) is a companion robot to appreciate the elegance of nature with, while observing all the details — no matter how tiny or inconspicuous!
 
-For more information: [robotzwrrl.xyz/robot-butterfly](http://robotzwrrl.xyz/robot-butterfly/)
+For more information, check out: [robotzwrrl.xyz/robot-butterfly](http://robotzwrrl.xyz/robot-butterfly/). As well, see the [instructions](https://robotzwrrl.xyz/robot-butterfly/instructions/chapter01.php) to build your own!
 
 Robot Butterfly's design files are released as open source hardware, provided under these unique terms: If you replicate it, please take a photo of it in nature and email it to me with the city and its nickname!
 
