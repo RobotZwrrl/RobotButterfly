@@ -40,6 +40,9 @@ https://github.com/RobotGrrl/boostlet
 
 https://github.com/RobotGrrl/Keystone
 
+
+### What do the LEDs mean?
+
 There are a few LEDs that are visible through the windows on the back of the enclosure.
 
 On Chonky, there are two yellow 5 mm LEDs. On the left hand side, is D2. In the firmware, D2 is `LED_COMMS_PIN` (pin 5). On the right hand side, this is D1. In the firmware, D1 is `LED_HEARTBEAT_PIN` (pin 13).
