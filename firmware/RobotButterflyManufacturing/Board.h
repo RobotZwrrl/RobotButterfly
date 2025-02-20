@@ -29,3 +29,9 @@
 #define EXTRA_PIN           32
 #define PROX_R_PIN          33   // cut solder bridge on chonky
 #define DHT11_PIN           33
+
+/*
+Preferences:
+String wifi_ssid
+String wifi_pass
+*/
