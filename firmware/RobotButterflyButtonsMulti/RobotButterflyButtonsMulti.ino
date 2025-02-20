@@ -7,7 +7,7 @@
  * Board: ESP32 Dev Module
  * CPU speed: 80 MHz
  * Upload speed: 115200 baud
- * esp boards package: v 3.0.2
+ * esp boards package: v 3.0.2 or 2.0.4
  *
  * 18 Aug 2024 - Erin RobotZwrrl for Robot Missions Inc
  * http://robotzwrrl.xyz/robot-butterfly
@@ -29,6 +29,14 @@ int counter = 0;
 // ----------- buttons -----------
 static TaskHandle_t Task_BUTTONS;
 static SemaphoreHandle_t Mutex_BUTTONS;
+
+struct ButtonTaskMon {
+  long task_enter;
+  long task_exit;
+  uint8_t task_priority;
+};
+
+struct ButtonTaskMon buttonTaskMon;
 
 enum ButtonNames {
   BUTTON_LEFT,
@@ -62,6 +70,9 @@ struct Button {
 
 volatile static struct Button Button_L;
 volatile static struct Button Button_R;
+
+long last_buzz_both = 0;  // for a non-blocking delay for sound when both buttons are held
+bool buzz_dir = true;     // alternate between tone and noTone
 // -----------------------------------
 
 
@@ -144,6 +155,41 @@ void loop() {
   //   last_print = millis();
   // }
 
+  if(Serial.available()) {
+    char c = Serial.read();
+    Serial << "priority is: " << uxTaskPriorityGet(Task_BUTTONS) << endl;
+    switch(c) {
+      case '[':
+        vTaskPrioritySet(Task_BUTTONS, PRIORITY_BUTTONS_LOW);
+        Serial << "PRIORITY_BUTTONS_LOW" << endl;
+      break;
+      case ']':
+        vTaskPrioritySet(Task_BUTTONS, PRIORITY_BUTTONS_HIGH);
+        Serial << "PRIORITY_BUTTONS_HIGH" << endl;
+      break;
+      case '\\':
+        vTaskPrioritySet(Task_BUTTONS, tskIDLE_PRIORITY);
+        Serial << "tskIDLE_PRIORITY" << endl;
+      break;
+      case 'p': {
+        uint8_t p = buttonTaskMon.task_priority;
+        long t1 = buttonTaskMon.task_enter;
+        long t2 = buttonTaskMon.task_exit;
+        Serial << "Task priority: " << p << endl;
+        Serial << "Task enter: " << t1 << endl;
+        Serial << "Task exit: " << t2 << endl;
+        Serial << "Task time: " << t2-t1 << endl;
+      }
+      break;
+      case 'h':
+        Serial << "[: set priority low" << endl;
+        Serial << "]: set priority high" << endl;
+        Serial << "\\: set priority idle" << endl;
+        Serial << "p: task mon" << endl;
+      break;
+    }
+  }
+
   //updateButtons();
 }
 
@@ -152,14 +198,21 @@ void loop() {
 // --------- Button Callbacks ---------
 // ------------------------------------
 
+
 // give user feedback that they have held the
 // button and its time to to release the button
 void buttonHoldNotificationCallback(uint8_t n) {
   switch(n) {
     case BUTTON_BOTH:
-      tone(BUZZER_PIN, NOTE_F5, 500);
-      noTone(BUZZER_PIN);
-      delay(200);
+      if(millis()-last_buzz_both >= 200) {
+        if(buzz_dir) {
+          tone(BUZZER_PIN, NOTE_F5, 500);
+        } else {
+          noTone(BUZZER_PIN);
+        }
+        buzz_dir = !buzz_dir;
+        last_buzz_both = millis();
+      }
     break;
     case BUTTON_LEFT:
       tone(BUZZER_PIN, NOTE_A5, 500);

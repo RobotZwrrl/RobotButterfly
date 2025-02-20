@@ -10,5 +10,7 @@
 // --------- RTOS ----------
 #define STACK_BUTTONS         1024   // Task_BUTTONS stack size
 #define TASK_CORE_BUTTONS        0
-#define TASK_FREQ_BUTTONS        1
-#define PRIORITY_BUTTONS         1
+#define TASK_FREQ_BUTTONS        1   // delay until (ms), each loop
+#define PRIORITY_BUTTONS_LOW     1
+#define PRIORITY_BUTTONS_MID     2
+#define PRIORITY_BUTTONS_HIGH    5

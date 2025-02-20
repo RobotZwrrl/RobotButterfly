@@ -14,4 +14,3 @@ void print_wakeup_reason() {
     default : Serial.printf("Wakeup was not caused by deep sleep: %d\n",wakeup_reason); break;
   }
 }
-

@@ -212,18 +212,23 @@ void initButtons() {
   // core 1 does not have watchdog enabled
   // can do this if wdt gives trouble: disableCore0WDT();
   xTaskCreatePinnedToCore(
-                    Task_BUTTONS_code,   // task function
-                    "Task_BUTTONS",      // name of task
-                    STACK_BUTTONS,       // stack size of task
-                    NULL,                // parameter of the task
-                    PRIORITY_BUTTONS,    // priority of the task (low number = low priority)
-                    &Task_BUTTONS,       // task handle to keep track of created task
-                    TASK_CORE_BUTTONS);  // pin task to core 0
+                    Task_BUTTONS_code,     // task function
+                    "Task_BUTTONS",        // name of task
+                    STACK_BUTTONS,         // stack size of task
+                    NULL,                  // parameter of the task
+                    PRIORITY_BUTTONS_LOW,  // priority of the task (low number = low priority)
+                    &Task_BUTTONS,         // task handle to keep track of created task
+                    TASK_CORE_BUTTONS);    // pin task to core 0
+
 }
 
 
 void Task_BUTTONS_code(void * pvParameters) {
   while(1) {
+
+    // update task mon
+    buttonTaskMon.task_enter = millis();
+    buttonTaskMon.task_priority = uxTaskPriorityGet(Task_BUTTONS);
 
     // take mutex prior to critical section
     if(xSemaphoreTake(Mutex_BUTTONS, (TickType_t)10) == pdTRUE) {
@@ -233,6 +238,9 @@ void Task_BUTTONS_code(void * pvParameters) {
       // give mutex after critical section
       xSemaphoreGive(Mutex_BUTTONS);
     }
+
+    // update our task mon
+    buttonTaskMon.task_exit = millis();
 
     //vTaskDelay(1);
     TickType_t xLastWakeTime = xTaskGetTickCount();
