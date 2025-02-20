@@ -40,6 +40,14 @@ https://github.com/RobotGrrl/boostlet
 
 https://github.com/RobotGrrl/Keystone
 
+There are a few LEDs that are visible through the windows on the back of the enclosure.
+
+On Chonky, there are two yellow 5 mm LEDs. On the left hand side, is D2. In the firmware, D2 is `LED_COMMS_PIN` (pin 5). On the right hand side, this is D1. In the firmware, D1 is `LED_HEARTBEAT_PIN` (pin 13).
+
+LEDs from Keystone are also visible through the LED ports on the back side of the enclosure. As well, sometimes their brightness reflects in Chonky’s 5 mm LEDs. On the left hand side is power. The power LED is on all the time. On the right hand side are TX and RX. The TX and RX LEDs are activated whenever there is data on the serial port. This can be useful for a visual check, but it also just looks techno cool.
+
+In the inaugural version, all the LEDs are yellow, which can sometimes make it tricky to visually differentiate between Chonky and Keystone's LEDs. This will be changed in a future production revision :)
+
 ---
 
 ## Manufacturing
