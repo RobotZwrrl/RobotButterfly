@@ -1,3 +1,51 @@
+void initWifi() {
+
+  pinMode(LED_COMMS_PIN, OUTPUT);
+
+  Mutex_WIFI = xSemaphoreCreateMutex();  
+
+  // core 0 has task watchdog enabled to protect wifi service etc
+  // core 1 does not have watchdog enabled
+  // can do this if wdt gives trouble: disableCore0WDT();
+  xTaskCreatePinnedToCore(
+                    Task_WIFI_code,     // task function
+                    "Task_WIFI",        // name of task
+                    STACK_WIFI,         // stack size of task
+                    NULL,               // parameter of the task
+                    PRIORITY_WIFI_MID,  // priority of the task (low number = low priority)
+                    &Task_WIFI,         // task handle to keep track of created task
+                    TASK_CORE_WIFI);    // pin task to core 0
+
+}
+
+
+void Task_WIFI_code(void * pvParameters) {
+  while(1) {
+
+    // update task mon
+    wifiTaskMon.task_enter = millis();
+    wifiTaskMon.task_priority = uxTaskPriorityGet(Task_WIFI);
+
+    // take mutex prior to critical section
+    if(xSemaphoreTake(Mutex_WIFI, (TickType_t)10) != pdTRUE) {
+      
+      updateWifi();
+
+      // give mutex after critical section
+      xSemaphoreGive(Mutex_WIFI);
+    }
+    
+    // update our task mon
+    wifiTaskMon.task_exit = millis();
+
+    //vTaskDelay(1);
+    TickType_t xLastWakeTime = xTaskGetTickCount();
+    vTaskDelayUntil( &xLastWakeTime, TASK_FREQ_WIFI );
+  }
+  // task destructor prevents the task from doing damage to the other tasks in case a task jumps its stack
+  vTaskDelete(NULL);
+}
+
 
 void updateWifi() {
 
@@ -98,3 +146,4 @@ void readPrefs() {
   preferences.end();
 
 }
+

@@ -1,8 +1,8 @@
 /*
- * Robot Butterfly Wifi
+ * Robot Butterfly Wifi Task
  * ------------------------------
  * Connect to wifi and reconnect when the
- * connection is lost
+ * connection is lost. Implemented as a task
  * 
  * Note: To see LED_COMMS_PIN vs the power
  * LED on Keystone, the device has to be
@@ -21,22 +21,29 @@
  */
 
 #include "Board.h"
+#include "Params.h"
 #include <Streaming.h>
 #include <Preferences.h>
 #include "WiFi.h"
 
+// ------------ wifi -------------
+static TaskHandle_t Task_WIFI;
+static SemaphoreHandle_t Mutex_WIFI;
 
-// ------------ vars -------------
-#define DEBUG_WIFI                true
-#define WIFI_CHECK_INTERVAL       3000    // how often to try to reconnect (+ WIFI_CONNECTION_TIMEOUT)
-#define WIFI_CONNECTION_TIMEOUT   10000   // how long to wait while connecting
-#define WIFI_CONNECT_ON_STARTUP    true   // auto connect on startup
 bool AUTO_RECONNECT_WIFI = true; // auto reconnect if disconnected
 bool WIFI_CONNECTING = false;
 bool JUST_CONNECTED = false;
 long last_wifi_check = 0;
 long last_print = 0;
 long connect_time = 0;
+
+struct WifiTaskMon {
+  long task_enter;
+  long task_exit;
+  uint8_t task_priority;
+};
+
+struct WifiTaskMon wifiTaskMon;
 
 Preferences preferences;
 // -------------------------------
@@ -45,9 +52,10 @@ Preferences preferences;
 void setup() {
 
   Serial.begin(9600);
-  pinMode(LED_COMMS_PIN, OUTPUT);
-
+  
   print_wakeup_reason();
+
+  initWifi();
 
   Serial << "Ready" << endl;
 
@@ -60,8 +68,6 @@ void loop() {
   //   Serial << millis() << " hi " << xPortGetCoreID() << endl;
   //   last_print = millis();
   // }
-
-  updateWifi();
 
   if(Serial.available()) {
     char c = Serial.read();
@@ -90,6 +96,32 @@ void loop() {
       case 'i':
         Serial << "ip address: " << WiFi.localIP() << endl;
       break;
+      case '[':
+        vTaskPrioritySet(Task_WIFI, PRIORITY_WIFI_LOW);
+        Serial << "PRIORITY_WIFI_LOW" << endl;
+      break;
+      case ']':
+        vTaskPrioritySet(Task_WIFI, PRIORITY_WIFI_MID);
+        Serial << "PRIORITY_WIFI_MID" << endl;
+      break;
+      case '\\':
+        vTaskPrioritySet(Task_WIFI, PRIORITY_WIFI_HIGH);
+        Serial << "PRIORITY_WIFI_HIGH" << endl;
+      break;
+      case '=':
+        vTaskPrioritySet(Task_WIFI, tskIDLE_PRIORITY);
+        Serial << "tskIDLE_PRIORITY" << endl;
+      break;
+      case 'p': {
+        uint8_t p = wifiTaskMon.task_priority;
+        long t1 = wifiTaskMon.task_enter;
+        long t2 = wifiTaskMon.task_exit;
+        Serial << "Task priority: " << p << endl;
+        Serial << "Task enter: " << t1 << endl;
+        Serial << "Task exit: " << t2 << endl;
+        Serial << "Task time: " << t2-t1 << endl;
+      }
+      break;
       case 'h':
         Serial << "r: read prefs" << endl;
         Serial << "c: connect wifi" << endl;
@@ -97,6 +129,12 @@ void loop() {
         Serial << "b: toggle AUTO_RECONNECT_WIFI" << endl;
         Serial << "m: read mac address" << endl;
         Serial << "i: read ip address" << endl;
+        Serial << "--- rtos ---" << endl;
+        Serial << "[: set priority low" << endl;
+        Serial << "]: set priority mid" << endl;
+        Serial << "\\: set priority high" << endl;
+        Serial << "=: set priority idle" << endl;
+        Serial << "p: task mon" << endl;
       break;
     }
   }
