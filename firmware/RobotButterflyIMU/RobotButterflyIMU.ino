@@ -49,6 +49,7 @@ struct IMUData {
 };
 
 uint8_t IMU_STATE = IMU_ACTIVE;
+uint8_t IMU_STATE_PREV = IMU_ACTIVE;
 static struct IMUData imu;
 static struct IMUData imu_prev;
 static struct IMUData imu_delta_avg;
@@ -65,9 +66,25 @@ movingAvg imu_avg_gx(IMU_MOVING_AVG_WINDOW);
 movingAvg imu_avg_gy(IMU_MOVING_AVG_WINDOW);
 movingAvg imu_avg_gz(IMU_MOVING_AVG_WINDOW);
 
-long last_home_calibration = 0;
 long last_imu_calib_print = 0;
+long last_home_calibration = 0;
 long settle_start = 0;
+long calibration_start = 0;
+long last_score_clear = 0;
+int home_recalibrate_score = 0;
+
+// eg, left meaning it is the robot's left
+enum IMUPoses {
+  IMU_Pose_Tilt_L,
+  IMU_Pose_Tilt_R,
+  IMU_Pose_Tilt_Fwd,
+  IMU_Pose_Tilt_Bwd,
+  IMU_Pose_Home,
+  IMU_Pose_NA
+};
+
+uint8_t IMU_POSE = IMU_Pose_NA;
+long last_pose_detected = 0;
 // -----------------------------------
 
 
@@ -109,9 +126,12 @@ void loop() {
   if(Serial.available()) {
     char c = Serial.read();
     switch(c) {
+      case '1':
+        Serial << "home position: " << endl;
+        printIMUHome();
+      break;
       case 'e':
         IMU_STATE = IMU_SETTLE;
-        settle_start = millis();
       break;
       case 'r':
         IMU_DATA_PRINT_RAW = !IMU_DATA_PRINT_RAW;
@@ -123,6 +143,7 @@ void loop() {
         IMU_DATA_PRINT_DELTA_AVG = !IMU_DATA_PRINT_DELTA_AVG;
       break;
       case 'h':
+        Serial << "1: print imu home" << endl;
         Serial << "e: IMU_STATE = IMU_SETTLE" << endl;
         Serial << "o: print imu data" << endl;
         Serial << "p: print imu delta avg" << endl;

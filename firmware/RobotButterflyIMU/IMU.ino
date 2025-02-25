@@ -11,6 +11,12 @@
 
 void updateIMU() {
 
+  // vars for enter states
+  if(IMU_STATE == IMU_SETTLE && IMU_STATE_PREV != IMU_STATE) {
+    settle_start = millis();
+  }
+  IMU_STATE_PREV = IMU_STATE;
+
   // store the previous values
   imu_prev.ax = imu.ax;
   imu_prev.ay = imu.ay;
@@ -30,7 +36,7 @@ void updateIMU() {
     // prints...
     if(DEBUG_IMU) {
       if(millis()-last_imu_calib_print >= 100) {
-        Serial << "waiting for the robot to settle " << millis()-settle_start << " / " << IMU_HOME_WAIT_TIME << endl;
+        Serial << "waiting for the robot to settle " << millis()-settle_start << " / " << IMU_HOME_SETTLE_TIME << endl;
         last_imu_calib_print = millis();
       }
     }
@@ -50,7 +56,7 @@ void updateIMU() {
       imu_avg_gz.reset();
       
       IMU_STATE = IMU_CALIBRATE_HOME;
-      last_home_calibration = millis();
+      calibration_start = millis();
       return;
     }
 
@@ -69,13 +75,13 @@ void updateIMU() {
 
     if(DEBUG_IMU) {
       if(millis()-last_imu_calib_print >= 100) {
-        Serial << "calibrating... " << millis()-last_home_calibration << " / " << IMU_HOME_CALIBRATION_TIME << endl;
+        Serial << "calibrating... " << millis()-calibration_start << " / " << IMU_HOME_CALIBRATION_TIME << endl;
         last_imu_calib_print = millis();
       }
     }
 
-    // last_home_calibration is the start time of the calibration
-    if(millis()-last_home_calibration >= IMU_HOME_CALIBRATION_TIME) {
+    // calibration_start is the start time of the calibration
+    if(millis()-calibration_start >= IMU_HOME_CALIBRATION_TIME) {
 
       // set the home values
       imu_home.ax = imu_avg_ax.getAvg();
@@ -93,7 +99,8 @@ void updateIMU() {
       imu_avg_gx.reset();
       imu_avg_gy.reset();
       imu_avg_gz.reset();
-      last_home_calibration = 0;
+      calibration_start = 0;
+      last_home_calibration = millis();
 
       if(DEBUG_IMU) Serial << "calibration done, sending to IMU_ACTIVE" << endl;
 
@@ -104,6 +111,7 @@ void updateIMU() {
     return;
   }
 
+  // ------- IMU_ACTIVE -------
 
   // for the delta
   int delta_ax;
@@ -151,6 +159,22 @@ void updateIMU() {
     imu_delta_avg.gz = imu_avg_gz.getAvg();
     imu_delta_avg.last_data = millis();
 
+    // check if there's a new position
+    bool p = checkPositionIMU();
+
+    // check if home needs to be recalibrated whenever
+    // there's this new window of delta average data.
+    // after the pose lockout is complete.
+    if(PREFS_AUTO_RECALIBRATE_HOME) {
+      if(p == false && millis()-last_pose_detected >= IMU_POSE_LOCKOUT) {
+        Serial << "yes checking" << endl;
+        checkRecalibrateIMUHome();
+      }
+    }
+
+    // prints
+    if(IMU_DATA_PRINT_DELTA_AVG) printIMUDeltaAvg();
+
     // get ready for the next sample
     imu_avg_ax.reset();
     imu_avg_ay.reset();
@@ -158,8 +182,8 @@ void updateIMU() {
     imu_avg_gx.reset();
     imu_avg_gy.reset();
     imu_avg_gz.reset();
-
     new_avg_sample = false;
+    
   }
 
   // prints
@@ -171,16 +195,6 @@ void updateIMU() {
     Serial.print(imu.gx); Serial.print("\t");
     Serial.print(imu.gy); Serial.print("\t");
     Serial.println(imu.gz);
-  }
-
-  if(IMU_DATA_PRINT_DELTA_AVG) {
-    Serial.print("a/g:\t");
-    Serial.print(imu_delta_avg.ax); Serial.print("\t");
-    Serial.print(imu_delta_avg.ay); Serial.print("\t");
-    Serial.print(imu_delta_avg.az); Serial.print("\t");
-    Serial.print(imu_delta_avg.gx); Serial.print("\t");
-    Serial.print(imu_delta_avg.gy); Serial.print("\t");
-    Serial.println(imu_delta_avg.gz);
   }
 
   if(IMU_DATA_PRINT) {
@@ -212,10 +226,6 @@ void initIMU() {
   mpu.setFullScaleAccelRange(MPU6050_ACCEL_FS_4);
   mpu.setFullScaleGyroRange(MPU6050_GYRO_FS_500);
 
-  // TODO: uncomment this
-  //IMU_STATE = IMU_SETTLE;
-  //settle_start = millis();
-
   // set up timer 2 for every 0.1 second
   // params: timer #2, prescaler amount, count up (true)
   timer2_cfg = timerBegin(2, 16000, true);
@@ -239,6 +249,129 @@ void initIMU() {
   imu_avg_gy.begin();
   imu_avg_gz.begin();
 
+  IMU_STATE = IMU_SETTLE;
 }
 
 
+bool checkPositionIMU() {
+
+  bool pose_detected = false;
+
+  // side tilt:
+  // ax: 8000 max, thresh at 2500 (so map between those two)
+  // ay: <1000 generally small
+  // az: >300 wild values
+  // ax: negative = tilting towards RB's right
+  // ax: positive = tilting towards RB's left  
+
+  if(!pose_detected) {
+    if(abs(imu_delta_avg.ax) <= 8000 && abs(imu_delta_avg.ax) >= 2300) {
+      if(abs(imu_delta_avg.ay) <= 1000) {
+        if(abs(imu_delta_avg.az) >= 300) {
+          if(DEBUG_IMU) Serial << "pose detected: ";
+          if(imu_delta_avg.ax < 0) {
+            if(DEBUG_IMU) Serial << "tilt right" << endl;
+            IMU_POSE = IMU_Pose_Tilt_R;
+          } else {
+            if(DEBUG_IMU) Serial << "tilt left" << endl;
+            IMU_POSE = IMU_Pose_Tilt_L;
+          }
+          pose_detected = true;
+        }
+      }
+    }
+  }
+
+
+  // front / back tilt:
+  // ax: < 1500 generally small
+  // ay: < 8000, > 2100 (map between these two)
+  // az: wild values
+  
+  if(!pose_detected) {
+    if(abs(imu_delta_avg.ay) <= 8000 && abs(imu_delta_avg.ay) >= 2100) {
+      if(abs(imu_delta_avg.ax) <= 1500) {
+        if(DEBUG_IMU) Serial << "pose detected: ";
+        if(imu_delta_avg.ay < 0) {
+          if(DEBUG_IMU) Serial << "tilt backwards" << endl;
+          IMU_POSE = IMU_Pose_Tilt_Bwd;
+        } else {
+          if(DEBUG_IMU) Serial << "tilt forwards" << endl;
+          IMU_POSE = IMU_Pose_Tilt_Fwd;
+        }
+        pose_detected = true;
+      }
+    }
+  }
+
+  if(pose_detected) {
+    home_recalibrate_score = 0; // reset the home recal score for after the lockout
+    last_pose_detected = millis();
+  }
+
+  return pose_detected;
+}
+
+
+void checkRecalibrateIMUHome() {
+
+  // make sure it doesn't loop recalibrating
+  if(millis()-last_home_calibration < IMU_HOME_RECALIBRATION_LOCKOUT_TIME) return;
+
+  int delta[6];
+
+  delta[0] = abs(imu_delta_avg.ax);
+  delta[1] = abs(imu_delta_avg.ay);
+  delta[2] = abs(imu_delta_avg.az);
+  delta[3] = abs(imu_delta_avg.gx);
+  delta[4] = abs(imu_delta_avg.gy);
+  delta[5] = abs(imu_delta_avg.gz);
+
+  for(uint8_t i=0; i<6; i++) {
+    if(delta[i] >= IMU_DELTA_RECALIBRATE_HOME_THRESH) {
+      home_recalibrate_score++;
+    }
+  }
+  if(DEBUG_IMU) Serial << "score: " << home_recalibrate_score << endl;
+
+  // toggle that it needs to be recalibrated
+  if(home_recalibrate_score >= IMU_HOME_SCORE_THRESH) {
+    if(DEBUG_IMU) Serial << "home recalibration needed, score: " << home_recalibrate_score << endl;
+    home_recalibrate_score = 0;
+    last_score_clear = millis();
+    IMU_STATE = IMU_SETTLE;
+    return;
+  }
+
+  // clear the score every so often
+  // the score accumulates - so that instantaneous
+  // anomolies don't trigger a recalibration
+  if(millis()-last_score_clear >= IMU_HOME_RECAL_SCORE_CLEAR) {
+    home_recalibrate_score -= 3;
+    last_score_clear = millis();
+    if(home_recalibrate_score < 0) home_recalibrate_score = 0;
+    if(DEBUG_IMU) Serial << "decremented score: " << home_recalibrate_score << endl;
+  }
+
+}
+
+
+void printIMUHome() {
+  Serial.print("a/g:\t");
+  Serial.print(imu_home.ax); Serial.print("\t");
+  Serial.print(imu_home.ay); Serial.print("\t");
+  Serial.print(imu_home.az); Serial.print("\t");
+  Serial.print(imu_home.gx); Serial.print("\t");
+  Serial.print(imu_home.gy); Serial.print("\t");
+  Serial.println(imu_home.gz);
+}
+
+void printIMUDeltaAvg() {
+  Serial.print("a/g:\t");
+  Serial.print(imu_delta_avg.ax); Serial.print("\t");
+  Serial.print(imu_delta_avg.ay); Serial.print("\t");
+  Serial.print(imu_delta_avg.az); Serial.print("\t");
+  Serial.print(imu_delta_avg.gx); Serial.print("\t");
+  Serial.print(imu_delta_avg.gy); Serial.print("\t");
+  Serial.println(imu_delta_avg.gz);
+}
