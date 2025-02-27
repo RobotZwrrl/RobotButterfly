@@ -10,8 +10,6 @@
 // may not be the exact number defined here
 #define IMU_MOVING_AVG_WINDOW 100 // 100 samples in 0.1 seconds = 1 sample / ms
 
-#define DELTA_HOME true
-
 // wait time for the imu to settle before using
 // the values to make the home average (eg, if 
 // they just placed the robot down after pressing

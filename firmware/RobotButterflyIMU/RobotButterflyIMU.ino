@@ -52,19 +52,36 @@ uint8_t IMU_STATE = IMU_ACTIVE;
 uint8_t IMU_STATE_PREV = IMU_ACTIVE;
 static struct IMUData imu;
 static struct IMUData imu_prev;
-static struct IMUData imu_delta_avg;
+static struct IMUData imu_avg;
 static struct IMUData imu_home;
+static struct IMUData imu_delta_home_avg;
+static struct IMUData imu_delta_time_avg;
 
-bool IMU_DATA_PRINT = false;
-bool IMU_DATA_PRINT_RAW = false;
-bool IMU_DATA_PRINT_DELTA_AVG = true;
+bool IMU_PRINT_RAW = false;
+bool IMU_PRINT_DATA_AVG = false;
+bool IMU_PRINT_DELTA_HOME_AVG = true;
+bool IMU_PRINT_DELTA_TIME_AVG = false;
 
-movingAvg imu_avg_ax(IMU_MOVING_AVG_WINDOW);
-movingAvg imu_avg_ay(IMU_MOVING_AVG_WINDOW);
-movingAvg imu_avg_az(IMU_MOVING_AVG_WINDOW);
-movingAvg imu_avg_gx(IMU_MOVING_AVG_WINDOW);
-movingAvg imu_avg_gy(IMU_MOVING_AVG_WINDOW);
-movingAvg imu_avg_gz(IMU_MOVING_AVG_WINDOW);
+movingAvg imu_avg_data_ax(IMU_MOVING_AVG_WINDOW);
+movingAvg imu_avg_data_ay(IMU_MOVING_AVG_WINDOW);
+movingAvg imu_avg_data_az(IMU_MOVING_AVG_WINDOW);
+movingAvg imu_avg_data_gx(IMU_MOVING_AVG_WINDOW);
+movingAvg imu_avg_data_gy(IMU_MOVING_AVG_WINDOW);
+movingAvg imu_avg_data_gz(IMU_MOVING_AVG_WINDOW);
+
+movingAvg imu_avg_home_ax(IMU_MOVING_AVG_WINDOW);
+movingAvg imu_avg_home_ay(IMU_MOVING_AVG_WINDOW);
+movingAvg imu_avg_home_az(IMU_MOVING_AVG_WINDOW);
+movingAvg imu_avg_home_gx(IMU_MOVING_AVG_WINDOW);
+movingAvg imu_avg_home_gy(IMU_MOVING_AVG_WINDOW);
+movingAvg imu_avg_home_gz(IMU_MOVING_AVG_WINDOW);
+
+movingAvg imu_avg_time_ax(IMU_MOVING_AVG_WINDOW);
+movingAvg imu_avg_time_ay(IMU_MOVING_AVG_WINDOW);
+movingAvg imu_avg_time_az(IMU_MOVING_AVG_WINDOW);
+movingAvg imu_avg_time_gx(IMU_MOVING_AVG_WINDOW);
+movingAvg imu_avg_time_gy(IMU_MOVING_AVG_WINDOW);
+movingAvg imu_avg_time_gz(IMU_MOVING_AVG_WINDOW);
 
 long last_imu_calib_print = 0;
 long last_home_calibration = 0;
@@ -130,24 +147,44 @@ void loop() {
         Serial << "home position: " << endl;
         printIMUHome();
       break;
+      case '2':
+        Serial << "raw imu data: " << endl;
+        printIMURaw();
+      break;
       case 'e':
         IMU_STATE = IMU_SETTLE;
       break;
-      case 'r':
-        IMU_DATA_PRINT_RAW = !IMU_DATA_PRINT_RAW;
-      break;
-      case 'o':
-        IMU_DATA_PRINT = !IMU_DATA_PRINT;
-      break;
       case 'p':
-        IMU_DATA_PRINT_DELTA_AVG = !IMU_DATA_PRINT_DELTA_AVG;
+        IMU_PRINT_DELTA_HOME_AVG = !IMU_PRINT_DELTA_HOME_AVG;
+      break;
+      case 'b':
+        IMU_PRINT_RAW = !IMU_PRINT_RAW;
+      break;
+      case 'n':
+        IMU_PRINT_DATA_AVG = !IMU_PRINT_DATA_AVG;
+      break;
+      case 'm':
+        IMU_PRINT_DELTA_HOME_AVG = !IMU_PRINT_DELTA_HOME_AVG;
+      break;
+      case ',':
+        IMU_PRINT_DELTA_TIME_AVG = !IMU_PRINT_DELTA_TIME_AVG;
       break;
       case 'h':
-        Serial << "1: print imu home" << endl;
+        Serial << "h: help" << endl;
+        Serial << "1: print imu home frame" << endl;
+        Serial << "2: print imu raw data frame" << endl;
         Serial << "e: IMU_STATE = IMU_SETTLE" << endl;
-        Serial << "o: print imu data" << endl;
-        Serial << "p: print imu delta avg" << endl;
-        Serial << "r: print imu raw" << endl;
+        
+        if(IMU_PRINT_DELTA_HOME_AVG) Serial << "*";
+        Serial << "p: IMU_PRINT_DELTA_HOME_AVG" << endl;
+        if(IMU_PRINT_RAW) Serial << "*";
+        Serial << "b: IMU_PRINT_RAW" << endl;
+        if(IMU_PRINT_DATA_AVG) Serial << "*";
+        Serial << "n: IMU_PRINT_DATA_AVG" << endl;
+        if(IMU_PRINT_DELTA_HOME_AVG) Serial << "*";
+        Serial << "m: IMU_PRINT_DELTA_HOME_AVG" << endl;
+        if(IMU_PRINT_DELTA_TIME_AVG) Serial << "*";
+        Serial << ",: IMU_PRINT_DELTA_TIME_AVG" << endl;
       break;
     }
   }
