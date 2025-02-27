@@ -121,21 +121,25 @@ void updateIMU() {
     // check what orientation it is in
     bool o = checkOrientationIMU();
 
-    // check if there's a new position
-    bool p = checkPositionIMU();
+    // check if there's a new position only in the 
+    // tabletop orientation. pose check implements
+    // a lockout time inside of the function, and the
+    // returned bool reflects that.
+    bool p = false;
+    if(IMU_ORIENTATION != IMU_HANG) {
+      p = checkPositionIMU();
+    }
 
     // check if there's a new event
     bool e = checkEventIMU();
 
-    // check if home needs to be recalibrated whenever
-    // there's this new window of delta average data.
-    // after the pose lockout is complete.
+    // continuously check if home needs to be recalibrated
+    // whenever an orientation is detected, but not if there's
+    // a pose or event
     if(PREFS_AUTO_RECALIBRATE_HOME) {
-      if(p == false && e == false) {
-        if(millis()-last_pose_detected >= IMU_POSE_LOCKOUT) {
-          if(DEBUG_IMU) Serial << "checking to recalibrate home" << endl;
-          checkRecalibrateIMUHome();
-        }
+      if(o == true && p == false && e == false) {
+        if(DEBUG_IMU) Serial << "checking to recalibrate home" << endl;
+        checkRecalibrateIMUHome();
       }
     }
 
@@ -214,6 +218,55 @@ void initIMU() {
 }
 
 
+bool checkOrientationIMU() {
+  
+  IMU_ORIENTATION_PREV = IMU_ORIENTATION;
+
+  bool orientation_detected = false;
+
+  // tabletop
+  if(abs(imu_avg.ax) <= 1000 && abs(imu_avg.ay) <= 1000 && 
+     abs(imu_avg.az) >= 6000 && imu_avg.az < 0) {
+      if(DEBUG_IMU) Serial << "orientation: tabletop" << endl;
+      IMU_ORIENTATION = IMU_TABLETOP;
+      orientation_detected = true;
+  }
+
+  // hang
+  if(abs(imu_avg.ax) <= 1000 && abs(imu_avg.ay) >= 6000 && 
+     abs(imu_avg.az) <= 3000 && imu_avg.ay > 0) {
+      if(DEBUG_IMU) Serial << "orientation: hang" << endl;
+      IMU_ORIENTATION = IMU_HANG;
+      orientation_detected = true;
+  }
+
+  if(IMU_ORIENTATION_PREV != IMU_ORIENTATION) {
+    last_orientation_change = millis();
+  }
+
+  if(orientation_detected) {
+
+    if(IMU_ORIENTATION_PREV != IMU_ORIENTATION) {
+      if(DEBUG_IMU) Serial << "orientation changed!" << endl;
+      // TODO: callback
+      // orientationChangedCallback();
+    }
+
+    return true;
+
+  } else {
+    
+    if(millis()-last_orientation_change >= ORIENTATION_CHANGE_LOCKOUT) {
+      if(DEBUG_IMU) Serial << "orientation unknown" << endl;
+      IMU_ORIENTATION = IMU_UNKNOWN;
+    }
+
+  }
+
+  return false;
+}
+
+
 bool checkPositionIMU() {
 
   bool pose_detected = false;
@@ -270,17 +323,17 @@ bool checkPositionIMU() {
     last_pose_detected = millis();
   }
 
+  if(!pose_detected) {
+    if(millis()-last_pose_detected <= IMU_POSE_LOCKOUT) {
+      return true; // force true as it is still in lockout period
+    }
+  }
+
   return pose_detected;
 }
 
 
 bool checkEventIMU() {
-  // TODO
-  return false;
-}
-
-
-bool checkOrientationIMU() {
   // TODO
   return false;
 }
@@ -312,6 +365,16 @@ void checkRecalibrateIMUHome() {
     if(DEBUG_IMU) Serial << "home recalibration needed, score: " << home_recalibrate_score << endl;
     home_recalibrate_score = 0;
     last_score_clear = millis();
+
+    // skip the settle if it's in hang orientation
+    // as it is very likely to never be 'settled' due
+    // to wind etc
+    if(IMU_ORIENTATION == IMU_HANG) {
+      calibration_start = millis();
+      IMU_STATE = IMU_CALIBRATE_HOME;
+      return;
+    }
+
     IMU_STATE = IMU_SETTLE;
     return;
   }

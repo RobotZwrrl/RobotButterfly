@@ -42,7 +42,7 @@
 // amount of time to wait after the last pose
 // detected before checking to recalibrate the
 // home position
-#define IMU_POSE_LOCKOUT 10000
+#define IMU_POSE_LOCKOUT 3000
 
 // dynamically allow for recalibration of the
 // home position or not. it will always calibrate
@@ -50,4 +50,7 @@
 // definable preference.
 #define PREFS_AUTO_RECALIBRATE_HOME true
 
+// how long to 'hang on' to the previous orientation
+// when the current orientation changes to unknown
+#define ORIENTATION_CHANGE_LOCKOUT 3000
 

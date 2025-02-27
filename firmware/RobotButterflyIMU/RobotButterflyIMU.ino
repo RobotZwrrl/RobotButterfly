@@ -42,6 +42,12 @@ enum IMUStates {
   IMU_ACTIVE
 };
 
+enum IMUOrientations {
+  IMU_TABLETOP,
+  IMU_HANG,
+  IMU_UNKNOWN
+};
+
 struct IMUData {
   int16_t ax, ay, az;
   int16_t gx, gy, gz;
@@ -50,6 +56,11 @@ struct IMUData {
 
 uint8_t IMU_STATE = IMU_ACTIVE;
 uint8_t IMU_STATE_PREV = IMU_ACTIVE;
+
+uint8_t IMU_ORIENTATION = IMU_UNKNOWN;
+uint8_t IMU_ORIENTATION_PREV = IMU_UNKNOWN;
+long last_orientation_change = 0;
+
 static struct IMUData imu;
 static struct IMUData imu_prev;
 static struct IMUData imu_avg;
@@ -174,7 +185,7 @@ void loop() {
         Serial << "1: print imu home frame" << endl;
         Serial << "2: print imu raw data frame" << endl;
         Serial << "e: IMU_STATE = IMU_SETTLE" << endl;
-        
+
         if(IMU_PRINT_DELTA_HOME_AVG) Serial << "*";
         Serial << "p: IMU_PRINT_DELTA_HOME_AVG" << endl;
         if(IMU_PRINT_RAW) Serial << "*";
