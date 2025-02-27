@@ -48,9 +48,24 @@
 // home position or not. it will always calibrate
 // on startup. this will eventually be a user-
 // definable preference.
-#define PREFS_AUTO_RECALIBRATE_HOME true
+#define PREFS_AUTO_RECALIBRATE_HOME false
 
 // how long to 'hang on' to the previous orientation
 // when the current orientation changes to unknown
 #define ORIENTATION_CHANGE_LOCKOUT 3000
+
+// how long to wait after the last event to check
+// if there is a new event
+#define IMU_EVENT_LOCKOUT_TIME 3000
+
+// imu delta home value has to be greater than this
+// value to increment the score
+#define IMU_DELTA_EVENT_THRESH 300
+
+// event score has to be greater than this number
+// to be classified as an actual event
+#define IMU_EVENT_SCORE_THRESH 6
+
+// clear the event score this often
+#define IMU_EVENT_SCORE_CLEAR 500
 

@@ -334,8 +334,44 @@ bool checkPositionIMU() {
 
 
 bool checkEventIMU() {
-  // TODO
+
+  // make sure it doesn't loop detecting events
+  if(millis()-last_event_detected < IMU_EVENT_LOCKOUT_TIME) return true;
+
+  int delta[3];
+
+  delta[0] = abs(imu_delta_home_avg.gx);
+  delta[1] = abs(imu_delta_home_avg.gy);
+  delta[2] = abs(imu_delta_home_avg.gz);
+
+  for(uint8_t i=0; i<3; i++) {
+    if(delta[i] >= IMU_DELTA_EVENT_THRESH) {
+      event_score++;
+    }
+  }
+  if(DEBUG_IMU) Serial << "event score: " << event_score << endl;
+
+  // toggle that it is an event
+  if(event_score >= IMU_EVENT_SCORE_THRESH) {
+    if(DEBUG_IMU) Serial << "event detected, score: " << event_score << endl;
+    last_event_detected = millis();
+    event_score = 0;
+    last_event_score_clear = millis();
+    return true;
+  }
+
+  // clear the score every so often
+  // the score accumulates - so that instantaneous
+  // anomolies don't trigger an event
+  if(millis()-last_event_score_clear >= IMU_EVENT_SCORE_CLEAR) {
+    event_score -= 1;
+    last_event_score_clear = millis();
+    if(event_score < 0) event_score = 0;
+    //if(DEBUG_IMU) Serial << "decremented event score: " << event_score << endl;
+  }
+  
   return false;
+
 }
 
 

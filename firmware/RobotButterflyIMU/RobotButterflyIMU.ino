@@ -61,6 +61,10 @@ uint8_t IMU_ORIENTATION = IMU_UNKNOWN;
 uint8_t IMU_ORIENTATION_PREV = IMU_UNKNOWN;
 long last_orientation_change = 0;
 
+long last_event_detected = 0;
+long last_event_score_clear = 0;
+int event_score = 0;
+
 static struct IMUData imu;
 static struct IMUData imu_prev;
 static struct IMUData imu_avg;
