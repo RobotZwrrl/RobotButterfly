@@ -59,8 +59,9 @@
 #define IMU_EVENT_LOCKOUT_TIME 3000
 
 // imu delta home value has to be greater than this
-// value to increment the score
-#define IMU_DELTA_EVENT_THRESH 300
+// value to increment the score for these two orientations
+#define IMU_DELTA_EVENT_THRESH_HANG 300
+#define IMU_DELTA_EVENT_THRESH_TABLETOP 100
 
 // event score has to be greater than this number
 // to be classified as an actual event

@@ -25,12 +25,14 @@
 #include "MPU6050.h"    // https://github.com/ElectronicCats/mpu6050/ 
 
 
-// ------------ tests ------------
-long last_print;
-// -------------------------------
+// ------------ callbacks ------------
+void imuStateChangeCallback(uint8_t s);
+void imuOrientationChangeCallback(uint8_t o);
+void imuPoseChangeCallback(uint8_t p);
+void imuEventDetectedCallback(uint8_t e);
+// ------------------------------------
 
-
-// ----------- imu -----------
+// --------------- imu ----------------
 hw_timer_t *timer2_cfg = NULL;
 volatile bool new_avg_sample = false;
 
@@ -79,6 +81,7 @@ enum IMUPoses {
 };
 
 uint8_t IMU_POSE = IMU_Pose_NA;
+uint8_t IMU_POSE_PREV = IMU_Pose_NA;
 long last_pose_detected = 0;
 
 bool EVENT_DETECTED = false;
@@ -118,27 +121,18 @@ bool IMU_PRINT_RAW = false;
 bool IMU_PRINT_DATA_AVG = false;
 bool IMU_PRINT_DELTA_HOME_AVG = false; // usually true during dev
 bool IMU_PRINT_DELTA_TIME_AVG = false;
-// -----------------------------------
+bool IMU_PRINT_STATS = true; // usually true during testing
+// ------------------------------------
 
-
+// ------------- imu isr --------------
 void IRAM_ATTR Timer2_ISR() {
   new_avg_sample = true;
 }
-
-
-// -------- imu callbacks ---------
-// void buttonHoldNotificationCallback(uint8_t n);
-// void buttonHoldReleasedCallback(uint8_t n);
-// void buttonClickCallback(uint8_t n);
-// void buttonReleaseCallback(uint8_t n);
-// -----------------------------------
-
+// ------------------------------------
 
 void setup() {
   Serial.begin(9600);
-
-  Wire.begin();
-
+  
   print_wakeup_reason();
 
   initIMU();
@@ -149,13 +143,14 @@ void setup() {
 
 void loop() {
   
-  // if(millis()-last_print >= 500) {
-  //   Serial << millis() << " hi " << xPortGetCoreID() << endl;
-  //   last_print = millis();
-  // }
-
   updateIMU();
 
+  commandLine();
+
+}
+
+
+void commandLine() {
   if(Serial.available()) {
     char c = Serial.read();
     switch(c) {
@@ -171,7 +166,7 @@ void loop() {
         IMU_STATE = IMU_SETTLE;
       break;
       case 'p':
-        IMU_PRINT_DELTA_HOME_AVG = !IMU_PRINT_DELTA_HOME_AVG;
+        IMU_PRINT_STATS = !IMU_PRINT_STATS;
       break;
       case 'b':
         IMU_PRINT_RAW = !IMU_PRINT_RAW;
@@ -191,8 +186,8 @@ void loop() {
         Serial << "2: print imu raw data frame" << endl;
         Serial << "e: IMU_STATE = IMU_SETTLE" << endl;
 
-        if(IMU_PRINT_DELTA_HOME_AVG) Serial << "*";
-        Serial << "p: IMU_PRINT_DELTA_HOME_AVG" << endl;
+        if(IMU_PRINT_STATS) Serial << "*";
+        Serial << "p: IMU_PRINT_STATS" << endl;
         if(IMU_PRINT_RAW) Serial << "*";
         Serial << "b: IMU_PRINT_RAW" << endl;
         if(IMU_PRINT_DATA_AVG) Serial << "*";
@@ -204,70 +199,67 @@ void loop() {
       break;
     }
   }
-
 }
 
 
 // ------------------------------------
 // ---------- IMU Callbacks -----------
 // ------------------------------------
-/*
-// give user feedback that they have held the
-// button and its time to to release the button
-void buttonHoldNotificationCallback(uint8_t n) {
-  switch(n) {
-    case BUTTON_BOTH:
-      tone(BUZZER_PIN, NOTE_F5, 500);
-      noTone(BUZZER_PIN);
-      delay(200);
+
+void imuStateChangeCallback(uint8_t s) {
+  Serial << millis() << " imu state changed" << endl;
+  // do actions here
+  switch(s) {
+    case IMU_SETTLE:
     break;
-    case BUTTON_LEFT:
-      tone(BUZZER_PIN, NOTE_A5, 500);
-      noTone(BUZZER_PIN);
+    case IMU_CALIBRATE_HOME:
     break;
-    case BUTTON_RIGHT:
-      tone(BUZZER_PIN, NOTE_A7, 500);
-      noTone(BUZZER_PIN);
+    case IMU_ACTIVE:
+    break;
+    case IMU_INACTIVE:
     break;
   }
 }
 
-// do an action here
-void buttonHoldReleasedCallback(uint8_t n) {
-  switch(n) {
-    case BUTTON_BOTH:
-      counter *= 2;
+void imuOrientationChangeCallback(uint8_t o) {
+  Serial << millis() << " imu orientation changed" << endl;
+  // do actions here
+  switch(o) {
+    case IMU_TABLETOP:
     break;
-    case BUTTON_LEFT:
-      counter += 10;
+    case IMU_HANG:
     break;
-    case BUTTON_RIGHT:
-      counter -= 10;
+    case IMU_UNKNOWN:
     break;
   }
-  Serial << "count: " << counter << endl;
 }
 
-// do an action here
-void buttonClickCallback(uint8_t n) {
-  switch(n) {
-    case BUTTON_LEFT:
-      tone(BUZZER_PIN, NOTE_A5, 100);
-      noTone(BUZZER_PIN);
-      counter++;
+void imuPoseChangeCallback(uint8_t p) {
+  Serial << millis() << " imu pose changed" << endl;
+  // do actions here
+  switch(p) {
+    case IMU_Pose_Tilt_L:
     break;
-    case BUTTON_RIGHT:
-      tone(BUZZER_PIN, NOTE_A7, 100);
-      noTone(BUZZER_PIN);
-      counter--;
+    case IMU_Pose_Tilt_R:
+    break;
+    case IMU_Pose_Tilt_Fwd:
+    break;
+    case IMU_Pose_Tilt_Bwd:
+    break;
+    case IMU_Pose_Home:
+    break;
+    case IMU_Pose_NA:
     break;
   }
-  Serial << "count: " << counter << endl;
 }
 
-// probably not necessary to do anything here
-void buttonReleaseCallback(uint8_t n) {
-
+void imuEventDetectedCallback(uint8_t e) {
+  Serial << millis() << " imu event detected" << endl;
+  // do actions here
+  if(e) {
+    // event detected
+  } else {
+    // no event
+  }
 }
-*/
 

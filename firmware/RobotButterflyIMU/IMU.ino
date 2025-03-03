@@ -2,6 +2,8 @@ void updateIMU() {
 
   if(IMU_STATE == IMU_INACTIVE) return;
 
+  if(IMU_STATE_PREV != IMU_STATE) imuStateChangeCallback(IMU_STATE);
+
   // vars for enter states
   if(IMU_STATE == IMU_SETTLE && IMU_STATE_PREV != IMU_STATE) {
     settle_start = millis();
@@ -138,7 +140,7 @@ void updateIMU() {
     if(IMU_PRINT_DATA_AVG) printIMUDataAvg();
     if(IMU_PRINT_DELTA_HOME_AVG) printIMUDeltaHomeAvg();
     if(IMU_PRINT_DELTA_TIME_AVG) printIMUDeltaTimeAvg();
-    imuStats();
+    if(IMU_PRINT_STATS) printIMUStats();
 
     // get ready for the next sample by resetting
     // the moving average filter and resetting the flag
@@ -153,85 +155,9 @@ void updateIMU() {
 }
 
 
-void imuStats() {
-
-  String readable_state = "";
-  switch(IMU_STATE) {
-    case IMU_SETTLE:
-      readable_state = "SETTLE";
-    break;
-    case IMU_CALIBRATE_HOME:
-      readable_state = "CALIBRATE_HOME";
-    break;
-    case IMU_ACTIVE:
-      readable_state = "ACTIVE";
-    break;
-    case IMU_INACTIVE:
-      readable_state = "INACTIVE";
-    break;
-  }
-
-  String readable_orientation = "";
-  switch(IMU_ORIENTATION) {
-    case IMU_TABLETOP:
-      readable_orientation = "TABLETOP";
-    break;
-    case IMU_HANG:
-      readable_orientation = "HANG";
-    break;
-    case IMU_UNKNOWN:
-      readable_orientation = "UNKNOWN";
-    break;
-  }
-
-  String readable_pose = "";
-  switch(IMU_POSE) {
-    case IMU_Pose_Tilt_L:
-      readable_pose = "TILT LEFT";
-    break;
-    case IMU_Pose_Tilt_R:
-      readable_pose = "TILT RIGHT";
-    break;
-    case IMU_Pose_Tilt_Fwd:
-      readable_pose = "TILT FWD";
-    break;
-    case IMU_Pose_Tilt_Bwd:
-      readable_pose = "TILT BWD";
-    break;
-    case IMU_Pose_Home:
-      readable_pose = "HOME";
-    break;
-    case IMU_Pose_NA:
-      readable_pose = "N/A";
-    break;
-  }
-
-  String readable_event = "";
-  if(EVENT_DETECTED) {
-    readable_event = "!!!! EVENT DETECTED";
-  } else {
-    readable_event = "NO EVENT";
-  }
-
-  String recalibrate_pref = "";
-  if(PREFS_IMU_AUTO_RECALIBRATE_HOME) {
-    recalibrate_pref = "TRUE";
-  } else {
-    recalibrate_pref = "FALSE";
-  }
-
-  Serial << "------------- " << millis() << " ------------" << endl;
-  Serial << "State: " << readable_state << endl;
-  Serial << "Orientation: " << readable_orientation << endl;
-  Serial << "Pose: " << readable_pose << endl;
-  Serial << "Event: " << readable_event << " (" << event_score << ")" << endl;
-  Serial << "Recalibrate: " << recalibrate_pref << " (" << home_recalibrate_score << ")" << endl;
-  Serial << "--------------------------------" << endl;
-
-}
-
-
 void initIMU() {
+
+  Wire.begin();
 
   Serial << "Initialising MPU...";
   mpu.initialize();
@@ -315,14 +241,13 @@ bool checkOrientationIMU() {
 
   if(IMU_ORIENTATION_PREV != IMU_ORIENTATION) {
     last_orientation_change = millis();
+    imuOrientationChangeCallback(IMU_ORIENTATION);
   }
 
   if(orientation_detected) {
 
     if(IMU_ORIENTATION_PREV != IMU_ORIENTATION) {
       if(DEBUG_IMU) Serial << "orientation changed!" << endl;
-      // TODO: callback
-      // orientationChangedCallback();
     }
 
     return true;
@@ -344,13 +269,10 @@ bool checkPositionIMU() {
 
   bool pose_detected = false;
 
-  // side tilt:
-  // ax: 8000 max, thresh at 2500 (so map between those two)
-  // ay: <1000 generally small
-  // az: >300 wild values
-  // ax: negative = tilting towards RB's right
-  // ax: positive = tilting towards RB's left  
+  if(IMU_POSE_PREV != IMU_POSE) imuPoseChangeCallback(IMU_POSE);
+  IMU_POSE_PREV = IMU_POSE;
 
+  // left / right tilt
   if(!pose_detected) {
     if(abs(imu_delta_home_avg.ax) <= 8000 && abs(imu_delta_home_avg.ax) >= 2300) {
       if(abs(imu_delta_home_avg.ay) <= 1000) {
@@ -369,12 +291,7 @@ bool checkPositionIMU() {
     }
   }
 
-
-  // front / back tilt:
-  // ax: < 1500 generally small
-  // ay: < 8000, > 2100 (map between these two)
-  // az: wild values
-  
+  // front / back tilt
   if(!pose_detected) {
     if(abs(imu_delta_home_avg.ay) <= 8000 && abs(imu_delta_home_avg.ay) >= 2100) {
       if(abs(imu_delta_home_avg.ax) <= 1500) {
@@ -420,8 +337,18 @@ bool checkEventIMU() {
   delta[2] = abs(imu_delta_home_avg.gz);
 
   for(uint8_t i=0; i<3; i++) {
-    if(delta[i] >= IMU_DELTA_EVENT_THRESH) {
-      event_score++;
+    if(IMU_ORIENTATION == IMU_TABLETOP) {
+      if(delta[i] >= IMU_DELTA_EVENT_THRESH_TABLETOP) {
+        event_score++;
+      }
+    } else if(IMU_ORIENTATION == IMU_HANG) {
+      if(delta[i] >= IMU_DELTA_EVENT_THRESH_HANG) {
+        event_score++;
+      }
+    } else {
+      if(delta[i] >= IMU_DELTA_EVENT_THRESH_HANG) {
+        event_score++;
+      }
     }
   }
   if(DEBUG_IMU) Serial << "event score: " << event_score << endl;
@@ -430,10 +357,10 @@ bool checkEventIMU() {
   if(event_score >= IMU_EVENT_SCORE_THRESH) {
     if(DEBUG_IMU) Serial << "event detected, score: " << event_score << endl;
     EVENT_DETECTED = true;
-    // TODO: call the callback
     last_event_detected = millis();
     event_score = 0;
     last_event_score_clear = millis();
+    imuEventDetectedCallback(EVENT_DETECTED);
     return true;
   }
 
@@ -449,7 +376,6 @@ bool checkEventIMU() {
   }
   
   return false;
-
 }
 
 
@@ -505,6 +431,83 @@ void checkRecalibrateIMUHome() {
 
 }
 
+
+void printIMUStats() {
+
+  String readable_state = "";
+  switch(IMU_STATE) {
+    case IMU_SETTLE:
+      readable_state = "SETTLE";
+    break;
+    case IMU_CALIBRATE_HOME:
+      readable_state = "CALIBRATE_HOME";
+    break;
+    case IMU_ACTIVE:
+      readable_state = "ACTIVE";
+    break;
+    case IMU_INACTIVE:
+      readable_state = "INACTIVE";
+    break;
+  }
+
+  String readable_orientation = "";
+  switch(IMU_ORIENTATION) {
+    case IMU_TABLETOP:
+      readable_orientation = "TABLETOP";
+    break;
+    case IMU_HANG:
+      readable_orientation = "HANG";
+    break;
+    case IMU_UNKNOWN:
+      readable_orientation = "UNKNOWN";
+    break;
+  }
+
+  String readable_pose = "";
+  switch(IMU_POSE) {
+    case IMU_Pose_Tilt_L:
+      readable_pose = "TILT LEFT";
+    break;
+    case IMU_Pose_Tilt_R:
+      readable_pose = "TILT RIGHT";
+    break;
+    case IMU_Pose_Tilt_Fwd:
+      readable_pose = "TILT FWD";
+    break;
+    case IMU_Pose_Tilt_Bwd:
+      readable_pose = "TILT BWD";
+    break;
+    case IMU_Pose_Home:
+      readable_pose = "HOME";
+    break;
+    case IMU_Pose_NA:
+      readable_pose = "N/A";
+    break;
+  }
+
+  String readable_event = "";
+  if(EVENT_DETECTED) {
+    readable_event = "!!!! EVENT DETECTED";
+  } else {
+    readable_event = "NO EVENT";
+  }
+
+  String recalibrate_pref = "";
+  if(PREFS_IMU_AUTO_RECALIBRATE_HOME) {
+    recalibrate_pref = "TRUE";
+  } else {
+    recalibrate_pref = "FALSE";
+  }
+
+  Serial << "------------- " << millis() << " ------------" << endl;
+  Serial << "State: " << readable_state << endl;
+  Serial << "Orientation: " << readable_orientation << endl;
+  Serial << "Pose: " << readable_pose << endl;
+  Serial << "Event: " << readable_event << " (" << event_score << ")" << endl;
+  Serial << "Recalibrate: " << recalibrate_pref << " (" << home_recalibrate_score << ")" << endl;
+  Serial << "--------------------------------" << endl;
+
+}
 
 void printIMURaw() {
   Serial.print("a/g:\t");
