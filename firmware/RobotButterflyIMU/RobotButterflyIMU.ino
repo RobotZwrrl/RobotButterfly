@@ -3,6 +3,7 @@
  * -------------------------
  * Accelerometer and Gyroscope events from the
  * MPU6050 IMU
+ left meaning it is the robot's left
  * 
  * IMU library: https://github.com/ElectronicCats/mpu6050/
  * Moving Average library: https://github.com/JChristensen/movingAvg 
@@ -26,7 +27,6 @@
 
 // ------------ tests ------------
 long last_print;
-int counter = 0;
 // -------------------------------
 
 
@@ -36,34 +36,11 @@ volatile bool new_avg_sample = false;
 
 MPU6050 mpu;
 
-enum IMUStates {
-  IMU_SETTLE,
-  IMU_CALIBRATE_HOME,
-  IMU_ACTIVE
-};
-
-enum IMUOrientations {
-  IMU_TABLETOP,
-  IMU_HANG,
-  IMU_UNKNOWN
-};
-
 struct IMUData {
   int16_t ax, ay, az;
   int16_t gx, gy, gz;
   long last_data;
 };
-
-uint8_t IMU_STATE = IMU_ACTIVE;
-uint8_t IMU_STATE_PREV = IMU_ACTIVE;
-
-uint8_t IMU_ORIENTATION = IMU_UNKNOWN;
-uint8_t IMU_ORIENTATION_PREV = IMU_UNKNOWN;
-long last_orientation_change = 0;
-
-long last_event_detected = 0;
-long last_event_score_clear = 0;
-int event_score = 0;
 
 static struct IMUData imu;
 static struct IMUData imu_prev;
@@ -72,10 +49,42 @@ static struct IMUData imu_home;
 static struct IMUData imu_delta_home_avg;
 static struct IMUData imu_delta_time_avg;
 
-bool IMU_PRINT_RAW = false;
-bool IMU_PRINT_DATA_AVG = false;
-bool IMU_PRINT_DELTA_HOME_AVG = true;
-bool IMU_PRINT_DELTA_TIME_AVG = false;
+enum IMUStates {
+  IMU_SETTLE,
+  IMU_CALIBRATE_HOME,
+  IMU_ACTIVE,
+  IMU_INACTIVE
+};
+
+uint8_t IMU_STATE = IMU_INACTIVE;
+uint8_t IMU_STATE_PREV = IMU_INACTIVE;
+
+enum IMUOrientations {
+  IMU_TABLETOP,
+  IMU_HANG,
+  IMU_UNKNOWN
+};
+
+uint8_t IMU_ORIENTATION = IMU_UNKNOWN;
+uint8_t IMU_ORIENTATION_PREV = IMU_UNKNOWN;
+long last_orientation_change = 0;
+
+enum IMUPoses {
+  IMU_Pose_Tilt_L,
+  IMU_Pose_Tilt_R,
+  IMU_Pose_Tilt_Fwd,
+  IMU_Pose_Tilt_Bwd,
+  IMU_Pose_Home,
+  IMU_Pose_NA
+};
+
+uint8_t IMU_POSE = IMU_Pose_NA;
+long last_pose_detected = 0;
+
+bool EVENT_DETECTED = false;
+long last_event_detected = 0;
+long last_event_score_clear = 0;
+int event_score = 0;
 
 movingAvg imu_avg_data_ax(IMU_MOVING_AVG_WINDOW);
 movingAvg imu_avg_data_ay(IMU_MOVING_AVG_WINDOW);
@@ -105,18 +114,10 @@ long calibration_start = 0;
 long last_score_clear = 0;
 int home_recalibrate_score = 0;
 
-// eg, left meaning it is the robot's left
-enum IMUPoses {
-  IMU_Pose_Tilt_L,
-  IMU_Pose_Tilt_R,
-  IMU_Pose_Tilt_Fwd,
-  IMU_Pose_Tilt_Bwd,
-  IMU_Pose_Home,
-  IMU_Pose_NA
-};
-
-uint8_t IMU_POSE = IMU_Pose_NA;
-long last_pose_detected = 0;
+bool IMU_PRINT_RAW = false;
+bool IMU_PRINT_DATA_AVG = false;
+bool IMU_PRINT_DELTA_HOME_AVG = false; // usually true during dev
+bool IMU_PRINT_DELTA_TIME_AVG = false;
 // -----------------------------------
 
 

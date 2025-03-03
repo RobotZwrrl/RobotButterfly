@@ -1,15 +1,6 @@
-/*
-- get the raw data
-- calculate the raw data delta
-- add the delta to a moving average filter
-- save the average delta every 0.1 second
-- compare the deltas in the past 5 seconds (10 deltas)
-- printout the past 10 deltas as a csv for analysis
-- classify the movement based on thresholds
-*/
-
-
 void updateIMU() {
+
+  if(IMU_STATE == IMU_INACTIVE) return;
 
   // vars for enter states
   if(IMU_STATE == IMU_SETTLE && IMU_STATE_PREV != IMU_STATE) {
@@ -134,10 +125,10 @@ void updateIMU() {
     bool e = checkEventIMU();
 
     // continuously check if home needs to be recalibrated
-    // whenever an orientation is detected, but not if there's
-    // a pose or event
-    if(PREFS_AUTO_RECALIBRATE_HOME) {
-      if(o == true && p == false && e == false) {
+    // regardless of orientation, but not if
+    // there's a pose or event
+    if(PREFS_IMU_AUTO_RECALIBRATE_HOME) {
+      if(p == false && e == false) {
         if(DEBUG_IMU) Serial << "checking to recalibrate home" << endl;
         checkRecalibrateIMUHome();
       }
@@ -147,6 +138,7 @@ void updateIMU() {
     if(IMU_PRINT_DATA_AVG) printIMUDataAvg();
     if(IMU_PRINT_DELTA_HOME_AVG) printIMUDeltaHomeAvg();
     if(IMU_PRINT_DELTA_TIME_AVG) printIMUDeltaTimeAvg();
+    imuStats();
 
     // get ready for the next sample by resetting
     // the moving average filter and resetting the flag
@@ -161,18 +153,99 @@ void updateIMU() {
 }
 
 
+void imuStats() {
+
+  String readable_state = "";
+  switch(IMU_STATE) {
+    case IMU_SETTLE:
+      readable_state = "SETTLE";
+    break;
+    case IMU_CALIBRATE_HOME:
+      readable_state = "CALIBRATE_HOME";
+    break;
+    case IMU_ACTIVE:
+      readable_state = "ACTIVE";
+    break;
+    case IMU_INACTIVE:
+      readable_state = "INACTIVE";
+    break;
+  }
+
+  String readable_orientation = "";
+  switch(IMU_ORIENTATION) {
+    case IMU_TABLETOP:
+      readable_orientation = "TABLETOP";
+    break;
+    case IMU_HANG:
+      readable_orientation = "HANG";
+    break;
+    case IMU_UNKNOWN:
+      readable_orientation = "UNKNOWN";
+    break;
+  }
+
+  String readable_pose = "";
+  switch(IMU_POSE) {
+    case IMU_Pose_Tilt_L:
+      readable_pose = "TILT LEFT";
+    break;
+    case IMU_Pose_Tilt_R:
+      readable_pose = "TILT RIGHT";
+    break;
+    case IMU_Pose_Tilt_Fwd:
+      readable_pose = "TILT FWD";
+    break;
+    case IMU_Pose_Tilt_Bwd:
+      readable_pose = "TILT BWD";
+    break;
+    case IMU_Pose_Home:
+      readable_pose = "HOME";
+    break;
+    case IMU_Pose_NA:
+      readable_pose = "N/A";
+    break;
+  }
+
+  String readable_event = "";
+  if(EVENT_DETECTED) {
+    readable_event = "!!!! EVENT DETECTED";
+  } else {
+    readable_event = "NO EVENT";
+  }
+
+  String recalibrate_pref = "";
+  if(PREFS_IMU_AUTO_RECALIBRATE_HOME) {
+    recalibrate_pref = "TRUE";
+  } else {
+    recalibrate_pref = "FALSE";
+  }
+
+  Serial << "------------- " << millis() << " ------------" << endl;
+  Serial << "State: " << readable_state << endl;
+  Serial << "Orientation: " << readable_orientation << endl;
+  Serial << "Pose: " << readable_pose << endl;
+  Serial << "Event: " << readable_event << " (" << event_score << ")" << endl;
+  Serial << "Recalibrate: " << recalibrate_pref << " (" << home_recalibrate_score << ")" << endl;
+  Serial << "--------------------------------" << endl;
+
+}
+
+
 void initIMU() {
 
-  Serial << "Initializing MPU...";
+  Serial << "Initialising MPU...";
   mpu.initialize();
 
   Serial << "Testing MPU6050 connection...";
   if(mpu.testConnection() ==  false){
     Serial << "MPU6050 connection failed";
-    //while(true);
+    IMU_STATE = IMU_INACTIVE;
   } else {
-    Serial << "MPU6050 connection successful" << endl;;
+    Serial << "MPU6050 connection successful" << endl;
+    IMU_STATE = IMU_ACTIVE;
   }
+
+  if(IMU_STATE == IMU_INACTIVE) return;
 
   mpu.setFullScaleAccelRange(MPU6050_ACCEL_FS_4);
   mpu.setFullScaleGyroRange(MPU6050_GYRO_FS_500);
@@ -256,7 +329,7 @@ bool checkOrientationIMU() {
 
   } else {
     
-    if(millis()-last_orientation_change >= ORIENTATION_CHANGE_LOCKOUT) {
+    if(millis()-last_orientation_change >= IMU_ORIENTATION_CHANGE_LOCKOUT) {
       if(DEBUG_IMU) Serial << "orientation unknown" << endl;
       IMU_ORIENTATION = IMU_UNKNOWN;
     }
@@ -326,6 +399,8 @@ bool checkPositionIMU() {
   if(!pose_detected) {
     if(millis()-last_pose_detected <= IMU_POSE_LOCKOUT) {
       return true; // force true as it is still in lockout period
+    } else {
+      IMU_POSE = IMU_Pose_NA;
     }
   }
 
@@ -354,6 +429,8 @@ bool checkEventIMU() {
   // toggle that it is an event
   if(event_score >= IMU_EVENT_SCORE_THRESH) {
     if(DEBUG_IMU) Serial << "event detected, score: " << event_score << endl;
+    EVENT_DETECTED = true;
+    // TODO: call the callback
     last_event_detected = millis();
     event_score = 0;
     last_event_score_clear = millis();
@@ -364,6 +441,7 @@ bool checkEventIMU() {
   // the score accumulates - so that instantaneous
   // anomolies don't trigger an event
   if(millis()-last_event_score_clear >= IMU_EVENT_SCORE_CLEAR) {
+    EVENT_DETECTED = false;
     event_score -= 1;
     last_event_score_clear = millis();
     if(event_score < 0) event_score = 0;

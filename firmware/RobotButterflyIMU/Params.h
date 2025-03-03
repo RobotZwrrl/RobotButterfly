@@ -1,4 +1,4 @@
-#define DEBUG_IMU                       true   // debug print statements
+#define DEBUG_IMU                       false   // debug print statements
 #define MAX_IMU_ACCE 16384
 #define MIN_IMU_ACCE -16384
 #define MAX_IMU_GYRO 16384
@@ -42,17 +42,17 @@
 // amount of time to wait after the last pose
 // detected before checking to recalibrate the
 // home position
-#define IMU_POSE_LOCKOUT 3000
+#define IMU_POSE_LOCKOUT 750
 
 // dynamically allow for recalibration of the
 // home position or not. it will always calibrate
 // on startup. this will eventually be a user-
 // definable preference.
-#define PREFS_AUTO_RECALIBRATE_HOME false
+#define PREFS_IMU_AUTO_RECALIBRATE_HOME false
 
 // how long to 'hang on' to the previous orientation
 // when the current orientation changes to unknown
-#define ORIENTATION_CHANGE_LOCKOUT 3000
+#define IMU_ORIENTATION_CHANGE_LOCKOUT 3000
 
 // how long to wait after the last event to check
 // if there is a new event
@@ -64,8 +64,8 @@
 
 // event score has to be greater than this number
 // to be classified as an actual event
-#define IMU_EVENT_SCORE_THRESH 6
+#define IMU_EVENT_SCORE_THRESH 4
 
 // clear the event score this often
-#define IMU_EVENT_SCORE_CLEAR 500
+#define IMU_EVENT_SCORE_CLEAR 750
 
