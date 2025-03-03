@@ -3,7 +3,8 @@
  * -------------------------
  * Accelerometer and Gyroscope events from the
  * MPU6050 IMU
- left meaning it is the robot's left
+ * 
+ * 'Left' refers to the robot's left
  * 
  * IMU library: https://github.com/ElectronicCats/mpu6050/
  * Moving Average library: https://github.com/JChristensen/movingAvg 
