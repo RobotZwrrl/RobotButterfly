@@ -107,16 +107,17 @@ struct NeoAnimation {
   bool active;
 
   uint8_t num_frames;
+  uint16_t frame_delay;
   uint8_t frame_index;
   long last_frame;
-  uint16_t frame_delay;
-
+  
   int num_repeats;
-  long duration;
   uint16_t repeat_count;
-  long start_time;
-  long last_repeat;
   uint16_t repeat_delay;
+  long last_repeat;
+
+  long duration;
+  long start_time;
 
   bool dir;
   int helper1;
@@ -126,11 +127,7 @@ struct NeoAnimation {
   AnimationFunction function;  // function pointer
 };
 
-struct NeoAnimation neoanim_none;
-struct NeoAnimation neoanim_polkadot;
-struct NeoAnimation neoanim_squiggle;
-
-NeoAnimation all_neo_animations[NUM_NEO_ANIMATIONS];
+NeoAnimation neo_animations[NUM_NEO_ANIMATIONS];
 
 uint8_t NEO_ANIMATION_ALERT = NEO_ANIM_NONE;
 uint8_t NEO_ANIMATION_HOME = NEO_ANIM_NONE;
@@ -152,37 +149,23 @@ void setup() {
 
 void loop() {
   
-  // call the function through the pointer, passing the struct
-  // if(polka_dot.function) {
-  //   polka_dot.function(&neoanim_polkadot);
-  // }
-
-  // if(neoanim_squiggle.function) {
-  //   neoanim_squiggle.function(&neoanim_squiggle);
-  // }
-
-  updateNeoAnimation();
-
   // if(millis()-last_print >= 500) {
   //   Serial << millis() << " hi " << xPortGetCoreID() << endl;
   //   last_print = millis();
   // }
 
-  // updateNeopixels();
+  updateNeoAnimation();
 
   if(Serial.available()) {
     char c = Serial.read();
     switch(c) {
       case '0':
-        //NEO_ANIMATION_ALERT = NEO_ANIM_NONE;
         setNeoAnimationAlert(NEO_ANIM_NONE);
       break;
       case '1':
-        //NEO_ANIMATION_ALERT = NEO_ANIM_POLKADOT;
         setNeoAnimationAlert(NEO_ANIM_POLKADOT);
       break;
       case '2':
-        //NEO_ANIMATION_ALERT = NEO_ANIM_SQUIGGLE;
         setNeoAnimationAlert(NEO_ANIM_SQUIGGLE);
       break;
       case 's':
@@ -202,7 +185,7 @@ void loop() {
 
 void setNeoAnimationAlert(uint8_t a) {
   NEO_ANIMATION_ALERT = a;
-  all_neo_animations[NEO_ANIMATION_ALERT].active = true;
+  neo_animations[NEO_ANIMATION_ALERT].active = true;
 }
 
 
@@ -221,16 +204,16 @@ void updateNeoAnimation() {
   
   // check if there's an animation happening currently
   // if not, do the home animation
-  if(all_neo_animations[NEO_ANIMATION_ALERT].active) {
+  if(neo_animations[NEO_ANIMATION_ALERT].active) {
 
-    if(all_neo_animations[NEO_ANIMATION_ALERT].function) {
-      all_neo_animations[NEO_ANIMATION_ALERT].function(&all_neo_animations[NEO_ANIMATION_ALERT]);
+    if(neo_animations[NEO_ANIMATION_ALERT].function) {
+      neo_animations[NEO_ANIMATION_ALERT].function(&neo_animations[NEO_ANIMATION_ALERT]);
     }
 
   } else {
 
-    if(all_neo_animations[NEO_ANIMATION_HOME].function) {
-      all_neo_animations[NEO_ANIMATION_HOME].function(&all_neo_animations[NEO_ANIMATION_HOME]);
+    if(neo_animations[NEO_ANIMATION_HOME].function) {
+      neo_animations[NEO_ANIMATION_HOME].function(&neo_animations[NEO_ANIMATION_HOME]);
     }
 
   }
@@ -239,55 +222,72 @@ void updateNeoAnimation() {
 
 
 
-void runNeoAnim_none(struct NeoAnimation *animation) {
+bool neoAnimationChecks(struct NeoAnimation *a) {
 
-  if(!animation) return; // safety check
+  if(!a) return false; // safety check
 
   // check that the animation delay is done. if not, wait again
-  if(millis()-animation->last_repeat < animation->repeat_delay) {
-    return;
+  if(millis()-a->last_repeat < a->repeat_delay) {
+    if(DEBUG_NEO_ANIMATION) Serial << "animation delay not done" << endl;
+    return false;
   }
 
   // check that the animation duration is complete
-  if(millis()-animation->start_time >= animation->duration 
-     && animation->num_repeats != -99 
-     && animation->start_time != -1)
+  if(millis()-a->start_time >= a->duration  
+     && a->start_time != -1) // && a->num_repeats != -99
   {
-    // TODO: callback anim done
-    animation->active = false;
-    return;
+    a->start_time = -1;
+    a->active = false;
+    if(DEBUG_NEO_ANIMATION) Serial << "animation done (time elapsed)" << endl;
+    // TODO: callback anim done (time)
+    return false;
   }
 
   // increment the frame
-  if(millis()-animation->last_frame >= animation->frame_delay) {
-    animation->frame_index++;
-    if(animation->frame_index >= animation->num_frames) {
-      animation->frame_index = 0;
-      animation->repeat_count++;
-      animation->last_repeat = millis();
+  if(millis()-a->last_frame >= a->frame_delay) {
+    a->frame_index++;
+    if(a->frame_index >= a->num_frames) {
+      a->frame_index = 0;
+      a->repeat_count++;
+      a->last_repeat = millis();
     }
   } else {
-    return;
+    return false;
   }
 
   // check that the number of repeats is within bounds
-  if(animation->repeat_count >= animation->num_repeats && animation->num_repeats != -99) {
-    // TODO: callback anim done
-    animation->active = false;
-    return;
+  if(a->repeat_count-1 >= a->num_repeats 
+     && a->num_repeats != -99) {
+    a->repeat_count = 0;
+    a->active = false;
+    if(DEBUG_NEO_ANIMATION) Serial << "animation done (num repeats)" << endl;
+    // TODO: callback anim done (repeats)
+    return false;
   }
 
   // if it's here then the animation is active
   // first, reset the vars
-  if(animation->active == false) {
-    animation->dir = true;
-    animation->helper1 = 0;
-    animation->helper2 = 0;
-    animation->helper3 = 0;
-    animation->start_time = millis();
+  if(a->active == false) {
+    a->repeat_count = 0;
+    a->dir = true;
+    a->helper1 = 0;
+    a->helper2 = 0;
+    a->helper3 = 0;
+    a->start_time = millis();
   }
-  animation->active = true;
-  if(DEBUG_NEO_ANIMATION) Serial << "Neo animation frame " << animation->frame_index+1 << "/" << animation->num_frames << endl;
+  a->active = true;
+  if(DEBUG_NEO_ANIMATION) Serial << "Neo animation: " << a->id;
+  if(DEBUG_NEO_ANIMATION) Serial << " frame: " << a->frame_index+1 << "/" << a->num_frames << endl;
+
+  return true;
+
+}
+
+
+
+void runNeoAnim_none(struct NeoAnimation *animation) {
+
+  if(!neoAnimationChecks(animation)) return;
 
   // only 1 frame in this animation
   pixels.clear();
@@ -302,53 +302,7 @@ void runNeoAnim_none(struct NeoAnimation *animation) {
 
 void runNeoAnim_squiggle(struct NeoAnimation *animation) {
 
-  if(!animation) return; // safety check
-
-  // check that the animation delay is done. if not, wait again
-  if(millis()-animation->last_repeat < animation->repeat_delay) {
-    return;
-  }
-
-  // check that the animation duration is complete
-  if(millis()-animation->start_time >= animation->duration 
-     && animation->num_repeats != -99 
-     && animation->start_time != -1)
-  {
-    // TODO: callback anim done
-    animation->active = false;
-    return;
-  }
-
-  // increment the frame
-  if(millis()-animation->last_frame >= animation->frame_delay) {
-    animation->frame_index++;
-    if(animation->frame_index >= animation->num_frames) {
-      animation->frame_index = 0;
-      animation->repeat_count++;
-      animation->last_repeat = millis();
-    }
-  } else {
-    return;
-  }
-
-  // check that the number of repeats is within bounds
-  if(animation->repeat_count >= animation->num_repeats && animation->num_repeats != -99) {
-    // TODO: callback
-    animation->active = false;
-    return;
-  }
-
-  // if it's here then the animation is active
-  // first, reset the vars
-  if(animation->active == false) {
-    animation->dir = true;
-    animation->helper1 = 0;
-    animation->helper2 = 0;
-    animation->helper3 = 0;
-    animation->start_time = millis();
-  }
-  animation->active = true;
-  if(DEBUG_NEO_ANIMATION) Serial << "Neo animation frame " << animation->frame_index+1 << "/" << animation->num_frames << endl;
+  if(!neoAnimationChecks(animation)) return;
 
   // do this each frame
   if(animation->dir) {
@@ -387,53 +341,8 @@ void runNeoAnim_squiggle(struct NeoAnimation *animation) {
 
 
 void runNeoAnim_polkadot(struct NeoAnimation *animation) {
-  if(!animation) return; // safety check
 
-  // check that the animation delay is done. if not, wait again
-  if(millis()-animation->last_repeat < animation->repeat_delay) {
-    return;
-  }
-
-  // check that the animation duration is complete
-  if(millis()-animation->start_time >= animation->duration 
-     && animation->num_repeats != -99 
-     && animation->start_time != -1)
-  {
-    // TODO: callback anim done
-    animation->active = false;
-    return;
-  }
-
-  // increment the frame
-  if(millis()-animation->last_frame >= animation->frame_delay) {
-    animation->frame_index++;
-    if(animation->frame_index >= animation->num_frames) {
-      animation->frame_index = 0;
-      animation->repeat_count++;
-      animation->last_repeat = millis();
-    }
-  } else {
-    return;
-  }
-
-  // check that the number of repeats is within bounds
-  if(animation->repeat_count >= animation->num_repeats && animation->num_repeats != -99) {
-    // TODO: callback
-    animation->active = false;
-    return;
-  }
-
-  // if it's here then the animation is active
-  // first, reset the vars
-  if(animation->active == false) {
-    animation->dir = true;
-    animation->helper1 = 0;
-    animation->helper2 = 0;
-    animation->helper3 = 0;
-    animation->start_time = millis();
-  }
-  animation->active = true;
-  if(DEBUG_NEO_ANIMATION) Serial << "Neo animation frame " << animation->frame_index+1 << "/" << animation->num_frames << endl;
+  if(!neoAnimationChecks(animation)) return;
 
   switch(animation->frame_index) {
     case 0: {
@@ -468,44 +377,7 @@ void runNeoAnim_polkadot(struct NeoAnimation *animation) {
 // this is a template for copying and pasting
 void runNeoAnim_template(struct NeoAnimation *animation) {
 
-  if(!animation) return; // safety check
-
-  // check that the animation delay is done
-  if(millis()-animation->last_repeat < animation->repeat_delay) {
-    // TODO: callback
-    animation->active = false;
-    return;
-  }
-
-  // increment the frame
-  if(millis()-animation->last_frame >= animation->frame_delay) {
-    animation->frame_index++;
-    if(animation->frame_index >= animation->num_frames) {
-      animation->frame_index = 0;
-      animation->repeat_count++;
-      animation->last_repeat = millis();
-    }
-  } else {
-    return;
-  }
-
-  // check that the number of repeats is within bounds
-  if(animation->repeat_count > animation->num_repeats && animation->num_repeats != -99) {
-    // TODO: callback
-    animation->active = false;
-    return;
-  }
-
-  // if it's here then the animation is active
-  // first, reset the vars
-  if(animation->active == false) {
-    animation->dir = true;
-    animation->helper1 = 0;
-    animation->helper2 = 0;
-    animation->helper3 = 0;
-  }
-  animation->active = true;
-  if(DEBUG_NEO_ANIMATION) Serial << "Neo animation frame " << animation->frame_index+1 << "/" << animation->num_frames << endl;
+  if(!neoAnimationChecks(animation)) return;
 
   switch(animation->frame_index) {
     case 0: {
