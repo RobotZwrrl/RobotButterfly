@@ -191,6 +191,12 @@ void loop() {
         setNeoAnimAlertRepeats(NEO_ANIM_SQUIGGLE, 3);
         startNeoAnimAlert(NEO_ANIM_SQUIGGLE);
       break;
+      case '5':
+        setNeoAnimAlert(NEO_ANIM_SQUIGGLE);
+        setNeoAnimColours(NEO_WHITE, NEO_LAVENDER);
+        setNeoAnimAlertSpeed(NEO_ANIM_SQUIGGLE, 1000);
+        startNeoAnimAlert(NEO_ANIM_SQUIGGLE);
+      break;
       case 's':
         stopNeoAnimAlert();
       break;
@@ -257,6 +263,12 @@ void setNeoAnimAlertDuration(uint8_t a, long duration) {
 void setNeoAnimAlertRepeats(uint8_t a, int num_repeats) {
   NEO_ANIMATION_ALERT = a;
   neo_animations[NEO_ANIMATION_ALERT].num_repeats = num_repeats;
+}
+
+// params: neo animation index, frame delay
+void setNeoAnimAlertSpeed(uint8_t a, uint16_t del) {
+  NEO_ANIMATION_ALERT = a;
+  neo_animations[NEO_ANIMATION_ALERT].frame_delay = del;
 }
 
 // params: neo animation
