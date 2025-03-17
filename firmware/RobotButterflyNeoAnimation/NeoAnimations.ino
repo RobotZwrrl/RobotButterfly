@@ -8,9 +8,8 @@ void initNeoAnimations() {
 
 void initNeoAnim_none(struct NeoAnimation *a) {
   a->id = NEO_ANIM_NONE;
-  a->colour_primary = colourPalette[NEO_OFF];
-  a->colour_secondary = colourPalette[NEO_OFF];
   a->active = false;
+  a->type = NEO_ANIM_ALERT;
 
   a->num_frames = 1;
   a->frame_delay = 100;
@@ -36,9 +35,8 @@ void initNeoAnim_none(struct NeoAnimation *a) {
 
 void initNeoAnim_polkadot(struct NeoAnimation *a) {
   a->id = NEO_ANIM_POLKADOT;
-  a->colour_primary = colourPalette[NEO_MAGENTA];
-  a->colour_secondary = colourPalette[NEO_CYAN];
   a->active = false;
+  a->type = NEO_ANIM_ALERT;
 
   a->num_frames = 2;
   a->frame_delay = 100;
@@ -50,7 +48,7 @@ void initNeoAnim_polkadot(struct NeoAnimation *a) {
   a->repeat_delay = 0;
   a->last_repeat = 0;
 
-  a->duration = 80;
+  a->duration = -1;
   a->start_time = -1;
 
   a->dir = true;
@@ -64,9 +62,8 @@ void initNeoAnim_polkadot(struct NeoAnimation *a) {
 
 void initNeoAnim_squiggle(struct NeoAnimation *a) {
   a->id = NEO_ANIM_SQUIGGLE;
-  a->colour_primary = colourPalette[NEO_MAGENTA];
-  a->colour_secondary = colourPalette[NEO_CYAN];
   a->active = false;
+  a->type = NEO_ANIM_ALERT;
 
   a->num_frames = 1;
   a->frame_delay = 100;
@@ -78,7 +75,7 @@ void initNeoAnim_squiggle(struct NeoAnimation *a) {
   a->repeat_delay = 0;
   a->last_repeat = 0;
 
-  a->duration = 80;
+  a->duration = -1;
   a->start_time = -1;
 
   a->dir = true;
