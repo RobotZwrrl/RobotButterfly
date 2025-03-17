@@ -3,6 +3,9 @@ void initNeoAnimations() {
   initNeoAnim_none(&neo_animations[NEO_ANIM_NONE]);
   initNeoAnim_polkadot(&neo_animations[NEO_ANIM_POLKADOT]);
   initNeoAnim_squiggle(&neo_animations[NEO_ANIM_SQUIGGLE]);
+
+  neo_animation_home = neo_animations[NEO_ANIM_NONE];
+  neo_animation_home.type = NEO_ANIM_HOME;
 }
 
 
@@ -65,7 +68,7 @@ void initNeoAnim_squiggle(struct NeoAnimation *a) {
   a->active = false;
   a->type = NEO_ANIM_ALERT;
 
-  a->num_frames = 1;
+  a->num_frames = 12;
   a->frame_delay = 100;
   a->frame_index = 0;
   a->last_frame = 0;

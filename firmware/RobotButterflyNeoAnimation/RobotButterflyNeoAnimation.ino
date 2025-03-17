@@ -132,12 +132,12 @@ struct NeoAnimation {
 };
 
 NeoAnimation neo_animations[NUM_NEO_ANIMATIONS];
+NeoAnimation neo_animation_home;
 
 uint8_t NEO_COLOUR_PRIMARY = NEO_MAGENTA;
 uint8_t NEO_COLOUR_SECONDARY = NEO_CYAN;
 
 uint8_t NEO_ANIMATION_ALERT = NEO_ANIM_NONE;
-uint8_t NEO_ANIMATION_HOME = NEO_ANIM_NONE;
 // -----------------------------------
 
 
@@ -183,12 +183,16 @@ void loop() {
         setNeoAnimAlert(NEO_ANIM_SQUIGGLE);
         setNeoAnimColours(NEO_GREEN, NEO_PURPLE);
         setNeoAnimAlertDuration(NEO_ANIM_SQUIGGLE, 300);
-        //setNeoAnimAlertRepeats(NEO_ANIM_SQUIGGLE, 3);
+        startNeoAnimAlert(NEO_ANIM_SQUIGGLE);
+      break;
+      case '4':
+        setNeoAnimAlert(NEO_ANIM_SQUIGGLE);
+        setNeoAnimColours(NEO_PINK, NEO_CANARY_YELLOW);
+        setNeoAnimAlertRepeats(NEO_ANIM_SQUIGGLE, 3);
         startNeoAnimAlert(NEO_ANIM_SQUIGGLE);
       break;
       case 's':
-        NEO_ANIMATION_ALERT = NEO_ANIM_NONE;
-        NEO_ANIMATION_HOME = NEO_ANIM_NONE;
+        stopNeoAnimAlert();
       break;
       case 'h':
         Serial << "1-9: animations" << endl;
@@ -222,6 +226,7 @@ void callback_NeoAnimHomeDone(struct NeoAnimation *a, uint8_t type) {
 // ------------ setters -------------
 // ----------------------------------
 
+// sets the colours globally - both for alert and home
 // params: primary colour, secondary colour
 void setNeoAnimColours(uint8_t colour_primary, uint8_t colour_secondary) {
   NEO_COLOUR_PRIMARY = colour_primary;
@@ -260,6 +265,11 @@ void startNeoAnimAlert(uint8_t a) {
   neo_animations[NEO_ANIMATION_ALERT].type = NEO_ANIM_ALERT;
   neo_animations[NEO_ANIMATION_ALERT].active = true;
 }
+
+// params: none
+void stopNeoAnimAlert() {
+  neo_animations[NEO_ANIMATION_ALERT].active = false;
+}
 // ----------------------------------
 
 
@@ -275,8 +285,8 @@ void updateNeoAnimation() {
 
   } else {
 
-    if(neo_animations[NEO_ANIMATION_HOME].function) {
-      neo_animations[NEO_ANIMATION_HOME].function(&neo_animations[NEO_ANIMATION_HOME]);
+    if(neo_animation_home.function) {
+      neo_animation_home.function(&neo_animation_home);
     }
 
   }
@@ -290,7 +300,7 @@ bool neoAnimationChecks(struct NeoAnimation *a) {
 
   // check that the animation delay is done. if not, wait again
   if(millis()-a->last_repeat < a->repeat_delay) {
-    if(DEBUG_NEO_ANIMATION) Serial << "animation delay not done" << endl;
+    if(DEBUG_NEO_ANIMATION == true && a->type != NEO_ANIM_HOME) Serial << "animation delay not done" << endl;
     return false;
   }
 
@@ -302,7 +312,7 @@ bool neoAnimationChecks(struct NeoAnimation *a) {
     a->start_time = -1;
     a->repeat_count = 0;
     a->active = false;
-    if(DEBUG_NEO_ANIMATION) Serial << "animation done (time elapsed)" << endl;
+    if(DEBUG_NEO_ANIMATION == true && a->type != NEO_ANIM_HOME) Serial << "animation done (time elapsed)" << endl;
     // callback anim done (time)
     if(a->type == NEO_ANIM_ALERT) {
       callback_NeoAnimAlertDone(a, 1);   // 1 designates 'time elapsed' done type
@@ -312,31 +322,31 @@ bool neoAnimationChecks(struct NeoAnimation *a) {
     return false;
   }
 
-  // increment the frame
-  if(millis()-a->last_frame >= a->frame_delay) {
-    a->frame_index++;
-    if(a->frame_index >= a->num_frames) {
-      a->frame_index = 0;
-      a->repeat_count++;
-      a->last_repeat = millis();
-    }
-  } else {
-    return false;
-  }
-
-  // check that the number of repeats is within bounds
-  if(a->repeat_count-1 >= a->num_repeats 
+  // check that the number of repeats is complete
+  if(a->repeat_count >= a->num_repeats 
      && a->num_repeats != -99) {
     a->start_time = -1;
     a->repeat_count = 0;
     a->active = false;
-    if(DEBUG_NEO_ANIMATION) Serial << "animation done (num repeats)" << endl;
+    if(DEBUG_NEO_ANIMATION == true && a->type != NEO_ANIM_HOME) Serial << "animation done (num repeats)" << endl;
     // callback anim done (repeats)
     if(a->type == NEO_ANIM_ALERT) {
       callback_NeoAnimAlertDone(a, 2);   // 2 designates 'num repeats' done type
     } else if(a->type == NEO_ANIM_HOME) {
       callback_NeoAnimHomeDone(a, 2);    // 2 designates 'num repeats' done type
     }
+    return false;
+  }
+
+  // increment the frame
+  if(millis()-a->last_frame >= a->frame_delay) {
+    a->frame_index++;
+    if(a->frame_index > a->num_frames-1) {
+      a->frame_index = 0;
+      a->repeat_count++;
+      a->last_repeat = millis();
+    }
+  } else {
     return false;
   }
 
@@ -351,13 +361,12 @@ bool neoAnimationChecks(struct NeoAnimation *a) {
     a->start_time = millis();
   }
   a->active = true;
-  if(DEBUG_NEO_ANIMATION) Serial << "Neo animation: " << a->id;
-  if(DEBUG_NEO_ANIMATION) Serial << " frame: " << a->frame_index+1 << "/" << a->num_frames << endl;
+  if(DEBUG_NEO_ANIMATION == true && a->type != NEO_ANIM_HOME) Serial << "Neo animation: " << a->id;
+  if(DEBUG_NEO_ANIMATION == true && a->type != NEO_ANIM_HOME) Serial << " frame: " << a->frame_index+1 << "/" << a->num_frames << endl;
 
   return true;
 
 }
-
 
 
 void runNeoAnim_none(struct NeoAnimation *animation) {
@@ -393,24 +402,22 @@ void runNeoAnim_squiggle(struct NeoAnimation *animation) {
     animation->helper1 = (NEOPIXEL_COUNT-1-1);
     animation->dir = !animation->dir;
   }
+
   int a = animation->helper1-1;
   int b = animation->helper1;
   int c = animation->helper1+1;
 
-  switch(animation->frame_index) {
-    case 0: {
-      pixels.clear();
-      for(uint8_t i=0; i<NEOPIXEL_COUNT; i++) {
-        pixels.setPixelColor(i, colourPalette[NEO_OFF]);
-      }
-      pixels.setPixelColor(a, colourPalette[NEO_COLOUR_PRIMARY]);
-      pixels.setPixelColor(b, colourPalette[NEO_COLOUR_SECONDARY]);
-      pixels.setPixelColor(c, colourPalette[NEO_COLOUR_PRIMARY]);
-      pixels.show();
-      animation->last_frame = millis();
-    }
-    break;
+  // this happens every frame
+  pixels.clear();
+  for(uint8_t i=0; i<NEOPIXEL_COUNT; i++) {
+    pixels.setPixelColor(i, colourPalette[NEO_OFF]);
   }
+  pixels.setPixelColor(a, colourPalette[NEO_COLOUR_PRIMARY]);
+  pixels.setPixelColor(b, colourPalette[NEO_COLOUR_SECONDARY]);
+  pixels.setPixelColor(c, colourPalette[NEO_COLOUR_PRIMARY]);
+  pixels.show();
+  animation->last_frame = millis();
+  // ---
 
 }
 
