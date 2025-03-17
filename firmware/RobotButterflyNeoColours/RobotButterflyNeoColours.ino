@@ -1,10 +1,7 @@
 /*
- * Robot Butterfly Neopixel Colours
+ * Robot Butterfly Neopixel Patterns
  * --------------------------------
- * Colour palette for the neopixels
- * Calibrated at brightness = 10, some of the
- * colours may appear different at higher
- * brightnesses.
+ * Blinky patterns with the colour palette
  * 
  * Board: ESP32 Dev Module
  * CPU speed: 80 MHz
@@ -23,8 +20,27 @@
 
 
 
-// ----------- neopixels -----------
-Adafruit_NeoPixel pixels(NEOPIXEL_COUNT, NEOPIXEL_PIN, NEO_GRB + NEO_KHZ800);
+// ----------- neopixel colours -----------
+// go with 400 kHz as 800 kHz would leave pixel colour ghosts
+Adafruit_NeoPixel pixels(NEOPIXEL_COUNT, NEOPIXEL_PIN, NEO_GRB + NEO_KHZ400);
+
+enum pastelIndex {
+  NEO_RED,
+  NEO_ORANGE,
+  NEO_GOLDEN_YELLOW,
+  NEO_CANARY_YELLOW,
+  NEO_GREEN,
+  NEO_SKY_BLUE,
+  NEO_BLUE,
+  NEO_CYAN,
+  NEO_PURPLE,
+  NEO_LAVENDER,
+  NEO_PINK,
+  NEO_MAGENTA,
+  NEO_WARM_WHITE,
+  NEO_WHITE,
+  NEO_OFF
+};
 
 String pastelNames[NUM_PALETTE_COLOURS] = {
   "Red",
@@ -40,24 +56,26 @@ String pastelNames[NUM_PALETTE_COLOURS] = {
   "Pink",
   "Magenta",
   "Warm White",
-  "White"
+  "White",
+  "Off"
 };
 
 uint16_t pastelColours[NUM_PALETTE_COLOURS][3] = {
-    {719,    170,  250},   // red
-    {3561,   160,  250},   // orange
-    {5701,   160,  250},   // golden yellow
-    {9622,   170,  250},   // canary yellow
+    {  719,  170,  250},   // red
+    { 3561,  160,  250},   // orange
+    { 5701,  160,  250},   // golden yellow
+    { 9622,  170,  250},   // canary yellow
     {16545,  170,  250},   // green
     {32845,   60,  250},   // sky blue
     {43691,  120,  250},   // blue
     {27306,  120,  250},   // cyan
     {51613,  130,  250},   // purple
     {55613,   60,  250},   // lavendar
-    {659,     90,  250},   // pink
+    {  659,   90,  250},   // pink
     {63535,  140,  250},   // magenta
-    {5461,   120,  250},   // warm white
-    {8192,    90,  250},   // white
+    { 5461,  120,  250},   // warm white
+    { 8192,   90,  250},   // white
+    {    0,    0,    0},   // off
 };
 
 uint32_t colourPalette[NUM_PALETTE_COLOURS];
@@ -66,6 +84,7 @@ bool AUTO_ADVANCE = true;
 long last_colour_change = 0;
 uint8_t colour_index = 0;
 uint8_t colour_index_prev = 0;
+bool changed = false;
 // -----------------------------------
 
 
@@ -82,7 +101,7 @@ void setup() {
 
 
 void loop() {
-  
+
   // if(millis()-last_print >= 500) {
   //   Serial << millis() << " hi " << xPortGetCoreID() << endl;
   //   last_print = millis();
@@ -104,12 +123,14 @@ void loop() {
       case 'n':
         colour_index++;
         if(colour_index >= NUM_PALETTE_COLOURS) colour_index = 0;
+        changed = true;
         if(DEBUG_NEO_COLOURS) Serial << pastelNames[colour_index] << " [" << colour_index << "]" << endl;
         updateNeopixels();
       break;
       case 'p':
         colour_index--;
         if(colour_index < 0) colour_index = NUM_PALETTE_COLOURS;
+        changed = true;
         if(DEBUG_NEO_COLOURS) Serial << pastelNames[colour_index] << " [" << colour_index << "]" << endl;
         updateNeopixels();
       break;
@@ -122,58 +143,5 @@ void loop() {
     }
   }
 
-}
-
-
-
-void updateNeopixels() {
-
-  colour_index_prev = colour_index;
-
-  if(AUTO_ADVANCE) {
-
-    if(millis()-last_colour_change >= NEO_DEMO_ADVANCE) {
-      colour_index++;
-      if(colour_index >= NUM_PALETTE_COLOURS) colour_index = 0;
-      if(DEBUG_NEO_COLOURS) Serial << pastelNames[colour_index] << " [" << colour_index << "]" << endl;
-      colorWipe( colourPalette[colour_index], 50 );
-      last_colour_change = millis();
-    }
-
-  } else {
-
-    bool changed = false;
-    if(colour_index_prev != colour_index) changed = true;
-
-    if(changed) {
-      colorWipe( colourPalette[colour_index], 50 );
-    }
-
-  }
-
-}
-
-
-void initNeopixels() {
-  pixels.begin();
-  pixels.show();
-  pixels.setBrightness(PREFS_NEO_BRIGHTNESS);
-  initColours();
-}
-
-
-void initColours() {
-  for(uint8_t i=0; i<NUM_PALETTE_COLOURS; i++) {
-    colourPalette[i] = pixels.gamma32( pixels.ColorHSV(pastelColours[i][0], pastelColours[i][1], pastelColours[i][2]) );
-  }
-}
-
-
-void colorWipe(uint32_t color, int wait) {
-  for(int i=0; i<pixels.numPixels(); i++) {
-    pixels.setPixelColor(i, color);
-    pixels.show();
-    delay(wait);
-  }
 }
 
