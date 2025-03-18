@@ -2,14 +2,10 @@
 // ----------- callbacks ------------
 // ----------------------------------
 
-// the alert animation is done
-void callback_NeoAnimAlertDone(struct NeoAnimation *a, uint8_t type) {
-  //setNeoAnimColours(NEO_GOLDEN_YELLOW, NEO_SKY_BLUE);
-}
-
-// the home animation is done
-void callback_NeoAnimHomeDone(struct NeoAnimation *a, uint8_t type) {
-  //setNeoAnimColours(NEO_OFF, NEO_OFF);
+// the neo animation is done
+void callback_NeoAnimDone(struct NeoAnimation *a) {
+  if(a->type == NEO_ANIM_HOME) return;
+  Serial << "Callback: Neo animation (" << a->id << ") done" << endl;
 }
 
 // ----------------------------------
@@ -68,6 +64,7 @@ void startNeoAnim(struct NeoAnimation *a) {
 // params: neo animation
 void stopNeoAnim(struct NeoAnimation *a) {
   a->active = false;
+  callback_NeoAnimDone(a);
 }
 // ----------------------------------
 

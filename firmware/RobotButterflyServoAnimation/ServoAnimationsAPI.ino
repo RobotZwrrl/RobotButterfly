@@ -2,14 +2,10 @@
 // ----------- callbacks ------------
 // ----------------------------------
 
-// the alert animation is done
-void callback_ServoAnimAlertDone(struct ServoAnimation *a, uint8_t type) {
-  //setServoAnimColours(Servo_GOLDEN_YELLOW, Servo_SKY_BLUE);
-}
-
-// the home animation is done
-void callback_ServoAnimHomeDone(struct ServoAnimation *a, uint8_t type) {
-  //setServoAnimColours(Servo_OFF, Servo_OFF);
+// the servo animation is done
+void callback_ServoAnimDone(struct ServoAnimation *a) {
+  if(a->type == SERVO_ANIM_HOME) return;
+  Serial << "Callback: Servo animation (" << a->id << ") done" << endl;
 }
 
 // ----------------------------------
@@ -59,5 +55,6 @@ void startServoAnim(struct ServoAnimation *a) {
 // params: Servo animation
 void stopServoAnim(struct ServoAnimation *a) {
   a->active = false;
+  callback_ServoAnimDone(a);
 }
 // ----------------------------------

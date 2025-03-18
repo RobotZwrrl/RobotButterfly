@@ -107,7 +107,7 @@ struct NeoAnimation {
   uint8_t colour_secondary;  // enum of the colour
 
   uint8_t num_frames;
-  uint16_t frame_delay;
+  int frame_delay;
   uint8_t frame_index;
   long last_frame;
   

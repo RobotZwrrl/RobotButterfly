@@ -44,13 +44,8 @@ bool servoAnimationChecks(struct ServoAnimation *a) {
     a->repeat_count = 0;
     a->active = false;
     if(DEBUG_SERVO_ANIMATION == true && a->type != SERVO_ANIM_HOME) Serial << "animation done (time elapsed)" << endl;
-    // TODO
-    // callback anim done (time)
-    // if(a->type == NEO_ANIM_ALERT) {
-    //   callback_NeoAnimAlertDone(a, 1);   // 1 designates 'time elapsed' done type
-    // } else if(a->type == NEO_ANIM_HOME) {
-    //   callback_NeoAnimHomeDone(a, 1);    // 1 designates 'time elapsed' done type
-    // }
+    // callback anim done (time elapsed)
+    callback_ServoAnimDone(a);
     return false;
   }
 
@@ -61,13 +56,8 @@ bool servoAnimationChecks(struct ServoAnimation *a) {
     a->repeat_count = 0;
     a->active = false;
     if(DEBUG_SERVO_ANIMATION == true && a->type != SERVO_ANIM_HOME) Serial << "animation done (num repeats)" << endl;
-    // TODO
-    // callback anim done (repeats)
-    // if(a->type == NEO_ANIM_ALERT) {
-    //   callback_NeoAnimAlertDone(a, 2);   // 2 designates 'num repeats' done type
-    // } else if(a->type == NEO_ANIM_HOME) {
-    //   callback_NeoAnimHomeDone(a, 2);    // 2 designates 'num repeats' done type
-    // }
+    // callback anim done (num repeats)
+    callback_ServoAnimDone(a);
     return false;
   }
 
@@ -88,11 +78,6 @@ bool servoAnimationChecks(struct ServoAnimation *a) {
   if(a->start_time == -1) {
     a->repeat_count = 0;
     a->frame_index = 0;
-    // the vars below should be reset in the respective run function
-    // a->dir = true;
-    // a->helper1 = 0;
-    // a->helper2 = 0;
-    // a->helper3 = 0;
     a->start_time = millis();
   }
   a->active = true;
