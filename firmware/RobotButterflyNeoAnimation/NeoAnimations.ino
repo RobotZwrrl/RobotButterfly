@@ -1,11 +1,9 @@
 
 void initNeoAnimations() {
-  initNeoAnim_none(&neo_animations[NEO_ANIM_NONE]);
-  initNeoAnim_polkadot(&neo_animations[NEO_ANIM_POLKADOT]);
-  initNeoAnim_squiggle(&neo_animations[NEO_ANIM_SQUIGGLE]);
-
-  neo_animation_home = neo_animations[NEO_ANIM_NONE];
+  initNeoAnim_none(&neo_animation_home);
   neo_animation_home.type = NEO_ANIM_HOME;
+  initNeoAnim_none(&neo_animation_alert);
+  neo_animation_alert.type = NEO_ANIM_ALERT;
 }
 
 
