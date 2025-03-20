@@ -30,6 +30,12 @@ void setServoAnim(struct ServoAnimation *a, uint8_t n, uint8_t t) {
     case SERVO_ANIM_SWAY:
       initServoAnim_sway(a);
     break;
+    case SERVO_ANIM_SOARING:
+      initServoAnim_soaring(a);
+    break;
+    case SERVO_ANIM_TOUCHGRASS:
+      initServoAnim_touchgrass(a);
+    break;
   }
 
   a->type = t;

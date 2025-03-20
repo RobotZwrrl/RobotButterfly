@@ -48,7 +48,9 @@ bool initialised_servos = false;
 enum servoAnimName {
   SERVO_ANIM_NONE,
   SERVO_ANIM_GENTLEFLAP,
-  SERVO_ANIM_SWAY
+  SERVO_ANIM_SWAY,
+  SERVO_ANIM_SOARING,
+  SERVO_ANIM_TOUCHGRASS
 };
 
 enum servoAnimType {
@@ -59,6 +61,8 @@ enum servoAnimType {
 void runServoAnim_none(struct ServoAnimation *animation);
 void runServoAnim_gentleflap(struct ServoAnimation *animation);
 void runServoAnim_sway(struct ServoAnimation *animation);
+void runServoAnim_soaring(struct ServoAnimation *animation);
+void runServoAnim_touchgrass(struct ServoAnimation *animation);
 typedef void (*ServoAnimationFunction)(ServoAnimation*); // function pointer type that accepts a ServoAnimation pointer
 
 struct ServoAnimation {
@@ -136,14 +140,14 @@ void loop() {
         Serial << "Gentle flap 5 seconds and faster velocity" << endl;
         setServoAnim(&servo_animation_alert, SERVO_ANIM_GENTLEFLAP, SERVO_ANIM_ALERT);
         setServoAnimDuration(&servo_animation_alert, 5000);
-        setServoAnimSpeed(&servo_animation_alert, 60);
+        setServoAnimSpeed(&servo_animation_alert, 80);
         startServoAnim(&servo_animation_alert);
       break;
       case '4':
         Serial << "Sway 5 seconds and faster velocity" << endl;
         setServoAnim(&servo_animation_alert, SERVO_ANIM_SWAY, SERVO_ANIM_ALERT);
         setServoAnimDuration(&servo_animation_alert, 5000);
-        setServoAnimSpeed(&servo_animation_alert, 80);
+        setServoAnimSpeed(&servo_animation_alert, 100);
         startServoAnim(&servo_animation_alert);
       break;
       case '5':
@@ -156,6 +160,23 @@ void loop() {
         Serial << "Sway 3x" << endl;
         setServoAnim(&servo_animation_alert, SERVO_ANIM_SWAY, SERVO_ANIM_ALERT);
         setServoAnimRepeats(&servo_animation_alert, 3);
+        startServoAnim(&servo_animation_alert);
+      break;
+      case '7':
+        Serial << "Soaring (default)" << endl;
+        setServoAnim(&servo_animation_alert, SERVO_ANIM_SOARING, SERVO_ANIM_ALERT);
+        startServoAnim(&servo_animation_alert);
+      break;
+      case '8':
+        Serial << "Soaring faster velocity" << endl;
+        setServoAnim(&servo_animation_alert, SERVO_ANIM_SOARING, SERVO_ANIM_ALERT);
+        setServoAnimSpeed(&servo_animation_alert, 200);
+        startServoAnim(&servo_animation_alert);
+      break;
+      case '9':
+        Serial << "Touch grass (default)" << endl;
+        setServoAnim(&servo_animation_alert, SERVO_ANIM_TOUCHGRASS, SERVO_ANIM_ALERT);
+        //setServoAnimSpeed(&servo_animation_alert, 200);
         startServoAnim(&servo_animation_alert);
       break;
       case 's':

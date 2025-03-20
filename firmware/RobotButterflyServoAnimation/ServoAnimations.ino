@@ -11,6 +11,7 @@ void updateServoAnimation() {
     if(servo_animation_alert.function) {
       servo_animation_alert.function(&servo_animation_alert);
       updateAllServos();
+      //Serial << "left mMillisForCompleteMove: " << wing_left.motor.mMillisForCompleteMove << endl;
     }
 
   } else {
@@ -138,7 +139,7 @@ void runServoAnim_gentleflap(struct ServoAnimation *a) {
       wing_left.motor.setEaseTo(SERVO_LEFT_HOME+flap_offset, velocity);
       wing_right.motor.setEaseTo(SERVO_RIGHT_HOME-flap_offset, velocity);
       synchronizeAllServosAndStartInterrupt(false);
-      a->frame_delay = 1400;
+      a->frame_delay = 100+wing_left.motor.mMillisForCompleteMove;
       a->last_frame = millis();
     }
     break;
@@ -147,7 +148,7 @@ void runServoAnim_gentleflap(struct ServoAnimation *a) {
       wing_left.motor.setEaseTo(SERVO_LEFT_UP, velocity);
       wing_right.motor.setEaseTo(SERVO_RIGHT_UP, velocity);
       synchronizeAllServosAndStartInterrupt(false);
-      a->frame_delay = 2500;
+      a->frame_delay = 250+wing_left.motor.mMillisForCompleteMove;
       a->last_frame = millis();
     }
     break;
@@ -168,7 +169,7 @@ void runServoAnim_sway(struct ServoAnimation *a) {
       wing_left.motor.setEaseTo(SERVO_LEFT_UP, velocity);
       wing_right.motor.setEaseTo(SERVO_RIGHT_HOME-sway_offset, velocity);
       synchronizeAllServosAndStartInterrupt(false);
-      a->frame_delay = 1000;
+      a->frame_delay = 80+wing_left.motor.mMillisForCompleteMove;
       a->last_frame = millis();
     }
     break;
@@ -177,7 +178,70 @@ void runServoAnim_sway(struct ServoAnimation *a) {
       wing_left.motor.setEaseTo(SERVO_LEFT_HOME+sway_offset, velocity);
       wing_right.motor.setEaseTo(SERVO_RIGHT_UP, velocity);
       synchronizeAllServosAndStartInterrupt(false);
-      a->frame_delay = 1000;
+      a->frame_delay = 80+wing_left.motor.mMillisForCompleteMove;
+      a->last_frame = millis();
+    }
+    break;
+  }
+
+}
+
+
+void runServoAnim_soaring(struct ServoAnimation *a) {
+
+  if(!servoAnimationChecks(a)) return;
+
+  uint16_t soaring_offset = a->helper1;
+  uint8_t velocity = a->velocity;
+
+  switch(a->frame_index) {
+    case 0: {
+      Serial << "frame (" << a->frame_index << ") " << endl;
+      wing_left.motor.setEaseTo(SERVO_LEFT_UP, velocity);
+      wing_right.motor.setEaseTo(SERVO_RIGHT_DOWN-soaring_offset, velocity);
+      synchronizeAllServosAndStartInterrupt(false);
+      a->frame_delay = 40+wing_left.motor.mMillisForCompleteMove;
+      a->last_frame = millis();
+    }
+    break;
+    case 1: {
+      Serial << "frame (" << a->frame_index << ") " << endl;
+      wing_left.motor.setEaseTo(SERVO_LEFT_DOWN+soaring_offset, velocity);
+      wing_right.motor.setEaseTo(SERVO_RIGHT_UP, velocity);
+      synchronizeAllServosAndStartInterrupt(false);
+      a->frame_delay = 40+wing_left.motor.mMillisForCompleteMove;
+      a->last_frame = millis();
+    }
+    break;
+  }
+
+}
+
+
+void runServoAnim_touchgrass(struct ServoAnimation *a) {
+
+  if(!servoAnimationChecks(a)) return;
+
+  uint16_t down_offset = a->helper1;
+  uint16_t down2_offset = a->helper2;
+  uint8_t velocity = a->velocity;
+
+  switch(a->frame_index) {
+    case 0: {
+      Serial << "frame (" << a->frame_index << ") " << endl;
+      wing_left.motor.setEaseTo(SERVO_LEFT_DOWN+down_offset, velocity);
+      wing_right.motor.setEaseTo(SERVO_RIGHT_DOWN-down_offset, velocity);
+      synchronizeAllServosAndStartInterrupt(false);
+      a->frame_delay = 100+wing_left.motor.mMillisForCompleteMove;
+      a->last_frame = millis();
+    }
+    break;
+    case 1: {
+      Serial << "frame (" << a->frame_index << ") " << endl;
+      wing_left.motor.setEaseTo(SERVO_LEFT_DOWN+down2_offset, velocity);
+      wing_right.motor.setEaseTo(SERVO_RIGHT_DOWN-down2_offset, velocity);
+      synchronizeAllServosAndStartInterrupt(false);
+      a->frame_delay = 80+wing_left.motor.mMillisForCompleteMove;
       a->last_frame = millis();
     }
     break;
@@ -273,6 +337,62 @@ void initServoAnim_sway(struct ServoAnimation *a) {
   a->helper3 = 0;
 
   a->function = runServoAnim_sway;
+}
+
+
+void initServoAnim_soaring(struct ServoAnimation *a) {
+  a->id = SERVO_ANIM_SOARING;
+  a->active = false;
+  a->type = SERVO_ANIM_ALERT;
+  a->velocity = 40;
+
+  a->num_frames = 2;
+  a->frame_delay = 0;
+  a->frame_index = 0;
+  a->last_frame = 0;
+
+  a->num_repeats = -99;
+  a->repeat_count = 0;
+  a->repeat_delay = 0;
+  a->last_repeat = 0;
+
+  a->duration = -1;
+  a->start_time = -1;
+
+  a->dir = true;
+  a->helper1 = 200; // soaring offset
+  a->helper2 = 0;
+  a->helper3 = 0;
+
+  a->function = runServoAnim_soaring;
+}
+
+
+void initServoAnim_touchgrass(struct ServoAnimation *a) {
+  a->id = SERVO_ANIM_TOUCHGRASS;
+  a->active = false;
+  a->type = SERVO_ANIM_ALERT;
+  a->velocity = 70;
+
+  a->num_frames = 2;
+  a->frame_delay = 0;
+  a->frame_index = 0;
+  a->last_frame = 0;
+
+  a->num_repeats = -99;
+  a->repeat_count = 0;
+  a->repeat_delay = 0;
+  a->last_repeat = 0;
+
+  a->duration = -1;
+  a->start_time = -1;
+
+  a->dir = true;
+  a->helper1 = 200;   // down offset
+  a->helper2 = 400;     // down2 offset
+  a->helper3 = 0;
+
+  a->function = runServoAnim_touchgrass;
 }
 
 
