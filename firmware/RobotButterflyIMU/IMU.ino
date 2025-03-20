@@ -139,7 +139,6 @@ void updateIMU() {
     // prints
     if(IMU_PRINT_DATA_AVG) printIMUDataAvg();
     if(IMU_PRINT_DELTA_HOME_AVG) printIMUDeltaHomeAvg();
-    if(IMU_PRINT_DELTA_TIME_AVG) printIMUDeltaTimeAvg();
     if(IMU_PRINT_STATS) printIMUStats();
 
     // get ready for the next sample by resetting
@@ -205,13 +204,6 @@ void initIMU() {
   imu_avg_home_gx.begin();
   imu_avg_home_gy.begin();
   imu_avg_home_gz.begin();
-
-  imu_avg_time_ax.begin();
-  imu_avg_time_ay.begin();
-  imu_avg_time_az.begin();
-  imu_avg_time_gx.begin();
-  imu_avg_time_gy.begin();
-  imu_avg_time_gz.begin();
 
   IMU_STATE = IMU_SETTLE;
 }
@@ -557,16 +549,6 @@ void printIMUDeltaHomeAvg() {
   Serial.println(imu_delta_home_avg.gz);
 }
 
-void printIMUDeltaTimeAvg() {
-  Serial.print("a/g:\t");
-  Serial.print(imu_delta_time_avg.ax); Serial.print("\t");
-  Serial.print(imu_delta_time_avg.ay); Serial.print("\t");
-  Serial.print(imu_delta_time_avg.az); Serial.print("\t");
-  Serial.print(imu_delta_time_avg.gx); Serial.print("\t");
-  Serial.print(imu_delta_time_avg.gy); Serial.print("\t");
-  Serial.println(imu_delta_time_avg.gz);
-}
-
 void imuDeltaCalculations() {
   
   // add the raw data to its moving average filter
@@ -601,13 +583,6 @@ void imuDeltaCalculations() {
   imu_avg_home_gy.reading(delta_home_gy);
   imu_avg_home_gz.reading(delta_home_gz);
 
-  // put the time delta into the moving average filter
-  imu_avg_time_ax.reading(delta_time_ax);
-  imu_avg_time_ay.reading(delta_time_ay);
-  imu_avg_time_az.reading(delta_time_az);
-  imu_avg_time_gx.reading(delta_time_gx);
-  imu_avg_time_gy.reading(delta_time_gy);
-  imu_avg_time_gz.reading(delta_time_gz);
 }
 
 void imuResetMovingAverages() {
@@ -623,12 +598,6 @@ void imuResetMovingAverages() {
   imu_avg_home_gx.reset();
   imu_avg_home_gy.reset();
   imu_avg_home_gz.reset();
-  imu_avg_time_ax.reset();
-  imu_avg_time_ay.reset();
-  imu_avg_time_az.reset();
-  imu_avg_time_gx.reset();
-  imu_avg_time_gy.reset();
-  imu_avg_time_gz.reset();
 }
 
 void imuUpdateAvgValues() {
@@ -650,15 +619,6 @@ void imuUpdateAvgValues() {
   imu_delta_home_avg.gy = imu_avg_home_gy.getAvg();
   imu_delta_home_avg.gz = imu_avg_home_gz.getAvg();
   imu_delta_home_avg.last_data = millis();
-
-  // -- time delta avg
-  imu_delta_time_avg.ax = imu_avg_time_ax.getAvg();
-  imu_delta_time_avg.ay = imu_avg_time_ay.getAvg();
-  imu_delta_time_avg.az = imu_avg_time_az.getAvg();
-  imu_delta_time_avg.gx = imu_avg_time_gx.getAvg();
-  imu_delta_time_avg.gy = imu_avg_time_gy.getAvg();
-  imu_delta_time_avg.gz = imu_avg_time_gz.getAvg();
-  imu_delta_time_avg.last_data = millis();
 
 }
 

@@ -1,8 +1,5 @@
-#define DEBUG_IMU                       false   // debug print statements
-#define MAX_IMU_ACCE 16384
-#define MIN_IMU_ACCE -16384
-#define MAX_IMU_GYRO 16384
-#define MIN_IMU_GYRO -16384
+// debug print statements
+#define DEBUG_IMU false
 
 // number of samples to collect within a window
 // of the moving average filter. the window is
