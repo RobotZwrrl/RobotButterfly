@@ -24,8 +24,8 @@ void setServoAnim(struct ServoAnimation *a, uint8_t n, uint8_t t) {
     case SERVO_ANIM_NONE:
       initServoAnim_none(a);
     break;
-    case SERVO_ANIM_GENTLEFLAP:
-      initServoAnim_gentleflap(a);
+    case SERVO_ANIM_GENTLE:
+      initServoAnim_gentle(a);
     break;
     case SERVO_ANIM_SWAY:
       initServoAnim_sway(a);
@@ -35,6 +35,12 @@ void setServoAnim(struct ServoAnimation *a, uint8_t n, uint8_t t) {
     break;
     case SERVO_ANIM_TOUCHGRASS:
       initServoAnim_touchgrass(a);
+    break;
+    case SERVO_ANIM_SWOOSH:
+      initServoAnim_swoosh(a);
+    break;
+    case SERVO_ANIM_PARTY:
+      initServoAnim_party(a);
     break;
   }
 

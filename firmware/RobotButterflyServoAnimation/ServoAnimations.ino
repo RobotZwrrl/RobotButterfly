@@ -126,7 +126,7 @@ void runServoAnim_none(struct ServoAnimation *a) {
 }
 
 
-void runServoAnim_gentleflap(struct ServoAnimation *a) {
+void runServoAnim_gentle(struct ServoAnimation *a) {
 
   if(!servoAnimationChecks(a)) return;
 
@@ -155,6 +155,7 @@ void runServoAnim_gentleflap(struct ServoAnimation *a) {
   }
 
 }
+
 
 void runServoAnim_sway(struct ServoAnimation *a) {
 
@@ -249,6 +250,143 @@ void runServoAnim_touchgrass(struct ServoAnimation *a) {
 
 }
 
+
+void runServoAnim_swoosh(struct ServoAnimation *a) {
+
+  if(!servoAnimationChecks(a)) return;
+
+  uint16_t flap_offset = a->helper1;
+  uint16_t down_offset = a->helper2;
+  uint8_t velocity = a->velocity;
+
+  switch(a->frame_index) {
+    case 0: {
+      Serial << "frame (" << a->frame_index << ") " << endl;
+      wing_left.motor.setEaseTo(SERVO_LEFT_UP-flap_offset, velocity);
+      wing_right.motor.setEaseTo(SERVO_RIGHT_UP+flap_offset, velocity);
+      synchronizeAllServosAndStartInterrupt(false);
+      a->frame_delay = 250+wing_left.motor.mMillisForCompleteMove;
+      a->last_frame = millis();
+    }
+    break;
+    case 1: {
+      Serial << "frame (" << a->frame_index << ") " << endl;
+      wing_left.motor.setEaseTo(SERVO_LEFT_DOWN+down_offset, velocity);
+      wing_right.motor.setEaseTo(SERVO_RIGHT_DOWN-down_offset, velocity);
+      synchronizeAllServosAndStartInterrupt(false);
+      a->frame_delay = 100+wing_left.motor.mMillisForCompleteMove;
+      a->last_frame = millis();
+    }
+    break;
+  }
+
+}
+
+
+void runServoAnim_party(struct ServoAnimation *a) {
+
+  if(!servoAnimationChecks(a)) return;
+
+  uint16_t step1_offset = a->helper1;
+  uint16_t step2_offset = a->helper2;
+  uint16_t step3_offset = a->helper3;
+  uint8_t velocity = a->velocity;
+
+  switch(a->frame_index) {
+    case 0: {
+      Serial << "frame (" << a->frame_index << ") " << endl;
+      wing_left.motor.setEaseTo(SERVO_LEFT_HOME, velocity);
+      wing_right.motor.setEaseTo(SERVO_RIGHT_HOME, velocity);
+      synchronizeAllServosAndStartInterrupt(false);
+      a->frame_delay = 0+wing_left.motor.mMillisForCompleteMove;
+      a->last_frame = millis();
+    }
+    break;
+    case 1: {
+      Serial << "frame (" << a->frame_index << ") " << endl;
+      wing_left.motor.setEaseTo(SERVO_LEFT_UP-step1_offset, velocity);
+      wing_right.motor.setEaseTo(SERVO_RIGHT_DOWN-step1_offset, velocity);
+      synchronizeAllServosAndStartInterrupt(false);
+      a->frame_delay = 0+wing_left.motor.mMillisForCompleteMove;
+      a->last_frame = millis();
+    }
+    break;
+    case 2: {
+      Serial << "frame (" << a->frame_index << ") " << endl;
+      wing_left.motor.setEaseTo(SERVO_LEFT_UP-step2_offset, velocity);
+      wing_right.motor.setEaseTo(SERVO_RIGHT_DOWN-step2_offset, velocity);
+      synchronizeAllServosAndStartInterrupt(false);
+      a->frame_delay = 0+wing_left.motor.mMillisForCompleteMove;
+      a->last_frame = millis();
+    }
+    break;
+    case 3: {
+      Serial << "frame (" << a->frame_index << ") " << endl;
+      wing_left.motor.setEaseTo(SERVO_LEFT_UP-step3_offset, velocity);
+      wing_right.motor.setEaseTo(SERVO_RIGHT_DOWN-step3_offset, velocity);
+      synchronizeAllServosAndStartInterrupt(false);
+      a->frame_delay = 0+wing_left.motor.mMillisForCompleteMove;
+      a->last_frame = millis();
+    }
+    break;
+    case 4: {
+      Serial << "frame (" << a->frame_index << ") " << endl;
+      wing_left.motor.setEaseTo(SERVO_LEFT_UP-step1_offset, velocity);
+      wing_right.motor.setEaseTo(SERVO_RIGHT_DOWN-step1_offset, velocity);
+      synchronizeAllServosAndStartInterrupt(false);
+      a->frame_delay = 0+wing_left.motor.mMillisForCompleteMove;
+      a->last_frame = millis();
+    }
+    break;
+    case 5: {
+      Serial << "frame (" << a->frame_index << ") " << endl;
+      wing_left.motor.setEaseTo(SERVO_LEFT_HOME, velocity);
+      wing_right.motor.setEaseTo(SERVO_RIGHT_HOME, velocity);
+      synchronizeAllServosAndStartInterrupt(false);
+      a->frame_delay = 0+wing_left.motor.mMillisForCompleteMove;
+      a->last_frame = millis();
+    }
+    break;
+    case 6: {
+      Serial << "frame (" << a->frame_index << ") " << endl;
+      wing_left.motor.setEaseTo(SERVO_LEFT_DOWN+step1_offset, velocity);
+      wing_right.motor.setEaseTo(SERVO_RIGHT_UP+step1_offset, velocity);
+      synchronizeAllServosAndStartInterrupt(false);
+      a->frame_delay = 0+wing_left.motor.mMillisForCompleteMove;
+      a->last_frame = millis();
+    }
+    break;
+    case 7: {
+      Serial << "frame (" << a->frame_index << ") " << endl;
+      wing_left.motor.setEaseTo(SERVO_LEFT_DOWN+step2_offset, velocity);
+      wing_right.motor.setEaseTo(SERVO_RIGHT_UP+step2_offset, velocity);
+      synchronizeAllServosAndStartInterrupt(false);
+      a->frame_delay = 0+wing_left.motor.mMillisForCompleteMove;
+      a->last_frame = millis();
+    }
+    break;
+    case 8: {
+      Serial << "frame (" << a->frame_index << ") " << endl;
+      wing_left.motor.setEaseTo(SERVO_LEFT_DOWN+step3_offset, velocity);
+      wing_right.motor.setEaseTo(SERVO_RIGHT_UP+step3_offset, velocity);
+      synchronizeAllServosAndStartInterrupt(false);
+      a->frame_delay = 0+wing_left.motor.mMillisForCompleteMove;
+      a->last_frame = millis();
+    }
+    break;
+    case 9: {
+      Serial << "frame (" << a->frame_index << ") " << endl;
+      wing_left.motor.setEaseTo(SERVO_LEFT_DOWN+step1_offset, velocity);
+      wing_right.motor.setEaseTo(SERVO_RIGHT_UP+step1_offset, velocity);
+      synchronizeAllServosAndStartInterrupt(false);
+      a->frame_delay = 0+wing_left.motor.mMillisForCompleteMove;
+      a->last_frame = millis();
+    }
+    break;
+  }
+
+}
+
 // ----------------------------------
 
 
@@ -284,8 +422,8 @@ void initServoAnim_none(struct ServoAnimation *a) {
 }
 
 
-void initServoAnim_gentleflap(struct ServoAnimation *a) {
-  a->id = SERVO_ANIM_GENTLEFLAP;
+void initServoAnim_gentle(struct ServoAnimation *a) {
+  a->id = SERVO_ANIM_GENTLE;
   a->active = false;
   a->type = SERVO_ANIM_ALERT;
   a->velocity = 40;
@@ -308,7 +446,7 @@ void initServoAnim_gentleflap(struct ServoAnimation *a) {
   a->helper2 = 0;
   a->helper3 = 0;
 
-  a->function = runServoAnim_gentleflap;
+  a->function = runServoAnim_gentle;
 }
 
 
@@ -388,7 +526,7 @@ void initServoAnim_touchgrass(struct ServoAnimation *a) {
   a->start_time = -1;
 
   a->dir = true;
-  a->helper1 = 200;   // down offset
+  a->helper1 = 200;     // down offset
   a->helper2 = 400;     // down2 offset
   a->helper3 = 0;
 
@@ -396,11 +534,67 @@ void initServoAnim_touchgrass(struct ServoAnimation *a) {
 }
 
 
+void initServoAnim_swoosh(struct ServoAnimation *a) {
+  a->id = SERVO_ANIM_SWOOSH;
+  a->active = false;
+  a->type = SERVO_ANIM_ALERT;
+  a->velocity = 50;
+
+  a->num_frames = 2;
+  a->frame_delay = 0;
+  a->frame_index = 0;
+  a->last_frame = 0;
+
+  a->num_repeats = -99;
+  a->repeat_count = 0;
+  a->repeat_delay = 0;
+  a->last_repeat = 0;
+
+  a->duration = -1;
+  a->start_time = -1;
+
+  a->dir = true;
+  a->helper1 = 0;       // flap offset
+  a->helper2 = 250;     // down offset
+  a->helper3 = 0;
+
+  a->function = runServoAnim_swoosh;
+}
+
+
+void initServoAnim_party(struct ServoAnimation *a) {
+  a->id = SERVO_ANIM_PARTY;
+  a->active = false;
+  a->type = SERVO_ANIM_ALERT;
+  a->velocity = 100;
+
+  a->num_frames = 10;
+  a->frame_delay = 0;
+  a->frame_index = 0;
+  a->last_frame = 0;
+
+  a->num_repeats = -99;
+  a->repeat_count = 0;
+  a->repeat_delay = 0;
+  a->last_repeat = 0;
+
+  a->duration = -1;
+  a->start_time = -1;
+
+  a->dir = true;
+  a->helper1 = 550;     // step1 offset
+  a->helper2 = 300;     // step2 offset
+  a->helper3 = 850;     // step3 offset
+
+  a->function = runServoAnim_party;
+}
+
+
 void initServoAnimations() {
   // all servo animations are initialised when setServoAnim() is called
   initServoAnim_none(&servo_animation_home);
   servo_animation_home.type = SERVO_ANIM_HOME;
-  initServoAnim_gentleflap(&servo_animation_alert);
+  initServoAnim_gentle(&servo_animation_alert);
   servo_animation_alert.type = SERVO_ANIM_ALERT;
 }
 
