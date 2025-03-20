@@ -58,6 +58,7 @@ enum servoAnimType {
 
 void runServoAnim_none(struct ServoAnimation *animation);
 void runServoAnim_gentleflap(struct ServoAnimation *animation);
+void runServoAnim_sway(struct ServoAnimation *animation);
 typedef void (*ServoAnimationFunction)(ServoAnimation*); // function pointer type that accepts a ServoAnimation pointer
 
 struct ServoAnimation {
@@ -122,7 +123,39 @@ void loop() {
         startServoAnim(&servo_animation_alert);
       break;
       case '1':
+        Serial << "Gentle flap default" << endl;
         setServoAnim(&servo_animation_alert, SERVO_ANIM_GENTLEFLAP, SERVO_ANIM_ALERT);
+        startServoAnim(&servo_animation_alert);
+      break;
+      case '2':
+        Serial << "Sway default" << endl;
+        setServoAnim(&servo_animation_alert, SERVO_ANIM_SWAY, SERVO_ANIM_ALERT);
+        startServoAnim(&servo_animation_alert);
+      break;
+      case '3':
+        Serial << "Gentle flap 5 seconds and faster velocity" << endl;
+        setServoAnim(&servo_animation_alert, SERVO_ANIM_GENTLEFLAP, SERVO_ANIM_ALERT);
+        setServoAnimDuration(&servo_animation_alert, 5000);
+        setServoAnimSpeed(&servo_animation_alert, 60);
+        startServoAnim(&servo_animation_alert);
+      break;
+      case '4':
+        Serial << "Sway 5 seconds and faster velocity" << endl;
+        setServoAnim(&servo_animation_alert, SERVO_ANIM_SWAY, SERVO_ANIM_ALERT);
+        setServoAnimDuration(&servo_animation_alert, 5000);
+        setServoAnimSpeed(&servo_animation_alert, 80);
+        startServoAnim(&servo_animation_alert);
+      break;
+      case '5':
+        Serial << "Gentle flap 3x" << endl;
+        setServoAnim(&servo_animation_alert, SERVO_ANIM_GENTLEFLAP, SERVO_ANIM_ALERT);
+        setServoAnimRepeats(&servo_animation_alert, 3);
+        startServoAnim(&servo_animation_alert);
+      break;
+      case '6':
+        Serial << "Sway 3x" << endl;
+        setServoAnim(&servo_animation_alert, SERVO_ANIM_SWAY, SERVO_ANIM_ALERT);
+        setServoAnimRepeats(&servo_animation_alert, 3);
         startServoAnim(&servo_animation_alert);
       break;
       case 's':

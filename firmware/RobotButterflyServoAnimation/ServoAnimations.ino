@@ -31,7 +31,7 @@ bool servoAnimationChecks(struct ServoAnimation *a) {
 
   // check that the animation delay is done. if not, wait again
   if(millis()-a->last_repeat < a->repeat_delay) {
-    if(DEBUG_SERVO_ANIMATION == true && a->type != SERVO_ANIM_HOME) Serial << "animation delay not done" << endl;
+    if(DEBUG_SERVO_ANIM == true && a->type != SERVO_ANIM_HOME) Serial << "animation delay not done" << endl;
     return false;
   }
 
@@ -43,7 +43,7 @@ bool servoAnimationChecks(struct ServoAnimation *a) {
     a->start_time = -1;
     a->repeat_count = 0;
     a->active = false;
-    if(DEBUG_SERVO_ANIMATION == true && a->type != SERVO_ANIM_HOME) Serial << "animation done (time elapsed)" << endl;
+    if(DEBUG_SERVO_ANIM == true && a->type != SERVO_ANIM_HOME) Serial << "animation done (time elapsed)" << endl;
     // callback anim done (time elapsed)
     callback_ServoAnimDone(a);
     return false;
@@ -55,7 +55,7 @@ bool servoAnimationChecks(struct ServoAnimation *a) {
     a->start_time = -1;
     a->repeat_count = 0;
     a->active = false;
-    if(DEBUG_SERVO_ANIMATION == true && a->type != SERVO_ANIM_HOME) Serial << "animation done (num repeats)" << endl;
+    if(DEBUG_SERVO_ANIM == true && a->type != SERVO_ANIM_HOME) Serial << "animation done (num repeats)" << endl;
     // callback anim done (num repeats)
     callback_ServoAnimDone(a);
     return false;
@@ -81,11 +81,26 @@ bool servoAnimationChecks(struct ServoAnimation *a) {
     a->start_time = millis();
   }
   a->active = true;
-  if(DEBUG_SERVO_ANIMATION == true && a->type != SERVO_ANIM_HOME) Serial << "Servo animation: " << a->id;
-  if(DEBUG_SERVO_ANIMATION == true && a->type != SERVO_ANIM_HOME) Serial << " frame: " << a->frame_index+1 << "/" << a->num_frames << endl;
+  if(DEBUG_SERVO_ANIM == true && a->type != SERVO_ANIM_HOME) Serial << "Servo animation: " << a->id;
+  if(DEBUG_SERVO_ANIM == true && a->type != SERVO_ANIM_HOME) Serial << " frame: " << a->frame_index+1 << "/" << a->num_frames << endl;
+
+  if(wing_left.active == false || wing_right.active == false) {
+    if(DEBUG_SERVO_ANIM == true && a->type != SERVO_ANIM_HOME) Serial << "restart servos (" << a->frame_index << ") " << endl;
+    if(wing_left.active == false) {
+      wing_left.motor.reattach();
+      wing_left.active = true;
+    }
+    if(wing_right.active == false) {
+      wing_right.motor.reattach();
+      wing_right.active = true;
+    }
+    a->frame_index--;
+    a->frame_delay = 0;
+    a->last_frame = millis();
+    return false; // fast forward to the next frame
+  }
 
   return true;
-
 }
 
 // ----------------------------------
@@ -115,24 +130,7 @@ void runServoAnim_gentleflap(struct ServoAnimation *a) {
   if(!servoAnimationChecks(a)) return;
 
   uint16_t flap_offset = a->helper1;
-  uint8_t velocity = 50;//a->velocity;
-
-  if(wing_left.active == false || wing_right.active == false) {
-    Serial << "restart servos (" << a->frame_index << ") " << endl;
-    if(wing_left.active == false) {
-      wing_left.motor.reattach();
-      wing_left.active = true;
-    }
-    if(wing_right.active == false) {
-      wing_right.motor.reattach();
-      wing_right.active = true;
-    }
-    a->frame_index--;
-    a->frame_delay = 0;
-    a->last_frame = millis();
-    Serial << "meow (" << a->frame_index << ") " << endl;
-    return;
-  }
+  uint8_t velocity = a->velocity;
 
   switch(a->frame_index) {
     case 0: {
@@ -150,6 +148,36 @@ void runServoAnim_gentleflap(struct ServoAnimation *a) {
       wing_right.motor.setEaseTo(SERVO_RIGHT_UP, velocity);
       synchronizeAllServosAndStartInterrupt(false);
       a->frame_delay = 2500;
+      a->last_frame = millis();
+    }
+    break;
+  }
+
+}
+
+void runServoAnim_sway(struct ServoAnimation *a) {
+
+  if(!servoAnimationChecks(a)) return;
+
+  uint16_t sway_offset = a->helper1;
+  uint8_t velocity = a->velocity;
+
+  switch(a->frame_index) {
+    case 0: {
+      Serial << "frame (" << a->frame_index << ") " << endl;
+      wing_left.motor.setEaseTo(SERVO_LEFT_UP, velocity);
+      wing_right.motor.setEaseTo(SERVO_RIGHT_HOME-sway_offset, velocity);
+      synchronizeAllServosAndStartInterrupt(false);
+      a->frame_delay = 1000;
+      a->last_frame = millis();
+    }
+    break;
+    case 1: {
+      Serial << "frame (" << a->frame_index << ") " << endl;
+      wing_left.motor.setEaseTo(SERVO_LEFT_HOME+sway_offset, velocity);
+      wing_right.motor.setEaseTo(SERVO_RIGHT_UP, velocity);
+      synchronizeAllServosAndStartInterrupt(false);
+      a->frame_delay = 1000;
       a->last_frame = millis();
     }
     break;
@@ -196,7 +224,7 @@ void initServoAnim_gentleflap(struct ServoAnimation *a) {
   a->id = SERVO_ANIM_GENTLEFLAP;
   a->active = false;
   a->type = SERVO_ANIM_ALERT;
-  a->velocity = 30;
+  a->velocity = 40;
 
   a->num_frames = 2;
   a->frame_delay = 0;
@@ -220,10 +248,39 @@ void initServoAnim_gentleflap(struct ServoAnimation *a) {
 }
 
 
+void initServoAnim_sway(struct ServoAnimation *a) {
+  a->id = SERVO_ANIM_SWAY;
+  a->active = false;
+  a->type = SERVO_ANIM_ALERT;
+  a->velocity = 60;
+
+  a->num_frames = 2;
+  a->frame_delay = 0;
+  a->frame_index = 0;
+  a->last_frame = 0;
+
+  a->num_repeats = -99;
+  a->repeat_count = 0;
+  a->repeat_delay = 0;
+  a->last_repeat = 0;
+
+  a->duration = -1;
+  a->start_time = -1;
+
+  a->dir = true;
+  a->helper1 = 600; // sway offset
+  a->helper2 = 0;
+  a->helper3 = 0;
+
+  a->function = runServoAnim_sway;
+}
+
+
 void initServoAnimations() {
+  // all servo animations are initialised when setServoAnim() is called
   initServoAnim_none(&servo_animation_home);
   servo_animation_home.type = SERVO_ANIM_HOME;
-  initServoAnim_none(&servo_animation_alert);
+  initServoAnim_gentleflap(&servo_animation_alert);
   servo_animation_alert.type = SERVO_ANIM_ALERT;
 }
 
