@@ -52,7 +52,8 @@ enum servoAnimName {
   SERVO_ANIM_SOARING,
   SERVO_ANIM_TOUCHGRASS,
   SERVO_ANIM_SWOOSH,
-  SERVO_ANIM_PARTY
+  SERVO_ANIM_PARTY,
+  SERVO_ANIM_FLUTTER
 };
 
 enum servoAnimType {
@@ -67,6 +68,7 @@ void runServoAnim_soaring(struct ServoAnimation *animation);
 void runServoAnim_touchgrass(struct ServoAnimation *animation);
 void runServoAnim_swoosh(struct ServoAnimation *animation);
 void runServoAnim_party(struct ServoAnimation *animation);
+void runServoAnim_flutter(struct ServoAnimation *animation);
 typedef void (*ServoAnimationFunction)(ServoAnimation*); // function pointer type that accepts a ServoAnimation pointer
 
 struct ServoAnimation {
@@ -210,6 +212,26 @@ void loop() {
         setServoAnim(&servo_animation_alert, SERVO_ANIM_PARTY, SERVO_ANIM_ALERT);
         setServoAnimDuration(&servo_animation_alert, 5000);
         setServoAnimSpeed(&servo_animation_alert, 200);
+        startServoAnim(&servo_animation_alert);
+      break;
+      case 'y':
+        Serial << "Flutter left home, right up" << endl;
+        setServoAnim(&servo_animation_alert, SERVO_ANIM_FLUTTER, SERVO_ANIM_ALERT);
+        servo_animation_alert.helper1 = 2;
+        servo_animation_alert.helper2 = 2;
+        startServoAnim(&servo_animation_alert);
+      break;
+      case 'u':
+        Serial << "Flutter home" << endl;
+        setServoAnim(&servo_animation_alert, SERVO_ANIM_FLUTTER, SERVO_ANIM_ALERT);
+        servo_animation_alert.helper1 = 0;
+        startServoAnim(&servo_animation_alert);
+      break;
+      case 'i':
+        Serial << "Flutter right up, left up" << endl;
+        setServoAnim(&servo_animation_alert, SERVO_ANIM_FLUTTER, SERVO_ANIM_ALERT);
+        servo_animation_alert.helper1 = 5;
+        servo_animation_alert.helper2 = 2;
         startServoAnim(&servo_animation_alert);
       break;
       case 's':

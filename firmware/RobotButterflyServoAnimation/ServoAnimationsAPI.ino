@@ -42,6 +42,9 @@ void setServoAnim(struct ServoAnimation *a, uint8_t n, uint8_t t) {
     case SERVO_ANIM_PARTY:
       initServoAnim_party(a);
     break;
+    case SERVO_ANIM_FLUTTER:
+      initServoAnim_flutter(a);
+    break;
   }
 
   a->type = t;
@@ -72,4 +75,29 @@ void stopServoAnim(struct ServoAnimation *a) {
   a->active = false;
   callback_ServoAnimDone(a);
 }
+// ----------------------------------
+
+
+// ----------------------------------
+// ------------ getters -------------
+// ----------------------------------
+
+int servoSafeValLeft(int n) {
+  int val = n;
+
+  if(n < SERVO_LEFT_DOWN) val = SERVO_LEFT_DOWN;
+  if(n > SERVO_LEFT_UP) val = SERVO_LEFT_UP;
+
+  return val;
+}
+
+int servoSafeValRight(int n) {
+  int val = n;
+
+  if(n > SERVO_RIGHT_DOWN) val = SERVO_RIGHT_DOWN;
+  if(n < SERVO_RIGHT_UP) val = SERVO_RIGHT_UP;
+
+  return val;
+}
+
 // ----------------------------------
