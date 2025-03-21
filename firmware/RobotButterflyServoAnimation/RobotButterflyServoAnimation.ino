@@ -53,7 +53,9 @@ enum servoAnimName {
   SERVO_ANIM_TOUCHGRASS,
   SERVO_ANIM_SWOOSH,
   SERVO_ANIM_PARTY,
-  SERVO_ANIM_FLUTTER
+  SERVO_ANIM_FLUTTER,
+  SERVO_ANIM_RANGE,
+  SERVO_ANIM_POSITION
 };
 
 enum servoAnimType {
@@ -69,6 +71,8 @@ void runServoAnim_touchgrass(struct ServoAnimation *animation);
 void runServoAnim_swoosh(struct ServoAnimation *animation);
 void runServoAnim_party(struct ServoAnimation *animation);
 void runServoAnim_flutter(struct ServoAnimation *animation);
+void runServoAnim_range(struct ServoAnimation *animation);
+void runServoAnim_position(struct ServoAnimation *animation);
 typedef void (*ServoAnimationFunction)(ServoAnimation*); // function pointer type that accepts a ServoAnimation pointer
 
 struct ServoAnimation {
@@ -103,6 +107,9 @@ ServoAnimation servo_animation_alert;
 // -----------------------------------
 
 
+long last_print = 0;
+uint8_t ranger = 0;
+
 
 void setup() {
   Serial.begin(9600);
@@ -118,10 +125,15 @@ void setup() {
 
 void loop() {
   
-  // if(millis()-last_print >= 500) {
-  //   Serial << millis() << " hi " << xPortGetCoreID() << endl;
-  //   last_print = millis();
-  // }
+  if(millis()-last_print >= 1000) {
+    //Serial << millis() << " hi " << xPortGetCoreID() << endl;
+    if(servo_animation_alert.id == SERVO_ANIM_RANGE) {
+      ranger++;
+      if(ranger > 9) ranger = 0;
+      servo_animation_alert.helper2 = ranger;
+    }
+    last_print = millis();
+  }
 
   updateServoAnimation();
 
@@ -232,6 +244,55 @@ void loop() {
         setServoAnim(&servo_animation_alert, SERVO_ANIM_FLUTTER, SERVO_ANIM_ALERT);
         servo_animation_alert.helper1 = 5;
         servo_animation_alert.helper2 = 2;
+        startServoAnim(&servo_animation_alert);
+      break;
+      case 'o':
+        Serial << "Range down to up" << endl;
+        setServoAnim(&servo_animation_alert, SERVO_ANIM_RANGE, SERVO_ANIM_ALERT);
+        servo_animation_alert.helper1 = 0;
+        servo_animation_alert.helper2 = ranger;
+        startServoAnim(&servo_animation_alert);
+      break;
+      case 'p':
+        Serial << "Range home to up" << endl;
+        setServoAnim(&servo_animation_alert, SERVO_ANIM_RANGE, SERVO_ANIM_ALERT);
+        servo_animation_alert.helper1 = 1;
+        servo_animation_alert.helper2 = ranger;
+        startServoAnim(&servo_animation_alert);
+      break;
+      case '[':
+        Serial << "Range alt" << endl;
+        setServoAnim(&servo_animation_alert, SERVO_ANIM_RANGE, SERVO_ANIM_ALERT);
+        servo_animation_alert.helper1 = 2;
+        servo_animation_alert.helper2 = ranger;
+        startServoAnim(&servo_animation_alert);
+      break;
+      case 'g':
+        Serial << "Position" << endl;
+        setServoAnim(&servo_animation_alert, SERVO_ANIM_POSITION, SERVO_ANIM_ALERT);
+        servo_animation_alert.helper1 = 1;
+        servo_animation_alert.helper2 = 1;
+        startServoAnim(&servo_animation_alert);
+      break;
+      case 'j':
+        Serial << "Position" << endl;
+        setServoAnim(&servo_animation_alert, SERVO_ANIM_POSITION, SERVO_ANIM_ALERT);
+        servo_animation_alert.helper1 = 2;
+        servo_animation_alert.helper2 = 1;
+        startServoAnim(&servo_animation_alert);
+      break;
+      case 'k':
+        Serial << "Position" << endl;
+        setServoAnim(&servo_animation_alert, SERVO_ANIM_POSITION, SERVO_ANIM_ALERT);
+        servo_animation_alert.helper1 = 2;
+        servo_animation_alert.helper2 = 2;
+        startServoAnim(&servo_animation_alert);
+      break;
+      case 'l':
+        Serial << "Position" << endl;
+        setServoAnim(&servo_animation_alert, SERVO_ANIM_POSITION, SERVO_ANIM_ALERT);
+        servo_animation_alert.helper1 = 1;
+        servo_animation_alert.helper2 = 0;
         startServoAnim(&servo_animation_alert);
       break;
       case 's':

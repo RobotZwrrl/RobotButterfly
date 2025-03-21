@@ -45,6 +45,12 @@ void setServoAnim(struct ServoAnimation *a, uint8_t n, uint8_t t) {
     case SERVO_ANIM_FLUTTER:
       initServoAnim_flutter(a);
     break;
+    case SERVO_ANIM_RANGE:
+      initServoAnim_range(a);
+    break;
+    case SERVO_ANIM_POSITION:
+      initServoAnim_position(a);
+    break;
   }
 
   a->type = t;

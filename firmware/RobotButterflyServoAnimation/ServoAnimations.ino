@@ -508,6 +508,96 @@ void runServoAnim_flutter(struct ServoAnimation *a) {
 
 }
 
+
+void runServoAnim_range(struct ServoAnimation *a) {
+
+  if(!servoAnimationChecks(a)) return;
+
+  uint16_t range = a->helper1;
+  uint16_t val = a->helper2;
+  uint8_t velocity = a->velocity;
+
+  int left_val = -99;
+  int right_val = -99;
+  
+  switch(range) {
+    case 0: { // down to up
+      left_val = map(val, 0, 9, SERVO_LEFT_DOWN, SERVO_LEFT_UP);
+      right_val = map(val, 0, 9, SERVO_RIGHT_DOWN, SERVO_RIGHT_UP);
+    }
+    break;
+    case 1: { // home to up
+      left_val = map(val, 0, 9, SERVO_LEFT_HOME, SERVO_LEFT_UP);
+      right_val = map(val, 0, 9, SERVO_RIGHT_HOME, SERVO_RIGHT_UP);
+    }
+    break;
+    case 2: { // alt
+      left_val = map(val, 0, 9, SERVO_LEFT_HOME, SERVO_LEFT_UP);
+      right_val = map(val, 0, 9, SERVO_RIGHT_UP, SERVO_RIGHT_HOME);
+    }
+    break;
+  }
+
+  // -- only one frame --
+
+  Serial << "frame (" << a->frame_index << ") " << endl;
+
+  if(left_val != -99) wing_left.motor.setEaseTo( servoSafeValLeft(left_val), velocity);
+  if(right_val != -99) wing_right.motor.setEaseTo( servoSafeValRight(right_val), velocity);
+
+  synchronizeAllServosAndStartInterrupt(false);
+  if(left_val != -99) a->frame_delay = 0+wing_left.motor.mMillisForCompleteMove;
+  if(right_val != -99) a->frame_delay = 0+wing_right.motor.mMillisForCompleteMove;
+  a->last_frame = millis();
+
+  // --
+
+}
+
+
+void runServoAnim_position(struct ServoAnimation *a) {
+
+  if(!servoAnimationChecks(a)) return;
+
+  uint16_t pos_L = a->helper1;
+  uint16_t pos_R = a->helper2;
+  uint8_t velocity = a->velocity;
+
+  int left_val = -99;
+  int right_val = -99;
+
+  int del_L = 0;
+  int del_R = 0;
+
+  if(pos_L == 0) left_val = SERVO_LEFT_DOWN;
+  if(pos_L == 1) left_val = SERVO_LEFT_HOME;
+  if(pos_L == 2) left_val = SERVO_LEFT_UP;
+
+  if(pos_R == 0) right_val = SERVO_RIGHT_DOWN;
+  if(pos_R == 1) right_val = SERVO_RIGHT_HOME;
+  if(pos_R == 2) right_val = SERVO_RIGHT_UP;
+
+  // -- only one frame --
+
+  Serial << "frame (" << a->frame_index << ") " << endl;
+
+  if(left_val != -99) wing_left.motor.setEaseTo( servoSafeValLeft(left_val), velocity);
+  if(right_val != -99) wing_right.motor.setEaseTo( servoSafeValRight(right_val), velocity);
+
+  synchronizeAllServosAndStartInterrupt(false);
+  if(left_val != -99) del_L = 0+wing_left.motor.mMillisForCompleteMove;
+  if(right_val != -99) del_R = 0+wing_right.motor.mMillisForCompleteMove;
+  if(del_L > del_R) {
+    a->frame_delay = del_L;
+  } else {
+    a->frame_delay = del_R;
+  }
+  a->last_frame = millis();
+
+  // --
+
+}
+
 // ----------------------------------
 
 
@@ -736,6 +826,62 @@ void initServoAnim_flutter(struct ServoAnimation *a) {
   a->helper3 = 200;    // flutter offset
 
   a->function = runServoAnim_flutter;
+}
+
+
+void initServoAnim_range(struct ServoAnimation *a) {
+  a->id = SERVO_ANIM_RANGE;
+  a->active = false;
+  a->type = SERVO_ANIM_ALERT;
+  a->velocity = 50;
+
+  a->num_frames = 1;
+  a->frame_delay = 0;
+  a->frame_index = 0;
+  a->last_frame = 0;
+
+  a->num_repeats = -99;
+  a->repeat_count = 0;
+  a->repeat_delay = 0;
+  a->last_repeat = 0;
+
+  a->duration = -1;
+  a->start_time = -1;
+
+  a->dir = true;
+  a->helper1 = 0;      // range: 0 = down to up, 1 = home to up
+  a->helper2 = 0;      // val: 0-9
+  a->helper3 = 0;
+
+  a->function = runServoAnim_range;
+}
+
+
+void initServoAnim_position(struct ServoAnimation *a) {
+  a->id = SERVO_ANIM_RANGE;
+  a->active = false;
+  a->type = SERVO_ANIM_ALERT;
+  a->velocity = 50;
+
+  a->num_frames = 1;
+  a->frame_delay = 0;
+  a->frame_index = 0;
+  a->last_frame = 0;
+
+  a->num_repeats = 1;
+  a->repeat_count = 0;
+  a->repeat_delay = 0;
+  a->last_repeat = 0;
+
+  a->duration = -1;
+  a->start_time = -1;
+
+  a->dir = true;
+  a->helper1 = 0;      // position L: 0 = down, 1 = home, 2 = up
+  a->helper2 = 0;      // position R: 0 = down, 1 = home, 2 = up
+  a->helper3 = 0;
+
+  a->function = runServoAnim_position;
 }
 
 
