@@ -61,19 +61,19 @@ String pastelNames[NUM_PALETTE_COLOURS] = {
 };
 
 uint16_t pastelColours[NUM_PALETTE_COLOURS][3] = {
-    {  719,  170,  250},   // red
-    { 3561,  160,  250},   // orange
-    { 5701,  160,  250},   // golden yellow
-    { 9622,  170,  250},   // canary yellow
-    {16545,  170,  250},   // green
-    {32845,   60,  250},   // sky blue
+    {  100,  180,  250},   // red
+    { 3500,  190,  250},   // orange
+    { 6622,  190,  250},   // golden yellow
+    { 9000,  190,  250},   // canary yellow
+    {15545,  170,  250},   // green
+    {32845,   50,  250},   // sky blue
     {43691,  120,  250},   // blue
     {27306,  120,  250},   // cyan
     {51613,  130,  250},   // purple
-    {55613,   60,  250},   // lavendar
-    {  659,   90,  250},   // pink
+    {56613,   40,  250},   // lavendar
+    {  359,   90,  250},   // pink
     {63535,  140,  250},   // magenta
-    { 5461,  120,  250},   // warm white
+    { 6561,  140,  250},   // warm white
     { 8192,   90,  250},   // white
     {    0,    0,    0},   // off
 };
