@@ -29,7 +29,10 @@
 // TODO
 // ------------------------------------
 
-// --------------- imu ----------------
+uint16_t getSensor_Light(struct Sensor *s);
+typedef uint16_t (*DAQFunction)(Sensor*); // function pointer type that accepts a Sensor pointer
+
+// --------------- sensors ----------------
 hw_timer_t *timer_10Hz_config = NULL;
 volatile bool new_avg_sample = false;
 
@@ -46,70 +49,93 @@ struct Sensor {
   bool print;
   
   // collected every 0.1 seconds
-  bool update_raw;
-  uint8_t iteration_raw;
+  volatile bool update_raw;
+  volatile uint8_t iteration_raw;
   uint8_t reload_raw;
   uint16_t raw;
   uint16_t raw_prev;
   long last_raw;
 
   // averaged over 1 seconds
-  bool update_val;
-  uint8_t iteration_val;
+  volatile bool update_val;
+  volatile uint8_t iteration_val;
   uint8_t reload_val;
   uint16_t val;
   uint16_t val_prev;
   long last_val;
+  movingAvg val_avg;
 
   // averaged over 5 seconds
-  bool update_ambient;
-  uint8_t iteration_ambient;
-  uint8_t reload_ambient;
+  volatile bool update_ambient;
+  volatile uint16_t iteration_ambient;
+  uint16_t reload_ambient;
   uint16_t ambient;
+  uint16_t ambient_prev;
   long last_ambient;
-  int ambient_vals[NUM_AMBIENT_VALS];
+  movingAvg ambient_avg;
+
+  // ---
+  DAQFunction getRawData;  // function pointer
+
+  // Constructor
+  Sensor()
+  : id(0), print(true),
+    update_raw(false), iteration_raw(0), reload_raw(0), raw(0), raw_prev(0), last_raw(0),
+    update_val(false), iteration_val(0), reload_val(0), val(0), val_prev(0), last_val(0),
+    val_avg(SENSOR_MOVING_AVG_VAL_WINDOW),
+    update_ambient(false), iteration_ambient(0), reload_ambient(0), ambient(0), ambient_prev(0), last_ambient(0),
+    ambient_avg(SENSOR_MOVING_AVG_AMBIENT_WINDOW),
+    getRawData(NULL)
+  {}
+
 };
 
-volatile static struct Sensor sensor_temperature;
-volatile static struct Sensor sensor_humidity;
-volatile static struct Sensor sensor_light;
-volatile static struct Sensor sensor_sound;
-volatile static struct Sensor sensor_battery;
+static struct Sensor sensor_temperature;
+static struct Sensor sensor_humidity;
+static struct Sensor sensor_light;
+static struct Sensor sensor_sound;
+static struct Sensor sensor_battery;
 
-volatile static struct Sensor *all_sensors[NUM_SENSORS];
+static struct Sensor *all_sensors[NUM_SENSORS];
 
-movingAvg sensor_light_raw(SENSOR_MOVING_AVG_RAW_WINDOW);
+movingAvg sensor_light_raw(SENSOR_MOVING_AVG_VAL_WINDOW);
 movingAvg sensor_light_ambient(SENSOR_MOVING_AVG_AMBIENT_WINDOW);
 // ------------------------------------
 
 // ------------- imu isr --------------
 void IRAM_ATTR Timer_10Hz_ISR() { // every 0.1 seconds
-  
-  // get the raw data every 0.1 second
-  if(sensor_light.iteration_raw >= sensor_light.reload_raw-1) {
-    sensor_light.update_raw = true; 
-    sensor_light.iteration_raw = 0;
-  } else {
-    sensor_light.update_raw = false;
-    sensor_light.iteration_raw++;
-  }
 
-  // update the val every 1 second
-  if(sensor_light.iteration_val >= sensor_light.reload_val-1) {
-    sensor_light.update_val = true;
-    sensor_light.iteration_val = 0;
-  } else {
-    sensor_light.update_val = false;
-    sensor_light.iteration_val++;
-  }
+  for(uint8_t i=0; i<NUM_SENSORS; i++) {
+    struct Sensor *s = all_sensors[SENSOR_ID_LIGHT];
+    if(s == NULL) continue;
 
-  // update ambient every 5 seconds
-  if(sensor_light.iteration_ambient >= sensor_light.reload_ambient-1) {
-    sensor_light.update_ambient = true;
-    sensor_light.iteration_ambient = 0;
-  } else {
-    sensor_light.update_ambient = false;
-    sensor_light.iteration_ambient++;
+    // update raw every 0.1 second
+    if(s->iteration_raw >= s->reload_raw-1) {
+      s->update_raw = true; 
+      s->iteration_raw = 0;
+    } else {
+      s->update_raw = false;
+      s->iteration_raw++;
+    }
+
+    // update val every 1 second
+    if(s->iteration_val >= s->reload_val-1) {
+      s->update_val = true;
+      s->iteration_val = 0;
+    } else {
+      s->update_val = false;
+      s->iteration_val++;
+    }
+
+    // update ambient every 60 seconds
+    if(s->iteration_ambient >= s->reload_ambient-1) {
+      s->update_ambient = true;
+      s->iteration_ambient = 0;
+    } else {
+      s->update_ambient = false;
+      s->iteration_ambient++;
+    }
+
   }
 
 }
