@@ -5,12 +5,26 @@ uint16_t getSensor_Light(struct Sensor *s) {
 void processSensors(struct Sensor *s) {
 
   bool raw_update;
+  uint8_t raw_iteration;
+  uint8_t raw_reload;
   bool val_update;
-  uint16_t val_iteration;
+  uint8_t val_iteration;
+  uint8_t val_reload;
+  bool ambient_update;
+  uint16_t ambient_iteration;
+  uint16_t ambient_reload;
 
+  // make it atomic by copying to local variables
   noInterrupts();
     raw_update = s->update_raw;
+    raw_iteration = s->iteration_raw;
+    raw_reload = s->reload_raw;
     val_update = s->update_val;
+    val_iteration = s->iteration_val;
+    val_reload = s->reload_val;
+    ambient_update = s->update_ambient;
+    ambient_iteration = s->iteration_ambient;
+    ambient_reload = s->reload_ambient;
   interrupts();
 
   // acquire the raw sensor reading,
@@ -23,17 +37,6 @@ void processSensors(struct Sensor *s) {
     s->raw = s->getRawData(s);
     s->val_avg.reading(s->raw);
     s->last_raw = millis();
-
-    // --
-    if(abs(s->raw_prev-s->raw) >= LIGHT_CHANGE_THRESH
-      && s->last_val != -99) {
-      if(s->raw > s->raw_prev) {
-        Serial << "light on!" << endl;
-      } else {
-        Serial << "light off!" << endl;
-      }
-    }
-    // --
   }
 
   // store the moving average filter with the raw 
@@ -47,39 +50,23 @@ void processSensors(struct Sensor *s) {
     s->val_prev = s->val;
     s->val = s->val_avg.getAvg();
     s->val_avg.reset();
-
     s->ambient_avg.reading(s->val);
-
     s->last_val = millis();
-
-    // --
-    if(s->print) {
-      Serial << millis() << " Light sensor \t RAW: " << s->raw << " (" << s->iteration_raw << "/" << s->reload_raw << ")";
-      Serial << " \t VAL: " << s->val << " (" << s->iteration_val << "/" << s->reload_val << ")";
-      Serial << " \t AMBIENT: " << s->ambient << " (" << s->iteration_ambient << "/" << s->reload_ambient << ")" << endl;
-    }
-    // --
   }
 
   // store the ambient value every 60 seconds
-  if(s->update_ambient) {
+  if(ambient_update) {
     noInterrupts();
       s->update_ambient = false;
     interrupts();
     s->ambient_prev = s->ambient;
     s->ambient = s->ambient_avg.getAvg();
     s->ambient_avg.reset();
-
     s->last_ambient = millis();
-
-    if(abs(s->ambient_prev-s->ambient) >= LIGHT_AMBIENT_THRESH
-       && s->last_ambient != -99) {
-      Serial << "ambient light change detected!" << endl;
-    }
-
   }
 
 }
+
 
 void updateSensors() {
 
@@ -89,10 +76,58 @@ void updateSensors() {
     processSensors(s);
   }
 
+  updateLightSensor( all_sensors[SENSOR_ID_LIGHT] );
+
 }
 
 
-void updateLightSensor() {
+void updateLightSensor(struct Sensor *s) {
+
+  if(s == NULL) return;
+
+  uint8_t raw_iteration;
+  uint8_t raw_reload;
+  uint8_t val_iteration;
+  uint8_t val_reload;
+  uint16_t ambient_iteration;
+  uint16_t ambient_reload;
+
+  // make it atomic by copying to local variables
+  noInterrupts();
+    raw_iteration = s->iteration_raw;
+    raw_reload = s->reload_raw;
+    val_iteration = s->iteration_val;
+    val_reload = s->reload_val;
+    ambient_iteration = s->iteration_ambient;
+    ambient_reload = s->reload_ambient;
+  interrupts();
+
+  // --
+  if(abs(s->val - s->val_prev) >= LIGHT_CHANGE_THRESH // val_avg.getAvg()
+    && s->last_val != -99
+    && millis()-s->last_sensor_trigger >= 1001) {
+    if(s->val > s->val_prev) {
+      Serial << "light on!" << endl;
+    } else {
+      Serial << "light off!" << endl;
+    }
+    s->last_sensor_trigger = millis();
+  }
+  // --
+
+  // --
+  if(s->print == true && millis()-s->last_print >= 1000) {
+    Serial << millis() << " Light sensor \t RAW: " << s->raw << " (" << raw_iteration << "/" << raw_reload << ")";
+    Serial << " \t VAL: " << s->val << " (" << val_iteration << "/" << val_reload << ")";
+    Serial << " \t AMBIENT: " << s->ambient << " (" << ambient_iteration << "/" << ambient_reload << ")" << endl;
+    s->last_print = millis();
+  }
+  // --
+
+  // if(abs(s->ambient_prev-s->ambient) >= LIGHT_AMBIENT_THRESH
+  //   && s->last_ambient != -99) {
+  //   Serial << "ambient light change detected!" << endl;
+  // }
 
   /*
   // acquire the raw sensor reading

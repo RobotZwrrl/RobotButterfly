@@ -47,11 +47,13 @@ enum SensorIDs {
 struct Sensor {
   uint8_t id;
   bool print;
-  
+  long last_print;
+  long last_sensor_trigger;
+
   // collected every 0.1 seconds
   volatile bool update_raw;
   volatile uint8_t iteration_raw;
-  uint8_t reload_raw;
+  volatile uint8_t reload_raw;
   uint16_t raw;
   uint16_t raw_prev;
   long last_raw;
@@ -59,7 +61,7 @@ struct Sensor {
   // averaged over 1 seconds
   volatile bool update_val;
   volatile uint8_t iteration_val;
-  uint8_t reload_val;
+  volatile uint8_t reload_val;
   uint16_t val;
   uint16_t val_prev;
   long last_val;
@@ -68,7 +70,7 @@ struct Sensor {
   // averaged over 5 seconds
   volatile bool update_ambient;
   volatile uint16_t iteration_ambient;
-  uint16_t reload_ambient;
+  volatile uint16_t reload_ambient;
   uint16_t ambient;
   uint16_t ambient_prev;
   long last_ambient;
@@ -79,7 +81,7 @@ struct Sensor {
 
   // Constructor
   Sensor()
-  : id(0), print(true),
+  : id(0), print(true), last_print(0), last_sensor_trigger(0),
     update_raw(false), iteration_raw(0), reload_raw(0), raw(0), raw_prev(0), last_raw(0),
     update_val(false), iteration_val(0), reload_val(0), val(0), val_prev(0), last_val(0),
     val_avg(SENSOR_MOVING_AVG_VAL_WINDOW),
@@ -102,11 +104,11 @@ movingAvg sensor_light_raw(SENSOR_MOVING_AVG_VAL_WINDOW);
 movingAvg sensor_light_ambient(SENSOR_MOVING_AVG_AMBIENT_WINDOW);
 // ------------------------------------
 
-// ------------- imu isr --------------
+// ------------- sensor isr --------------
 void IRAM_ATTR Timer_10Hz_ISR() { // every 0.1 seconds
 
   for(uint8_t i=0; i<NUM_SENSORS; i++) {
-    struct Sensor *s = all_sensors[SENSOR_ID_LIGHT];
+    struct Sensor *s = all_sensors[i];
     if(s == NULL) continue;
 
     // update raw every 0.1 second
