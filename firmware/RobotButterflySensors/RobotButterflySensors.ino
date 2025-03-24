@@ -1,10 +1,10 @@
 /*
  * Robot Butterfly Sensors
  * -------------------------
- * Gather data from the temperature, humidity,
- * light, sound, and battery sensors
+ * Gather data from the sensors: temperature, humidity,
+ * light, sound, and battery
  * 
- * Timer 2 fires every 0.1 seconds (shared with IMU)
+ * Timer 2 fires every 0.1 seconds
  * 
  * IMU library: https://github.com/ElectronicCats/mpu6050/
  * Moving Average library: https://github.com/JChristensen/movingAvg 
@@ -22,7 +22,8 @@
 #include "Board.h"
 #include "Params.h"
 #include <Streaming.h>
-#include <movingAvg.h>  // https://github.com/JChristensen/movingAvg
+#include <movingAvg.h>   // 2.3.2 https://github.com/JChristensen/movingAvg
+#include <DHT11.h>       // 2.1.0 https://github.com/dhrubasaha08/DHT11
 
 
 // ------------ callbacks ------------
@@ -30,12 +31,20 @@ void sensorLightChangeCallback(struct Sensor *s, bool light_off);
 void sensorLightAmbientChangeCallback(struct Sensor *s, int change);
 // ------------------------------------
 
+// -------------- vars ---------------
+DHT11 dht11(DHT11_PIN);
+
+long last_print = 0;
+
 uint16_t getSensor_Light(struct Sensor *s);
 void updateSensor_Light(struct Sensor *s);
+uint16_t getSensor_Temperature(struct Sensor *s);
+void updateSensor_Temperature(struct Sensor *s);
 typedef uint16_t (*SensorDAQFunction)(Sensor*); // function pointer type that accepts a Sensor pointer
 typedef void (*SensorUpdateFunction)(Sensor*); // function pointer type that accepts a Sensor pointer
+// ------------------------------------
 
-// --------------- sensors ----------------
+// --------------- sensor ----------------
 hw_timer_t *timer_10Hz_config = NULL;
 volatile bool new_avg_sample = false;
 
@@ -91,9 +100,9 @@ struct Sensor {
   : id(0), print(true), last_print(0), trigger_dir(false), last_sensor_trigger(0), last_ambient_trigger(0),
     update_raw(false), iteration_raw(0), reload_raw(0), raw(0), raw_prev(0), last_raw(0),
     update_val(false), iteration_val(0), reload_val(0), val(0), val_prev(0), last_val(0),
-    val_avg(SENSOR_MOVING_AVG_VAL_WINDOW),
+    val_avg(SENSOR_MOVING_AVG_VAL_WINDOW, true),
     update_ambient(false), iteration_ambient(0), reload_ambient(0), ambient(0), ambient_prev(0), last_ambient(0),
-    ambient_avg(SENSOR_MOVING_AVG_AMBIENT_WINDOW),
+    ambient_avg(SENSOR_MOVING_AVG_AMBIENT_WINDOW, true),
     ambient_data(),
     getRawData(NULL), updateSensor(NULL)
   {}
@@ -161,6 +170,8 @@ void setup() {
 
 void loop() {
   
+  //friendlyPrint();
+
   updateSensors();
 
   console();
@@ -172,10 +183,6 @@ void console() {
   if(Serial.available()) {
     char c = Serial.read();
     switch(c) {
-      case 's':
-        Serial << "last_ambient_trigger: " << sensor_light.last_ambient_trigger << endl;
-        Serial << "delta: " << millis()-sensor_light.last_ambient_trigger << endl;
-      break;
       case 'h':
         Serial << "h: help" << endl;
       break;

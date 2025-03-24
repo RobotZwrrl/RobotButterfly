@@ -21,4 +21,9 @@ void heartbeatUpdate() {
   digitalWrite(LED_HEARTBEAT_PIN, slice < 100 || (slice > 200 && slice < 300));
 }
 
-
+void friendlyPrint() {
+  if(millis()-last_print >= 1000) {
+    //Serial << millis() << " hi " << xPortGetCoreID() << endl;
+    last_print = millis();
+  }
+}
