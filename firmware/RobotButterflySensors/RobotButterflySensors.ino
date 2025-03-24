@@ -26,11 +26,14 @@
 
 
 // ------------ callbacks ------------
-// TODO
+void sensorLightChangeCallback(struct Sensor *s);
+void sensorLightAmbientChangeCallback(struct Sensor *s);
 // ------------------------------------
 
 uint16_t getSensor_Light(struct Sensor *s);
-typedef uint16_t (*DAQFunction)(Sensor*); // function pointer type that accepts a Sensor pointer
+void updateSensor_Light(struct Sensor *s);
+typedef uint16_t (*SensorDAQFunction)(Sensor*); // function pointer type that accepts a Sensor pointer
+typedef void (*SensorUpdateFunction)(Sensor*); // function pointer type that accepts a Sensor pointer
 
 // --------------- sensors ----------------
 hw_timer_t *timer_10Hz_config = NULL;
@@ -48,6 +51,7 @@ struct Sensor {
   uint8_t id;
   bool print;
   long last_print;
+  bool trigger_dir;
   long last_sensor_trigger;
 
   // collected every 0.1 seconds
@@ -77,17 +81,18 @@ struct Sensor {
   movingAvg ambient_avg;
 
   // ---
-  DAQFunction getRawData;  // function pointer
+  SensorDAQFunction getRawData;              // function pointer
+  SensorUpdateFunction updateSensor;   // function pointer
 
   // Constructor
   Sensor()
-  : id(0), print(true), last_print(0), last_sensor_trigger(0),
+  : id(0), print(true), last_print(0), trigger_dir(false), last_sensor_trigger(0),
     update_raw(false), iteration_raw(0), reload_raw(0), raw(0), raw_prev(0), last_raw(0),
     update_val(false), iteration_val(0), reload_val(0), val(0), val_prev(0), last_val(0),
     val_avg(SENSOR_MOVING_AVG_VAL_WINDOW),
     update_ambient(false), iteration_ambient(0), reload_ambient(0), ambient(0), ambient_prev(0), last_ambient(0),
     ambient_avg(SENSOR_MOVING_AVG_AMBIENT_WINDOW),
-    getRawData(NULL)
+    getRawData(NULL), updateSensor(NULL)
   {}
 
 };
@@ -99,9 +104,6 @@ static struct Sensor sensor_sound;
 static struct Sensor sensor_battery;
 
 static struct Sensor *all_sensors[NUM_SENSORS];
-
-movingAvg sensor_light_raw(SENSOR_MOVING_AVG_VAL_WINDOW);
-movingAvg sensor_light_ambient(SENSOR_MOVING_AVG_AMBIENT_WINDOW);
 // ------------------------------------
 
 // ------------- sensor isr --------------

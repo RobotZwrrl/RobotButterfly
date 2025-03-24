@@ -74,14 +74,13 @@ void updateSensors() {
     struct Sensor *s = all_sensors[i];
     if(s == NULL) continue;
     processSensors(s);
+    s->updateSensor(s);
   }
-
-  updateLightSensor( all_sensors[SENSOR_ID_LIGHT] );
 
 }
 
 
-void updateLightSensor(struct Sensor *s) {
+void updateSensor_Light(struct Sensor *s) {
 
   if(s == NULL) return;
 
@@ -103,13 +102,18 @@ void updateLightSensor(struct Sensor *s) {
   interrupts();
 
   // --
-  if(abs(s->val - s->val_prev) >= LIGHT_CHANGE_THRESH // val_avg.getAvg()
-    && s->last_val != -99
-    && millis()-s->last_sensor_trigger >= 1001) {
-    if(s->val > s->val_prev) {
-      Serial << "light on!" << endl;
+  if(abs(s->val - s->val_prev) >= LIGHT_CHANGE_THRESH // see if the change is great enough
+    && s->last_val != -99) {
+    if(s->val > s->val_prev) { // see if going from dark to light or vice versa 
+      if(s->trigger_dir != false || millis()-s->last_sensor_trigger >= 500) { // avoid double triggers
+        s->trigger_dir = false;
+        sensorLightChangeCallback(s, s->trigger_dir);
+      }
     } else {
-      Serial << "light off!" << endl;
+      if(s->trigger_dir != true || millis()-s->last_sensor_trigger >= 500) { // avoid double triggers
+        s->trigger_dir = true;
+        sensorLightChangeCallback(s, s->trigger_dir);
+      }
     }
     s->last_sensor_trigger = millis();
   }
@@ -123,71 +127,6 @@ void updateLightSensor(struct Sensor *s) {
     s->last_print = millis();
   }
   // --
-
-  // if(abs(s->ambient_prev-s->ambient) >= LIGHT_AMBIENT_THRESH
-  //   && s->last_ambient != -99) {
-  //   Serial << "ambient light change detected!" << endl;
-  // }
-
-  /*
-  // acquire the raw sensor reading
-  // add raw to the moving average
-  if(sensor_light.update_raw) {
-    sensor_light.raw_prev = sensor_light.raw;
-    sensor_light.raw = analogRead(LDR_PIN);
-    sensor_light_raw.reading(sensor_light.raw);
-    sensor_light.last_raw = millis();
-    sensor_light.update_raw = false;
-
-    // --
-    if(abs(sensor_light.raw_prev-sensor_light.raw) >= LIGHT_CHANGE_THRESH
-      && sensor_light.last_val != -99) {
-      if(sensor_light.raw > sensor_light.raw_prev) {
-        Serial << "light on!" << endl;
-      } else {
-        Serial << "light off!" << endl;
-      }
-    }
-    // --
-  }
-
-  // store the moving average filter with the raw 
-  // sensor data to `val`. reset the filter.
-  // then, add `val` to the ambient moving average
-  // filter every 1 second.
-  if(sensor_light.update_val) {
-    sensor_light.val_prev = sensor_light.val;
-    sensor_light.val = sensor_light_raw.getAvg();
-    sensor_light_raw.reset();
-
-    sensor_light_ambient.reading(sensor_light.val);
-
-    sensor_light.last_val = millis();
-    sensor_light.update_val = false;
-
-    // --
-    if(sensor_light.print) Serial << millis() << " Light sensor \t RAW: " << sensor_light.raw << " (" << sensor_light.iteration_raw << "/" << sensor_light.reload_raw << ")";
-    if(sensor_light.print) Serial << " \t VAL: " << sensor_light.val << " (" << sensor_light.iteration_val << "/" << sensor_light.reload_val << ")";
-    if(sensor_light.print) Serial << " \t AMBIENT: " << sensor_light.ambient << " (" << sensor_light.iteration_ambient << "/" << sensor_light.reload_ambient << ")" << endl;
-    // --
-  }
-
-  // store the ambient value every 60 seconds
-  if(sensor_light.update_ambient) {
-    sensor_light.ambient_prev = sensor_light.ambient;
-    sensor_light.ambient = sensor_light_ambient.getAvg();
-    sensor_light_ambient.reset();
-
-    sensor_light.last_ambient = millis();
-    sensor_light.update_ambient = false;
-
-    if(abs(sensor_light.ambient_prev-sensor_light.ambient) >= LIGHT_AMBIENT_THRESH
-       && sensor_light.last_ambient != -99) {
-      Serial << "ambient light change detected!" << endl;
-    }
-
-  }
-  */
 
 }
 
@@ -211,9 +150,7 @@ void initSensors() {
   //sensor_light.val_avg(SENSOR_MOVING_AVG_VAL_WINDOW);
 
   sensor_light.getRawData = getSensor_Light;
-
-  sensor_light_raw.begin();
-  sensor_light_ambient.begin();
+  sensor_light.updateSensor = updateSensor_Light;
 
   for(uint8_t i=0; i<NUM_SENSORS; i++) {
     all_sensors[i] = NULL;
