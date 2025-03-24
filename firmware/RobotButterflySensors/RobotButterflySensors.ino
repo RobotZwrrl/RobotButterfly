@@ -26,8 +26,8 @@
 
 
 // ------------ callbacks ------------
-void sensorLightChangeCallback(struct Sensor *s);
-void sensorLightAmbientChangeCallback(struct Sensor *s);
+void sensorLightChangeCallback(struct Sensor *s, bool light_off);
+void sensorLightAmbientChangeCallback(struct Sensor *s, int change);
 // ------------------------------------
 
 uint16_t getSensor_Light(struct Sensor *s);
@@ -53,6 +53,7 @@ struct Sensor {
   long last_print;
   bool trigger_dir;
   long last_sensor_trigger;
+  long last_ambient_trigger;
 
   // collected every 0.1 seconds
   volatile bool update_raw;
@@ -71,7 +72,7 @@ struct Sensor {
   long last_val;
   movingAvg val_avg;
 
-  // averaged over 5 seconds
+  // averaged over 60 seconds
   volatile bool update_ambient;
   volatile uint16_t iteration_ambient;
   volatile uint16_t reload_ambient;
@@ -79,19 +80,21 @@ struct Sensor {
   uint16_t ambient_prev;
   long last_ambient;
   movingAvg ambient_avg;
+  int ambient_data[6];
 
   // ---
-  SensorDAQFunction getRawData;              // function pointer
+  SensorDAQFunction getRawData;        // function pointer
   SensorUpdateFunction updateSensor;   // function pointer
 
-  // Constructor
+  // constructor
   Sensor()
-  : id(0), print(true), last_print(0), trigger_dir(false), last_sensor_trigger(0),
+  : id(0), print(true), last_print(0), trigger_dir(false), last_sensor_trigger(0), last_ambient_trigger(0),
     update_raw(false), iteration_raw(0), reload_raw(0), raw(0), raw_prev(0), last_raw(0),
     update_val(false), iteration_val(0), reload_val(0), val(0), val_prev(0), last_val(0),
     val_avg(SENSOR_MOVING_AVG_VAL_WINDOW),
     update_ambient(false), iteration_ambient(0), reload_ambient(0), ambient(0), ambient_prev(0), last_ambient(0),
     ambient_avg(SENSOR_MOVING_AVG_AMBIENT_WINDOW),
+    ambient_data(),
     getRawData(NULL), updateSensor(NULL)
   {}
 
@@ -169,6 +172,10 @@ void console() {
   if(Serial.available()) {
     char c = Serial.read();
     switch(c) {
+      case 's':
+        Serial << "last_ambient_trigger: " << sensor_light.last_ambient_trigger << endl;
+        Serial << "delta: " << millis()-sensor_light.last_ambient_trigger << endl;
+      break;
       case 'h':
         Serial << "h: help" << endl;
       break;
