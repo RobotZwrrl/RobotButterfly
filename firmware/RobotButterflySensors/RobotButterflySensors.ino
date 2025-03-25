@@ -29,6 +29,8 @@
 // ------------ callbacks ------------
 void sensorLightChangeCallback(struct Sensor *s, bool light_off);
 void sensorLightAmbientChangeCallback(struct Sensor *s, int change);
+void sensorTemperatureChangeCallback(struct Sensor *s, bool light_off);
+void sensorTemperatureAmbientChangeCallback(struct Sensor *s, int change);
 // ------------------------------------
 
 // -------------- vars ---------------
@@ -38,6 +40,10 @@ long last_print = 0;
 
 uint16_t getSensor_Light(struct Sensor *s);
 void updateSensor_Light(struct Sensor *s);
+uint16_t getSensor_Battery(struct Sensor *s);
+void updateSensor_Battery(struct Sensor *s);
+uint16_t getSensor_Sound(struct Sensor *s);
+void updateSensor_Sound(struct Sensor *s);
 uint16_t getSensor_Temperature(struct Sensor *s);
 void updateSensor_Temperature(struct Sensor *s);
 typedef uint16_t (*SensorDAQFunction)(Sensor*); // function pointer type that accepts a Sensor pointer
@@ -130,8 +136,9 @@ void IRAM_ATTR Timer_10Hz_ISR() { // every 0.1 seconds
       s->update_raw = true; 
       s->iteration_raw = 0;
     } else {
-      s->update_raw = false;
-      s->iteration_raw++;
+      if(s->update_raw == false) {
+        s->iteration_raw++;
+      }
     }
 
     // update val every 1 second
@@ -139,8 +146,9 @@ void IRAM_ATTR Timer_10Hz_ISR() { // every 0.1 seconds
       s->update_val = true;
       s->iteration_val = 0;
     } else {
-      s->update_val = false;
-      s->iteration_val++;
+      if(s->update_val == false) {
+        s->iteration_val++;
+      }
     }
 
     // update ambient every 60 seconds
@@ -148,8 +156,9 @@ void IRAM_ATTR Timer_10Hz_ISR() { // every 0.1 seconds
       s->update_ambient = true;
       s->iteration_ambient = 0;
     } else {
-      s->update_ambient = false;
-      s->iteration_ambient++;
+      if(s->update_ambient == false) {
+        s->iteration_ambient++;
+      }
     }
 
   }

@@ -66,6 +66,7 @@ void processSensors(struct Sensor *s) {
 
   // store the ambient value every 60 seconds
   if(ambient_update) {
+    //Serial << "\r\n\r\nhello ambient_update " << s->ambient_avg.getAvg() << "\r\n\r\n" << endl;
     noInterrupts();
       s->update_ambient = false;
     interrupts();
@@ -89,15 +90,21 @@ void updateSensors() {
   for(uint8_t i=0; i<NUM_SENSORS; i++) {
     struct Sensor *s = all_sensors[i];
     if(s == NULL) continue;
-    //processSensors(s);
-    //s->updateSensor(s);
+    processSensors(s);
+    s->updateSensor(s);
   }
 
-  //processSensors( all_sensors[SENSOR_ID_LIGHT] );
-  //all_sensors[SENSOR_ID_LIGHT]->updateSensor( all_sensors[SENSOR_ID_LIGHT] );
+  // processSensors( all_sensors[SENSOR_ID_LIGHT] );
+  // all_sensors[SENSOR_ID_LIGHT]->updateSensor( all_sensors[SENSOR_ID_LIGHT] );
 
-  processSensors( all_sensors[SENSOR_ID_TEMPERATURE] );
-  all_sensors[SENSOR_ID_TEMPERATURE]->updateSensor( all_sensors[SENSOR_ID_TEMPERATURE] );
+  // processSensors( all_sensors[SENSOR_ID_BATTERY] );
+  // all_sensors[SENSOR_ID_BATTERY]->updateSensor( all_sensors[SENSOR_ID_BATTERY] );
+
+  // processSensors( all_sensors[SENSOR_ID_SOUND] );
+  // all_sensors[SENSOR_ID_SOUND]->updateSensor( all_sensors[SENSOR_ID_SOUND] );
+
+  //processSensors( all_sensors[SENSOR_ID_TEMPERATURE] );
+  //all_sensors[SENSOR_ID_TEMPERATURE]->updateSensor( all_sensors[SENSOR_ID_TEMPERATURE] );
 
 }
 
@@ -113,8 +120,14 @@ void initSensors() {
   all_sensors[SENSOR_ID_LIGHT] = &sensor_light;
   initSensor_Light(all_sensors[SENSOR_ID_LIGHT]);
 
-  all_sensors[SENSOR_ID_TEMPERATURE] = &sensor_temperature;
-  initSensor_Temperature(all_sensors[SENSOR_ID_TEMPERATURE]);
+  all_sensors[SENSOR_ID_BATTERY] = &sensor_battery;
+  initSensor_Battery(all_sensors[SENSOR_ID_BATTERY]);
+
+  all_sensors[SENSOR_ID_SOUND] = &sensor_sound;
+  initSensor_Sound(all_sensors[SENSOR_ID_SOUND]);
+
+  // all_sensors[SENSOR_ID_TEMPERATURE] = &sensor_temperature;
+  // initSensor_Temperature(all_sensors[SENSOR_ID_TEMPERATURE]);
 
   
   // set up timer 2 for every 0.1 second

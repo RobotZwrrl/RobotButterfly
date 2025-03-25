@@ -1,9 +1,9 @@
-uint16_t getSensor_Light(struct Sensor *s) {
-  return analogRead(LDR_PIN);
+uint16_t getSensor_Battery(struct Sensor *s) {
+  return analogRead(BATT_SIG_PIN);
 }
 
 
-void updateSensor_Light(struct Sensor *s) {
+void updateSensor_Battery(struct Sensor *s) {
 
   if(s == NULL) return;
 
@@ -25,6 +25,8 @@ void updateSensor_Light(struct Sensor *s) {
   interrupts();
 
   // -- trigger
+  // TODO
+  /*
   if(abs(s->val - s->val_prev) >= LIGHT_CHANGE_THRESH // see if the change is great enough
     && s->last_val != -99 && millis()-s->last_val >= LIGHT_WARMUP) { // 5 seconds to warm up
     if(s->val > s->val_prev) { // see if going from dark to light or vice versa 
@@ -40,9 +42,12 @@ void updateSensor_Light(struct Sensor *s) {
     }
     s->last_sensor_trigger = millis();
   }
+  */
   // --
 
   // -- ambient check
+  // TODO
+  /*
   if(s->ambient_data[5] != -99) { // see that the data has been populated
 
     // compare the data from 5 mins ago to now
@@ -54,11 +59,12 @@ void updateSensor_Light(struct Sensor *s) {
     }
 
   }
+  */
   // --
 
   // -- print
   if(s->print == true && millis()-s->last_print >= 1000) {
-    Serial << millis() << " Light \t RAW: " << s->raw << " (" << raw_iteration << "/" << raw_reload << ")";
+    Serial << millis() << " Battery \t RAW: " << s->raw << " (" << raw_iteration << "/" << raw_reload << ")";
     Serial << " \t VAL: " << s->val << " (" << val_iteration << "/" << val_reload << ")";
     Serial << " \t AMBIENT: " << s->ambient << " (" << ambient_iteration << "/" << ambient_reload << ") ";
     
@@ -75,9 +81,9 @@ void updateSensor_Light(struct Sensor *s) {
 }
 
 
-void initSensor_Light(struct Sensor *s) {
+void initSensor_Battery(struct Sensor *s) {
 
-  s->id = SENSOR_ID_LIGHT;
+  s->id = SENSOR_ID_BATTERY;
   s->print = true;
   
   s->reload_raw = 1;          // every 0.1 seconds
@@ -85,15 +91,15 @@ void initSensor_Light(struct Sensor *s) {
   s->reload_ambient = 600;    // every 60 seconds
 
   // functions
-  s->getRawData = getSensor_Light;
-  s->updateSensor = updateSensor_Light;
+  s->getRawData = getSensor_Battery;
+  s->updateSensor = updateSensor_Battery;
 
   s->last_val = -99;
   s->last_ambient = -99;
 
   // the moving averages are init'ed in the struct constructor
-  //sensor_light.val_avg(SENSOR_MOVING_AVG_VAL_WINDOW);
-  //sensor_light.ambient_avg(SENSOR_MOVING_AVG_AMBIENT_WINDOW);
+  //sensor_battery.val_avg(SENSOR_MOVING_AVG_VAL_WINDOW);
+  //sensor_battery.ambient_avg(SENSOR_MOVING_AVG_AMBIENT_WINDOW);
 
   s->val_avg.begin();
   s->ambient_avg.begin();

@@ -63,9 +63,13 @@ void updateSensor_Temperature(struct Sensor *s) {
   if(s->print == true && millis()-s->last_print >= 1000) {
     Serial << millis() << " Temperature \t RAW: " << s->raw << " (" << raw_iteration << "/" << raw_reload << ")";
     Serial << " \t VAL: " << s->val << " (" << val_iteration << "/" << val_reload << ")";
-    Serial << " \t AMBIENT: " << s->ambient << " (" << ambient_iteration << "/" << ambient_reload << ")" << endl;
+    Serial << " \t AMBIENT: " << s->ambient << " (" << ambient_iteration << "/" << ambient_reload << ") ";
     
-    if(s->ambient_data[5] != -99) Serial << "ambient math: " << s->ambient_data[5] - s->ambient_data[0] << endl;
+    if(s->ambient_data[5] != -99) {
+      Serial << "math: " << s->ambient_data[5] - s->ambient_data[0] << endl;
+    } else {
+      Serial << endl;
+    }
     
     s->last_print = millis();
   }
@@ -79,8 +83,8 @@ void initSensor_Temperature(struct Sensor *s) {
   s->id = SENSOR_ID_TEMPERATURE;
   s->print = true;
   
-  s->reload_raw = 2;          // every 0.2 seconds
-  s->reload_val = 10;         // every 1 seconds
+  s->reload_raw = 1*5;          // every 0.2 seconds
+  s->reload_val = 10*5;         // every 1 seconds
   s->reload_ambient = 600;    // every 60 seconds
 
   // functions
