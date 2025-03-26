@@ -120,14 +120,14 @@ void initSensors() {
   all_sensors[SENSOR_ID_LIGHT] = &sensor_light;
   initSensor_Light(all_sensors[SENSOR_ID_LIGHT]);
 
-  all_sensors[SENSOR_ID_BATTERY] = &sensor_battery;
-  initSensor_Battery(all_sensors[SENSOR_ID_BATTERY]);
+  // all_sensors[SENSOR_ID_BATTERY] = &sensor_battery;
+  // initSensor_Battery(all_sensors[SENSOR_ID_BATTERY]);
 
-  all_sensors[SENSOR_ID_SOUND] = &sensor_sound;
-  initSensor_Sound(all_sensors[SENSOR_ID_SOUND]);
+  // all_sensors[SENSOR_ID_SOUND] = &sensor_sound;
+  // initSensor_Sound(all_sensors[SENSOR_ID_SOUND]);
 
-  // all_sensors[SENSOR_ID_TEMPERATURE] = &sensor_temperature;
-  // initSensor_Temperature(all_sensors[SENSOR_ID_TEMPERATURE]);
+  all_sensors[SENSOR_ID_TEMPERATURE] = &sensor_temperature;
+  initSensor_Temperature(all_sensors[SENSOR_ID_TEMPERATURE]);
 
   
   // set up timer 2 for every 0.1 second

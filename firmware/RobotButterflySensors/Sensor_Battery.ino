@@ -84,7 +84,7 @@ void updateSensor_Battery(struct Sensor *s) {
 void initSensor_Battery(struct Sensor *s) {
 
   s->id = SENSOR_ID_BATTERY;
-  s->print = true;
+  s->print = false;
   
   s->reload_raw = 1;          // every 0.1 seconds
   s->reload_val = 10;         // every 1 seconds

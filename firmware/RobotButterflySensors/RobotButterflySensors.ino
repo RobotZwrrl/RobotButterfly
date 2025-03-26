@@ -27,9 +27,9 @@
 
 
 // ------------ callbacks ------------
-void sensorLightChangeCallback(struct Sensor *s, bool light_off);
+void sensorLightChangeCallback(struct Sensor *s, bool trigger_dir);
 void sensorLightAmbientChangeCallback(struct Sensor *s, int change);
-void sensorTemperatureChangeCallback(struct Sensor *s, bool light_off);
+void sensorTemperatureChangeCallback(struct Sensor *s, bool trigger_dir);
 void sensorTemperatureAmbientChangeCallback(struct Sensor *s, int change);
 // ------------------------------------
 

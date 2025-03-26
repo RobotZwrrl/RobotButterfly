@@ -84,7 +84,7 @@ void updateSensor_Sound(struct Sensor *s) {
 void initSensor_Sound(struct Sensor *s) {
 
   s->id = SENSOR_ID_SOUND;
-  s->print = true;
+  s->print = false;
   
   s->reload_raw = 1;          // every 0.1 seconds
   s->reload_val = 10;         // every 1 seconds

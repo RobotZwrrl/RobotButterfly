@@ -1,8 +1,18 @@
 
 uint16_t getSensor_Temperature(struct Sensor *s) {
-  int val = dht11.readTemperature();
-  if(val == DHT11::ERROR_CHECKSUM || val == DHT11::ERROR_TIMEOUT) return 99;
-  return val;
+  Serial << "getSensor_Temperature" << endl;
+  //int val = dht11.readTemperature();
+  int temp_raw = 0;
+  int humid_raw = 0;
+  noInterrupts();
+  int val = dht11.readTemperatureHumidity(temp_raw, humid_raw);
+  interrupts();
+  Serial << temp_raw << endl;
+  //if(val == DHT11::ERROR_CHECKSUM || val == DHT11::ERROR_TIMEOUT) {
+  //  Serial << "DHT11 error" << endl;
+  //  return 99;
+  //}
+  return (uint16_t)temp_raw;
 }
 
 
@@ -83,9 +93,9 @@ void initSensor_Temperature(struct Sensor *s) {
   s->id = SENSOR_ID_TEMPERATURE;
   s->print = true;
   
-  s->reload_raw = 1*5;          // every 0.2 seconds
-  s->reload_val = 10*5;         // every 1 seconds
-  s->reload_ambient = 600;    // every 60 seconds
+  s->reload_raw = 1*10*2;          // every 2 seconds
+  s->reload_val = 10*6*10;         // every 10 seconds
+  s->reload_ambient = 600*2;       // every 120 seconds
 
   // functions
   s->getRawData = getSensor_Temperature;

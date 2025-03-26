@@ -1,9 +1,9 @@
 // ------------------------------------
 // --------- Sensor Callbacks ---------
 // ------------------------------------
-void sensorLightChangeCallback(struct Sensor *s, bool light_off) {
+void sensorLightChangeCallback(struct Sensor *s, bool trigger_dir) {
 
-  if(light_off == false) {
+  if(trigger_dir == false) {
     Serial << "light on!" << endl;
   } else {
     Serial << "light off!" << endl;
@@ -27,9 +27,9 @@ void sensorLightAmbientChangeCallback(struct Sensor *s, int change) {
 
 }
 
-void sensorTemperatureChangeCallback(struct Sensor *s, bool light_off) {
+void sensorTemperatureChangeCallback(struct Sensor *s, bool trigger_dir) {
 
-  if(light_off == false) {
+  if(trigger_dir == false) {
     Serial << "warmer!" << endl;
   } else {
     Serial << "colder!" << endl;
