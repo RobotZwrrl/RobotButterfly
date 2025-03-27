@@ -111,7 +111,7 @@ void updateSensors() {
 
 void initSensors() {
 
-  dht11.setDelay(0); // their library has a blocking delay, set to 0
+  dht.begin();
 
   for(uint8_t i=0; i<NUM_SENSORS; i++) {
     all_sensors[i] = NULL;

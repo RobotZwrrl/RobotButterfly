@@ -23,7 +23,7 @@
 #include "Params.h"
 #include <Streaming.h>
 #include <movingAvg.h>   // 2.3.2 https://github.com/JChristensen/movingAvg
-#include <DHT11.h>       // 2.1.0 https://github.com/dhrubasaha08/DHT11
+#include "DHT.h"         // 1.4.6 https://github.com/adafruit/DHT-sensor-library & 1.1.15 https://github.com/adafruit/Adafruit_Sensor 
 
 
 // ------------ callbacks ------------
@@ -34,7 +34,7 @@ void sensorTemperatureAmbientChangeCallback(struct Sensor *s, int change);
 // ------------------------------------
 
 // -------------- vars ---------------
-DHT11 dht11(DHT11_PIN);
+DHT dht(DHT11_PIN, DHT11);
 
 long last_print = 0;
 

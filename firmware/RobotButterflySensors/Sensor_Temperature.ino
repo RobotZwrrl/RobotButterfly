@@ -1,13 +1,25 @@
 
 uint16_t getSensor_Temperature(struct Sensor *s) {
   Serial << "getSensor_Temperature" << endl;
-  //int val = dht11.readTemperature();
   int temp_raw = 0;
-  int humid_raw = 0;
+  float t = 0.0;
+
   noInterrupts();
-  int val = dht11.readTemperatureHumidity(temp_raw, humid_raw);
+  t = dht.readTemperature();
   interrupts();
-  Serial << temp_raw << endl;
+
+  temp_raw = (int)(t*10);
+
+  if(isnan(t)) {
+    Serial.println(F("Failed to read from DHT sensor!"));
+  } else {
+    Serial << "temperature: " << t << ", " << temp_raw << endl;
+  }
+
+  // noInterrupts();
+  // int val = dht11.readTemperatureHumidity(temp_raw, humid_raw);
+  // interrupts();
+  // Serial << temp_raw << endl;
   //if(val == DHT11::ERROR_CHECKSUM || val == DHT11::ERROR_TIMEOUT) {
   //  Serial << "DHT11 error" << endl;
   //  return 99;
@@ -70,7 +82,7 @@ void updateSensor_Temperature(struct Sensor *s) {
   // --
 
   // -- print
-  if(s->print == true && millis()-s->last_print >= 1000) {
+  if(s->print == true && millis()-s->last_print >= 2000) {
     Serial << millis() << " Temperature \t RAW: " << s->raw << " (" << raw_iteration << "/" << raw_reload << ")";
     Serial << " \t VAL: " << s->val << " (" << val_iteration << "/" << val_reload << ")";
     Serial << " \t AMBIENT: " << s->ambient << " (" << ambient_iteration << "/" << ambient_reload << ") ";
