@@ -7,23 +7,6 @@ void updateSensor_Battery(struct Sensor *s) {
 
   if(s == NULL) return;
 
-  uint8_t raw_iteration;
-  uint8_t raw_reload;
-  uint8_t val_iteration;
-  uint8_t val_reload;
-  uint16_t ambient_iteration;
-  uint16_t ambient_reload;
-
-  // make it atomic by copying to local variables
-  noInterrupts();
-    raw_iteration = s->iteration_raw;
-    raw_reload = s->reload_raw;
-    val_iteration = s->iteration_val;
-    val_reload = s->reload_val;
-    ambient_iteration = s->iteration_ambient;
-    ambient_reload = s->reload_ambient;
-  interrupts();
-
   // -- trigger
   // TODO
   /*
@@ -62,29 +45,15 @@ void updateSensor_Battery(struct Sensor *s) {
   */
   // --
 
-  // -- print
-  if(s->print == true && millis()-s->last_print >= 1000) {
-    Serial << millis() << " Battery \t RAW: " << s->raw << " (" << raw_iteration << "/" << raw_reload << ")";
-    Serial << " \t VAL: " << s->val << " (" << val_iteration << "/" << val_reload << ")";
-    Serial << " \t AMBIENT: " << s->ambient << " (" << ambient_iteration << "/" << ambient_reload << ") ";
-    
-    if(s->ambient_data[5] != -99) {
-      Serial << "math: " << s->ambient_data[5] - s->ambient_data[0] << endl;
-    } else {
-      Serial << endl;
-    }
-    
-    s->last_print = millis();
-  }
-  // --
-
 }
 
 
 void initSensor_Battery(struct Sensor *s) {
 
   s->id = SENSOR_ID_BATTERY;
+  s->name = "Battery";
   s->print = false;
+  s->print_frequency = 1000;
   
   s->reload_raw = 1;          // every 0.1 seconds
   s->reload_val = 10;         // every 1 seconds

@@ -64,8 +64,11 @@ enum SensorIDs {
 
 struct Sensor {
   uint8_t id;
+  String name;
   bool print;
+  long print_frequency;
   long last_print;
+  uint16_t trig_count;
   bool trigger_dir;
   long last_sensor_trigger;
   long last_ambient_trigger;
@@ -103,7 +106,7 @@ struct Sensor {
 
   // constructor
   Sensor()
-  : id(0), print(true), last_print(0), trigger_dir(false), last_sensor_trigger(0), last_ambient_trigger(0),
+  : id(0), name(""), print(true), print_frequency(0), last_print(0), trig_count(0), trigger_dir(false), last_sensor_trigger(0), last_ambient_trigger(0),
     update_raw(false), iteration_raw(0), reload_raw(0), raw(0), raw_prev(0), last_raw(0),
     update_val(false), iteration_val(0), reload_val(0), val(0), val_prev(0), last_val(0),
     val_avg(SENSOR_MOVING_AVG_VAL_WINDOW, true),

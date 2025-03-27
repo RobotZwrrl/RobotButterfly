@@ -7,34 +7,19 @@ void updateSensor_Light(struct Sensor *s) {
 
   if(s == NULL) return;
 
-  uint8_t raw_iteration;
-  uint8_t raw_reload;
-  uint8_t val_iteration;
-  uint8_t val_reload;
-  uint16_t ambient_iteration;
-  uint16_t ambient_reload;
-
-  // make it atomic by copying to local variables
-  noInterrupts();
-    raw_iteration = s->iteration_raw;
-    raw_reload = s->reload_raw;
-    val_iteration = s->iteration_val;
-    val_reload = s->reload_val;
-    ambient_iteration = s->iteration_ambient;
-    ambient_reload = s->reload_ambient;
-  interrupts();
-
   // -- trigger
   if(abs(s->val - s->val_prev) >= LIGHT_CHANGE_THRESH // see if the change is great enough
-    && s->last_val != -99 && millis()-s->last_val >= LIGHT_WARMUP) { // 5 seconds to warm up
+    && s->last_val != -99 && s->val_prev != 0) {
     if(s->val > s->val_prev) { // see if going from dark to light or vice versa 
       if(s->trigger_dir != false || millis()-s->last_sensor_trigger >= 500) { // avoid double triggers
         s->trigger_dir = false;
+        s->trig_count++;
         sensorLightChangeCallback(s, s->trigger_dir);
       }
     } else {
       if(s->trigger_dir != true || millis()-s->last_sensor_trigger >= 500) { // avoid double triggers
         s->trigger_dir = true;
+        s->trig_count++;
         sensorLightChangeCallback(s, s->trigger_dir);
       }
     }
@@ -56,29 +41,15 @@ void updateSensor_Light(struct Sensor *s) {
   }
   // --
 
-  // -- print
-  if(s->print == true && millis()-s->last_print >= 1000) {
-    Serial << millis() << " Light \t RAW: " << s->raw << " (" << raw_iteration << "/" << raw_reload << ")";
-    Serial << " \t VAL: " << s->val << " (" << val_iteration << "/" << val_reload << ")";
-    Serial << " \t AMBIENT: " << s->ambient << " (" << ambient_iteration << "/" << ambient_reload << ") ";
-    
-    if(s->ambient_data[5] != -99) {
-      Serial << "math: " << s->ambient_data[5] - s->ambient_data[0] << endl;
-    } else {
-      Serial << endl;
-    }
-    
-    s->last_print = millis();
-  }
-  // --
-
 }
 
 
 void initSensor_Light(struct Sensor *s) {
 
   s->id = SENSOR_ID_LIGHT;
+  s->name = "Light";
   s->print = true;
+  s->print_frequency = 1000;
   
   s->reload_raw = 1;          // every 0.1 seconds
   s->reload_val = 10;         // every 1 seconds

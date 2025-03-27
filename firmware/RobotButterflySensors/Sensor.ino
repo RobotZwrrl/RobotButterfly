@@ -33,16 +33,16 @@ void processSensors(struct Sensor *s) {
       s->update_raw = false;
     interrupts();
 
-    s->raw_prev = s->raw;
     raw_temporary = s->getRawData(s);
 
     if(s->id == SENSOR_ID_TEMPERATURE || s->id == SENSOR_ID_HUMIDITY) {
-      if(raw_temporary == 99) { // bad val
+      if(raw_temporary == 999) { // bad val
         skip_raw = true;
       }
     }
     
-    if(!skip_raw) {
+    if(skip_raw == false) {
+      s->raw_prev = s->raw;
       s->raw = raw_temporary;
       s->val_avg.reading(s->raw);
       s->last_raw = millis();
@@ -92,6 +92,7 @@ void updateSensors() {
     if(s == NULL) continue;
     processSensors(s);
     s->updateSensor(s);
+    printSensor(s);
   }
 
   // processSensors( all_sensors[SENSOR_ID_LIGHT] );
@@ -109,6 +110,45 @@ void updateSensors() {
 }
 
 
+void printSensor(struct Sensor *s) {
+
+  if(s == NULL) return;
+  if(s->print == false) return;
+
+  uint8_t raw_iteration;
+  uint8_t raw_reload;
+  uint8_t val_iteration;
+  uint8_t val_reload;
+  uint16_t ambient_iteration;
+  uint16_t ambient_reload;
+
+  // make it atomic by copying to local variables
+  noInterrupts();
+    raw_iteration = s->iteration_raw;
+    raw_reload = s->reload_raw;
+    val_iteration = s->iteration_val;
+    val_reload = s->reload_val;
+    ambient_iteration = s->iteration_ambient;
+    ambient_reload = s->reload_ambient;
+  interrupts();
+
+  if(millis()-s->last_print >= s->print_frequency) {
+    Serial << millis() << " " << s->name << " \t RAW: " << s->raw << " (" << raw_iteration << "/" << raw_reload << ")";
+    Serial << " \t VAL: " << s->val << " (" << val_iteration << "/" << val_reload << ")";
+    Serial << " \t AMBIENT: " << s->ambient << " (" << ambient_iteration << "/" << ambient_reload << ") ";
+    
+    if(s->ambient_data[5] != -99) {
+      Serial << "math: " << s->ambient_data[5] - s->ambient_data[0] << endl;
+    } else {
+      Serial << endl;
+    }
+    
+    s->last_print = millis();
+  }
+
+}
+
+
 void initSensors() {
 
   dht.begin();
@@ -120,11 +160,11 @@ void initSensors() {
   all_sensors[SENSOR_ID_LIGHT] = &sensor_light;
   initSensor_Light(all_sensors[SENSOR_ID_LIGHT]);
 
-  // all_sensors[SENSOR_ID_BATTERY] = &sensor_battery;
-  // initSensor_Battery(all_sensors[SENSOR_ID_BATTERY]);
+  all_sensors[SENSOR_ID_BATTERY] = &sensor_battery;
+  initSensor_Battery(all_sensors[SENSOR_ID_BATTERY]);
 
-  // all_sensors[SENSOR_ID_SOUND] = &sensor_sound;
-  // initSensor_Sound(all_sensors[SENSOR_ID_SOUND]);
+  all_sensors[SENSOR_ID_SOUND] = &sensor_sound;
+  initSensor_Sound(all_sensors[SENSOR_ID_SOUND]);
 
   all_sensors[SENSOR_ID_TEMPERATURE] = &sensor_temperature;
   initSensor_Temperature(all_sensors[SENSOR_ID_TEMPERATURE]);

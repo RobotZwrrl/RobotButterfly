@@ -8,8 +8,7 @@
 #define LIGHT_AMBIENT_THRESH       150
 #define LIGHT_WARMUP              5000  // 5 seconds from power on to let the sensor warm up before any triggers
 
-#define TEMPERATURE_CHANGE_THRESH    1
-#define TEMPERATURE_AMBIENT_THRESH   3
-#define TEMPERATURE_WARMUP       10000  // 10 seconds from power on to let the sensor warm up before any triggers
-
+#define TEMPERATURE_CHANGE_THRESH      1   // .1 deg C
+#define TEMPERATURE_AMBIENT_THRESH    20   // 2 deg C
+#define TEMPERATURE_WARMUP         21000   // 20 seconds (avg duration) + 1 second from power on to let the sensor warm up before any triggers
 

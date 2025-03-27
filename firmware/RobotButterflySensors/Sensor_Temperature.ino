@@ -1,29 +1,23 @@
 
 uint16_t getSensor_Temperature(struct Sensor *s) {
-  Serial << "getSensor_Temperature" << endl;
+  
+  if(s == NULL) return;
+  
   int temp_raw = 0;
   float t = 0.0;
 
   noInterrupts();
-  t = dht.readTemperature();
+    t = dht.readTemperature();
   interrupts();
 
-  temp_raw = (int)(t*10);
-
   if(isnan(t)) {
-    Serial.println(F("Failed to read from DHT sensor!"));
+    temp_raw = 999;
+    if(s->print) Serial << "Failed to read from DHT sensor" << endl;
   } else {
-    Serial << "temperature: " << t << ", " << temp_raw << endl;
+    temp_raw = (int)(t*10);
+    //if(s->print) Serial << "Temperature: " << t << ", " << temp_raw << endl;
   }
 
-  // noInterrupts();
-  // int val = dht11.readTemperatureHumidity(temp_raw, humid_raw);
-  // interrupts();
-  // Serial << temp_raw << endl;
-  //if(val == DHT11::ERROR_CHECKSUM || val == DHT11::ERROR_TIMEOUT) {
-  //  Serial << "DHT11 error" << endl;
-  //  return 99;
-  //}
   return (uint16_t)temp_raw;
 }
 
@@ -32,34 +26,19 @@ void updateSensor_Temperature(struct Sensor *s) {
 
   if(s == NULL) return;
 
-  uint8_t raw_iteration;
-  uint8_t raw_reload;
-  uint8_t val_iteration;
-  uint8_t val_reload;
-  uint16_t ambient_iteration;
-  uint16_t ambient_reload;
-
-  // make it atomic by copying to local variables
-  noInterrupts();
-    raw_iteration = s->iteration_raw;
-    raw_reload = s->reload_raw;
-    val_iteration = s->iteration_val;
-    val_reload = s->reload_val;
-    ambient_iteration = s->iteration_ambient;
-    ambient_reload = s->reload_ambient;
-  interrupts();
-
-  // -- trigger
-  if(abs(s->val - s->val_prev) >= TEMPERATURE_CHANGE_THRESH // see if the change is great enough
-    && s->last_val != -99 && millis()-s->last_val >= TEMPERATURE_WARMUP) { // 10 seconds to warm up
-    if(s->val > s->val_prev) { // see if going from cold to warm or vice versa 
-      if(s->trigger_dir != false || millis()-s->last_sensor_trigger >= 500) { // avoid double triggers
+  // -- trigger on raw data
+  if(abs(s->raw - s->raw_prev) >= TEMPERATURE_CHANGE_THRESH // see if the change is great enough
+     && s->last_raw != -99 && s->raw_prev != 0) {
+    if(s->raw > s->raw_prev) { // see if going from cold to warm or vice versa 
+      if(s->trigger_dir != false || millis()-s->last_sensor_trigger >= 2000) { // avoid double triggers
         s->trigger_dir = false;
+        s->trig_count++;
         sensorTemperatureChangeCallback(s, s->trigger_dir);
       }
     } else {
-      if(s->trigger_dir != true || millis()-s->last_sensor_trigger >= 500) { // avoid double triggers
+      if(s->trigger_dir != true || millis()-s->last_sensor_trigger >= 2000) { // avoid double triggers
         s->trigger_dir = true;
+        s->trig_count++;
         sensorTemperatureChangeCallback(s, s->trigger_dir);
       }
     }
@@ -67,33 +46,17 @@ void updateSensor_Temperature(struct Sensor *s) {
   }
   // --
 
-  // -- ambient check
-  if(s->ambient_data[5] != -99) { // see that the data has been populated
+  // -- trigger on ambient data
+  if(s->ambient_data[5] != -99) { // check that the data has been populated
 
-    // compare the data from 5 mins ago to now
-    // and do this comparison every 1 min
-    if(abs( s->ambient_data[5] - s->ambient_data[0] ) >= LIGHT_AMBIENT_THRESH 
-      && millis()-s->last_ambient_trigger >= (1000*60) ) { // 1 min wait
+    // compare the data from 10 mins ago to now
+    // and do this comparison every 2 min
+    if(abs( s->ambient_data[5] - s->ambient_data[0] ) >= TEMPERATURE_AMBIENT_THRESH 
+      && millis()-s->last_ambient_trigger >= (1000*60*2) ) { // 2 min wait
       sensorLightAmbientChangeCallback(s, s->ambient_data[5] - s->ambient_data[0]);
       s->last_ambient_trigger = millis();
     }
 
-  }
-  // --
-
-  // -- print
-  if(s->print == true && millis()-s->last_print >= 2000) {
-    Serial << millis() << " Temperature \t RAW: " << s->raw << " (" << raw_iteration << "/" << raw_reload << ")";
-    Serial << " \t VAL: " << s->val << " (" << val_iteration << "/" << val_reload << ")";
-    Serial << " \t AMBIENT: " << s->ambient << " (" << ambient_iteration << "/" << ambient_reload << ") ";
-    
-    if(s->ambient_data[5] != -99) {
-      Serial << "math: " << s->ambient_data[5] - s->ambient_data[0] << endl;
-    } else {
-      Serial << endl;
-    }
-    
-    s->last_print = millis();
   }
   // --
 
@@ -103,10 +66,12 @@ void updateSensor_Temperature(struct Sensor *s) {
 void initSensor_Temperature(struct Sensor *s) {
 
   s->id = SENSOR_ID_TEMPERATURE;
+  s->name = "Temperature";
   s->print = true;
+  s->print_frequency = 2000;
   
   s->reload_raw = 1*10*2;          // every 2 seconds
-  s->reload_val = 10*6*10;         // every 10 seconds
+  s->reload_val = 10*6*20;         // every 20 seconds
   s->reload_ambient = 600*2;       // every 120 seconds
 
   // functions
