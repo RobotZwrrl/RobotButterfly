@@ -195,11 +195,15 @@ void initSensors() {
   all_sensors[SENSOR_ID_SOUND] = &sensor_sound;
   initSensor_Sound(all_sensors[SENSOR_ID_SOUND]);
 
-  all_sensors[SENSOR_ID_TEMPERATURE] = &sensor_temperature;
-  initSensor_Temperature(all_sensors[SENSOR_ID_TEMPERATURE]);
+  if(TEMPERATURE_SENSOR_ENABLED) {
+    all_sensors[SENSOR_ID_TEMPERATURE] = &sensor_temperature;
+    initSensor_Temperature(all_sensors[SENSOR_ID_TEMPERATURE]);
+  }
 
-  all_sensors[SENSOR_ID_HUMIDITY] = &sensor_humidity;
-  initSensor_Humidity(all_sensors[SENSOR_ID_HUMIDITY]);
+  if(HUMIDITY_SENSOR_ENABLED) {
+    all_sensors[SENSOR_ID_HUMIDITY] = &sensor_humidity;
+    initSensor_Humidity(all_sensors[SENSOR_ID_HUMIDITY]);
+  }
 
   
   // set up timer 2 for every 0.1 second
