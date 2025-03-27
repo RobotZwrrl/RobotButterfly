@@ -29,8 +29,12 @@
 // ------------ callbacks ------------
 void sensorLightChangeCallback(struct Sensor *s, bool trigger_dir);
 void sensorLightAmbientChangeCallback(struct Sensor *s, int change);
+void sensorSoundChangeCallback(struct Sensor *s, bool trigger_dir);
+void sensorSoundAmbientChangeCallback(struct Sensor *s, int change);
 void sensorTemperatureChangeCallback(struct Sensor *s, bool trigger_dir);
 void sensorTemperatureAmbientChangeCallback(struct Sensor *s, int change);
+void sensorHumidityChangeCallback(struct Sensor *s, bool trigger_dir);
+void sensorHumidityAmbientChangeCallback(struct Sensor *s, int change);
 // ------------------------------------
 
 // -------------- vars ---------------
@@ -46,6 +50,8 @@ uint16_t getSensor_Sound(struct Sensor *s);
 void updateSensor_Sound(struct Sensor *s);
 uint16_t getSensor_Temperature(struct Sensor *s);
 void updateSensor_Temperature(struct Sensor *s);
+uint16_t getSensor_Humidity(struct Sensor *s);
+void updateSensor_Humidity(struct Sensor *s);
 typedef uint16_t (*SensorDAQFunction)(Sensor*); // function pointer type that accepts a Sensor pointer
 typedef void (*SensorUpdateFunction)(Sensor*); // function pointer type that accepts a Sensor pointer
 // ------------------------------------
@@ -55,11 +61,11 @@ hw_timer_t *timer_10Hz_config = NULL;
 volatile bool new_avg_sample = false;
 
 enum SensorIDs {
-  SENSOR_ID_TEMPERATURE,
-  SENSOR_ID_HUMIDITY,
-  SENSOR_ID_LIGHT,
+  SENSOR_ID_LIGHT,  
+  SENSOR_ID_BATTERY,
   SENSOR_ID_SOUND,
-  SENSOR_ID_BATTERY
+  SENSOR_ID_TEMPERATURE,
+  SENSOR_ID_HUMIDITY
 };
 
 struct Sensor {
@@ -125,6 +131,10 @@ static struct Sensor sensor_sound;
 static struct Sensor sensor_battery;
 
 static struct Sensor *all_sensors[NUM_SENSORS];
+
+static bool dht_toggle = true;
+static bool dht_processed = false;
+static long last_dht_processed = 0;
 // ------------------------------------
 
 // ------------- sensor isr --------------

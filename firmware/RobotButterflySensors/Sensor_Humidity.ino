@@ -1,46 +1,45 @@
-
-uint16_t getSensor_Temperature(struct Sensor *s) {
+uint16_t getSensor_Humidity(struct Sensor *s) {
   
   if(s == NULL) return 999;
 
-  int temp_raw = 0;
-  float t = 0.0;
+  int humid_raw = 0;
+  float h = 0.0;
 
   noInterrupts();
-    Serial << "tttttttttttt read temperature tttttttttttt " << millis() << endl;
-    t = dht.readTemperature();
+    Serial << "hhhhhhhhhhhh read humidity hhhhhhhhhhhh " << millis() << endl;
+    h = dht.readHumidity();
   interrupts();
 
-  if(isnan(t)) {
-    temp_raw = 999;
-    if(s->print) Serial << "Failed to read from DHT sensor (temperature)" << endl;
+  if(isnan(h)) {
+    humid_raw = 999;
+    if(s->print) Serial << "Failed to read from DHT sensor (humidity)" << endl;
   } else {
-    temp_raw = (int)(t*10);
-    if(s->print) Serial << "Temperature: " << t << ", " << temp_raw << endl;
+    humid_raw = (int)(h*10);
+    if(s->print) Serial << "Humidity: " << h << ", " << humid_raw << endl;
   }
 
-  return (uint16_t)temp_raw;
+  return (uint16_t)humid_raw;
 }
 
 
-void updateSensor_Temperature(struct Sensor *s) {
+void updateSensor_Humidity(struct Sensor *s) {
 
   if(s == NULL) return;
 
   // -- trigger on raw data
-  if(abs(s->raw - s->raw_prev) >= TEMPERATURE_CHANGE_THRESH // see if the change is great enough
+  if(abs(s->raw - s->raw_prev) >= HUMIDITY_CHANGE_THRESH // see if the change is great enough
      && s->last_raw != -99 && s->raw_prev != 0) {
-    if(s->raw > s->raw_prev) { // see if going from cold to warm or vice versa 
+    if(s->raw > s->raw_prev) { // see if going from wet to dry or vice versa 
       if(s->trigger_dir != false || millis()-s->last_sensor_trigger >= 2000) { // avoid double triggers
         s->trigger_dir = false;
         s->trig_count++;
-        sensorTemperatureChangeCallback(s, s->trigger_dir);
+        sensorHumidityChangeCallback(s, s->trigger_dir);
       }
     } else {
       if(s->trigger_dir != true || millis()-s->last_sensor_trigger >= 2000) { // avoid double triggers
         s->trigger_dir = true;
         s->trig_count++;
-        sensorTemperatureChangeCallback(s, s->trigger_dir);
+        sensorHumidityChangeCallback(s, s->trigger_dir);
       }
     }
     s->last_sensor_trigger = millis();
@@ -52,9 +51,9 @@ void updateSensor_Temperature(struct Sensor *s) {
 
     // compare the data from 10 mins ago to now
     // and do this comparison every 2 min
-    if(abs( s->ambient_data[5] - s->ambient_data[0] ) >= TEMPERATURE_AMBIENT_THRESH 
+    if(abs( s->ambient_data[5] - s->ambient_data[0] ) >= HUMIDITY_AMBIENT_THRESH 
       && millis()-s->last_ambient_trigger >= (1000*60*2) ) { // 2 min wait
-      sensorTemperatureAmbientChangeCallback(s, s->ambient_data[5] - s->ambient_data[0]);
+      sensorHumidityAmbientChangeCallback(s, s->ambient_data[5] - s->ambient_data[0]);
       s->last_ambient_trigger = millis();
     }
 
@@ -64,10 +63,10 @@ void updateSensor_Temperature(struct Sensor *s) {
 }
 
 
-void initSensor_Temperature(struct Sensor *s) {
+void initSensor_Humidity(struct Sensor *s) {
 
-  s->id = SENSOR_ID_TEMPERATURE;
-  s->name = "Temperature";
+  s->id = SENSOR_ID_HUMIDITY;
+  s->name = "Humidity";
   s->print = true;
   s->print_frequency = 3000;
   
@@ -77,15 +76,15 @@ void initSensor_Temperature(struct Sensor *s) {
   s->reload_ambient = 600*2;       // every 120 seconds
 
   // functions
-  s->getRawData = getSensor_Temperature;
-  s->updateSensor = updateSensor_Temperature;
+  s->getRawData = getSensor_Humidity;
+  s->updateSensor = updateSensor_Humidity;
 
   s->last_val = -99;
   s->last_ambient = -99;
 
   // the moving averages are init'ed in the struct constructor
-  //sensor_temperature.val_avg(SENSOR_MOVING_AVG_VAL_WINDOW);
-  //sensor_temperature.ambient_avg(SENSOR_MOVING_AVG_AMBIENT_WINDOW);
+  //sensor_humidity.val_avg(SENSOR_MOVING_AVG_VAL_WINDOW);
+  //sensor_humidity.ambient_avg(SENSOR_MOVING_AVG_AMBIENT_WINDOW);
 
   s->val_avg.begin();
   s->ambient_avg.begin();

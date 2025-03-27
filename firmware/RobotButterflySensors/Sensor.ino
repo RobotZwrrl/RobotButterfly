@@ -33,8 +33,36 @@ void processSensors(struct Sensor *s) {
       s->update_raw = false;
     interrupts();
 
-    raw_temporary = s->getRawData(s);
+    s->raw_prev = s->raw;
+    
+    // some extra logic for turn-taking with the dht11
+    if(s->id != SENSOR_ID_TEMPERATURE && s->id != SENSOR_ID_HUMIDITY) {
+      
+      raw_temporary = s->getRawData(s);
 
+    } else if(s->id == SENSOR_ID_TEMPERATURE 
+              && dht_toggle == true 
+              && dht_processed == false
+              && millis()-last_dht_processed >= 2000) {
+      raw_temporary = s->getRawData(s);
+      dht_toggle = !dht_toggle;
+      dht_processed = true;  // don't process another dht this loop
+      //sensor_temperature.iteration_raw = 0;
+      sensor_humidity.iteration_raw = 0;
+      last_dht_processed = millis();
+    } else if(s->id == SENSOR_ID_HUMIDITY
+              && dht_toggle == false
+              && dht_processed == false
+              && millis()-last_dht_processed >= 2000) {
+      raw_temporary = s->getRawData(s);
+      dht_toggle = !dht_toggle;
+      dht_processed = true;  // don't process another dht this loop
+      sensor_temperature.iteration_raw = 0;
+      //sensor_humidity.iteration_raw = 0;
+      last_dht_processed = millis();
+    }
+
+    // check for a bad value
     if(s->id == SENSOR_ID_TEMPERATURE || s->id == SENSOR_ID_HUMIDITY) {
       if(raw_temporary == 999) { // bad val
         skip_raw = true;
@@ -42,7 +70,6 @@ void processSensors(struct Sensor *s) {
     }
     
     if(skip_raw == false) {
-      s->raw_prev = s->raw;
       s->raw = raw_temporary;
       s->val_avg.reading(s->raw);
       s->last_raw = millis();
@@ -86,6 +113,8 @@ void processSensors(struct Sensor *s) {
 
 
 void updateSensors() {
+
+  dht_processed = false;
 
   for(uint8_t i=0; i<NUM_SENSORS; i++) {
     struct Sensor *s = all_sensors[i];
@@ -168,6 +197,9 @@ void initSensors() {
 
   all_sensors[SENSOR_ID_TEMPERATURE] = &sensor_temperature;
   initSensor_Temperature(all_sensors[SENSOR_ID_TEMPERATURE]);
+
+  all_sensors[SENSOR_ID_HUMIDITY] = &sensor_humidity;
+  initSensor_Humidity(all_sensors[SENSOR_ID_HUMIDITY]);
 
   
   // set up timer 2 for every 0.1 second

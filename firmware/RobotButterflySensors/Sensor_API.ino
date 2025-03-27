@@ -16,12 +16,39 @@ void sensorLightAmbientChangeCallback(struct Sensor *s, int change) {
   
   Serial << "\r\n\r\n" << endl;
   
-  Serial << "-------- Ambient change detected! -------- " << change << " ";
+  Serial << "-------- Ambient change detected! -------- " << change << endl;
 
   if(change < 0) {
     Serial << "---> Light ambient brighter!" << endl;
   } else {
     Serial << "---> Light ambient darker!" << endl;
+  }
+
+  Serial << "\r\n\r\n" << endl;
+
+}
+
+void sensorSoundChangeCallback(struct Sensor *s, bool trigger_dir) {
+
+  if(trigger_dir == false) {
+    Serial << "---> Sound louder!";
+  } else {
+    Serial << "---> Sound quieter!";
+  }
+  Serial << " (" << s->trig_count << ")" << endl;
+
+}
+
+void sensorSoundAmbientChangeCallback(struct Sensor *s, int change) {
+  
+  Serial << "\r\n\r\n" << endl;
+  
+  Serial << "-------- Ambient change detected! -------- " << change << endl;
+
+  if(change < 0) {
+    Serial << "---> Sound ambient louder!" << endl;
+  } else {
+    Serial << "---> Sound ambient quieter!" << endl;
   }
 
   Serial << "\r\n\r\n" << endl;
@@ -43,12 +70,39 @@ void sensorTemperatureAmbientChangeCallback(struct Sensor *s, int change) {
   
   Serial << "\r\n\r\n" << endl;
   
-  Serial << "-------- Ambient change detected! -------- " << change << " ";
+  Serial << "-------- Ambient change detected! -------- " << change << endl;
 
   if(change < 0) {
     Serial << "---> Temperature ambient warmer" << endl;
   } else {
     Serial << "---> Temperature ambient colder" << endl;
+  }
+
+  Serial << "\r\n\r\n" << endl;
+
+}
+
+void sensorHumidityChangeCallback(struct Sensor *s, bool trigger_dir) {
+
+  if(trigger_dir == false) {
+    Serial << "---> Humidity decrease!";
+  } else {
+    Serial << "---> Humidity increase!";
+  }
+  Serial << " (" << s->trig_count << ")" << endl;
+
+}
+
+void sensorHumidityAmbientChangeCallback(struct Sensor *s, int change) {
+  
+  Serial << "\r\n\r\n" << endl;
+  
+  Serial << "-------- Ambient change detected! -------- " << change << endl;
+
+  if(change < 0) {
+    Serial << "---> Humidity ambient decrease" << endl;
+  } else {
+    Serial << "---> Humidity ambient increase" << endl;
   }
 
   Serial << "\r\n\r\n" << endl;
