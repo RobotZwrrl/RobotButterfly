@@ -1,14 +1,14 @@
-
 uint16_t getSensor_Temperature(struct Sensor *s) {
   
   if(s == NULL) return 999;
 
   int temp_raw = 0;
-  float t = 0.0;
+  float t = 99.9;
 
   noInterrupts();
-    Serial << "tttttttttttt read temperature tttttttttttt " << millis() << endl;
+    //Serial << "tttttttttttt read temperature tttttttttttt " << millis() << endl;
     t = dht.readTemperature();
+    //Serial << t << endl;
   interrupts();
 
   if(isnan(t)) {
@@ -16,7 +16,7 @@ uint16_t getSensor_Temperature(struct Sensor *s) {
     if(s->print) Serial << "Failed to read from DHT sensor (temperature)" << endl;
   } else {
     temp_raw = (int)(t*10);
-    if(s->print) Serial << "Temperature: " << t << ", " << temp_raw << endl;
+    if(s->print) Serial << "New temperature reading: " << t << ", " << temp_raw << endl;
   }
 
   return (uint16_t)temp_raw;
@@ -53,7 +53,8 @@ void updateSensor_Temperature(struct Sensor *s) {
     // compare the data from 10 mins ago to now
     // and do this comparison every 2 min
     if(abs( s->ambient_data[5] - s->ambient_data[0] ) >= TEMPERATURE_AMBIENT_THRESH 
-      && millis()-s->last_ambient_trigger >= (1000*60*2) ) { // 2 min wait
+      && millis()-s->last_ambient_trigger >= (1000*60*2) // 2 min wait
+      && s->ambient_data[0] != 0 && s->ambient_data[5] != 0) { 
       sensorTemperatureAmbientChangeCallback(s, s->ambient_data[5] - s->ambient_data[0]);
       s->last_ambient_trigger = millis();
     }
@@ -71,8 +72,7 @@ void initSensor_Temperature(struct Sensor *s) {
   s->print = true;
   s->print_frequency = 3000;
   
-  //s->reload_raw = 1*10*2;          // every 2 seconds
-  s->reload_raw = 1*10*3;          // every 2 seconds
+  s->reload_raw = 1*10*3;          // every 3 seconds
   s->reload_val = 10*6*20;         // every 20 seconds
   s->reload_ambient = 600*2;       // every 120 seconds
 

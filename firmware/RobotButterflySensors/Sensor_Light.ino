@@ -48,7 +48,7 @@ void initSensor_Light(struct Sensor *s) {
 
   s->id = SENSOR_ID_LIGHT;
   s->name = "Light";
-  s->print = true;
+  s->print = false;
   s->print_frequency = 1000;
   
   s->reload_raw = 1;          // every 0.1 seconds

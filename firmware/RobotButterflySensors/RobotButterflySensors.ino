@@ -6,9 +6,6 @@
  * 
  * Timer 2 fires every 0.1 seconds
  * 
- * IMU library: https://github.com/ElectronicCats/mpu6050/
- * Moving Average library: https://github.com/JChristensen/movingAvg 
- * 
  * Board: ESP32 Dev Module
  * CPU speed: 80 MHz
  * Upload speed: 115200 baud

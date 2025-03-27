@@ -64,7 +64,7 @@ void processSensors(struct Sensor *s) {
 
     // check for a bad value
     if(s->id == SENSOR_ID_TEMPERATURE || s->id == SENSOR_ID_HUMIDITY) {
-      if(raw_temporary == 999) { // bad val
+      if(raw_temporary == 999 || raw_temporary == 0) { // bad val
         skip_raw = true;
       }
     }
@@ -133,8 +133,8 @@ void updateSensors() {
   // processSensors( all_sensors[SENSOR_ID_SOUND] );
   // all_sensors[SENSOR_ID_SOUND]->updateSensor( all_sensors[SENSOR_ID_SOUND] );
 
-  //processSensors( all_sensors[SENSOR_ID_TEMPERATURE] );
-  //all_sensors[SENSOR_ID_TEMPERATURE]->updateSensor( all_sensors[SENSOR_ID_TEMPERATURE] );
+  // processSensors( all_sensors[SENSOR_ID_TEMPERATURE] );
+  // all_sensors[SENSOR_ID_TEMPERATURE]->updateSensor( all_sensors[SENSOR_ID_TEMPERATURE] );
 
 }
 

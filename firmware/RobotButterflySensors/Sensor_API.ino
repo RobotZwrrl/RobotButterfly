@@ -84,7 +84,7 @@ void sensorTemperatureAmbientChangeCallback(struct Sensor *s, int change) {
 
 void sensorHumidityChangeCallback(struct Sensor *s, bool trigger_dir) {
 
-  if(trigger_dir == false) {
+  if(trigger_dir == true) {
     Serial << "---> Humidity decrease!";
   } else {
     Serial << "---> Humidity increase!";
@@ -99,7 +99,7 @@ void sensorHumidityAmbientChangeCallback(struct Sensor *s, int change) {
   
   Serial << "-------- Ambient change detected! -------- " << change << endl;
 
-  if(change < 0) {
+  if(change > 0) {
     Serial << "---> Humidity ambient decrease" << endl;
   } else {
     Serial << "---> Humidity ambient increase" << endl;

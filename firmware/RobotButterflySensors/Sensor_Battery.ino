@@ -7,43 +7,8 @@ void updateSensor_Battery(struct Sensor *s) {
 
   if(s == NULL) return;
 
-  // -- trigger
-  // TODO
-  /*
-  if(abs(s->val - s->val_prev) >= LIGHT_CHANGE_THRESH // see if the change is great enough
-    && s->last_val != -99 && millis()-s->last_val >= LIGHT_WARMUP) { // 5 seconds to warm up
-    if(s->val > s->val_prev) { // see if going from dark to light or vice versa 
-      if(s->trigger_dir != false || millis()-s->last_sensor_trigger >= 500) { // avoid double triggers
-        s->trigger_dir = false;
-        sensorLightChangeCallback(s, s->trigger_dir);
-      }
-    } else {
-      if(s->trigger_dir != true || millis()-s->last_sensor_trigger >= 500) { // avoid double triggers
-        s->trigger_dir = true;
-        sensorLightChangeCallback(s, s->trigger_dir);
-      }
-    }
-    s->last_sensor_trigger = millis();
-  }
-  */
-  // --
-
-  // -- ambient check
-  // TODO
-  /*
-  if(s->ambient_data[5] != -99) { // see that the data has been populated
-
-    // compare the data from 5 mins ago to now
-    // and do this comparison every 1 min
-    if(abs( s->ambient_data[5] - s->ambient_data[0] ) >= LIGHT_AMBIENT_THRESH 
-      && millis()-s->last_ambient_trigger >= (1000*60) ) { // 1 min wait
-      sensorLightAmbientChangeCallback(s, s->ambient_data[5] - s->ambient_data[0]);
-      s->last_ambient_trigger = millis();
-    }
-
-  }
-  */
-  // --
+  // logic for battery threshold can go here
+  // future update
 
 }
 
