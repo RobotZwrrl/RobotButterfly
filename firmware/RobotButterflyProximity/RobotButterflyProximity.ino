@@ -37,6 +37,17 @@ struct Proximity {
   uint16_t raw;
   uint16_t raw_prev;
   long last_raw;
+
+  uint16_t val;
+  uint16_t val_prev;
+  movingAvg val_avg;
+
+  Proximity() 
+  : initialised(false), last_print(0), last_trigger(0), threshold(0),
+    update_raw(false), iteration_raw(0), reload_raw(0), raw(0), raw_prev(0), last_raw(0),
+    val_avg(PROXIMITY_MOVING_AVG_WINDOW, true)
+{}
+
 };
 
 static struct Proximity ultrasonic;
