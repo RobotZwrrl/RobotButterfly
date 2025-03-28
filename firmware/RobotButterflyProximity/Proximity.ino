@@ -15,7 +15,7 @@ void updateProximity() {
   
   ultrasonic.raw = dist;
 
-  if(ultrasonic.raw <= ultrasonic.threshold && millis()-ultrasonic.last_trigger > 500) {
+  if(ultrasonic.raw <= ultrasonic.threshold && millis()-ultrasonic.last_trigger > PROXIMITY_TRIGGER_FREQ) {
     proximityTriggerCallback(&ultrasonic);
     ultrasonic.last_trigger = millis();
   }
