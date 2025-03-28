@@ -55,7 +55,6 @@ typedef void (*SensorUpdateFunction)(Sensor*); // function pointer type that acc
 
 // --------------- sensor ----------------
 hw_timer_t *timer_10Hz_config = NULL;
-volatile bool new_avg_sample = false;
 
 enum SensorIDs {
   SENSOR_ID_LIGHT,  
