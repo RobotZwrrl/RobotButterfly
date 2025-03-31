@@ -15,7 +15,7 @@ void callback_NeoAnimDone(struct NeoAnimation *a) {
 // ------------ setters -------------
 // ----------------------------------
 
-// params: neo animation, name of animation, type
+// params: neo animation, id of animation, type
 void setNeoAnim(struct NeoAnimation *a, uint8_t n, uint8_t t) {
   
   // init
@@ -29,6 +29,9 @@ void setNeoAnim(struct NeoAnimation *a, uint8_t n, uint8_t t) {
     break;
     case NEO_ANIM_SQUIGGLE:
       initNeoAnim_squiggle(a);
+    break;
+    case NEO_ANIM_RANGE:
+      initNeoAnim_range(a);
     break;
   }
 

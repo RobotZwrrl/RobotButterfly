@@ -60,6 +60,9 @@ String pastelNames[NUM_PALETTE_COLOURS] = {
   "Off"
 };
 
+// these are the colour settings when the 
+// brightness is set to 20, which is visible
+// during daylight outdoors
 uint16_t pastelColours[NUM_PALETTE_COLOURS][3] = {
     {  100,  180,  250},   // red
     { 3500,  190,  250},   // orange
@@ -81,11 +84,12 @@ uint16_t pastelColours[NUM_PALETTE_COLOURS][3] = {
 uint32_t colourPalette[NUM_PALETTE_COLOURS];
 // -----------------------------------
 
-// ----------- neopixel animation -----------
+// ------- neopixel animation --------
 enum neoAnimName {
   NEO_ANIM_NONE,
   NEO_ANIM_POLKADOT,
-  NEO_ANIM_SQUIGGLE
+  NEO_ANIM_SQUIGGLE,
+  NEO_ANIM_RANGE
 };
 
 enum neoAnimType {
@@ -96,6 +100,7 @@ enum neoAnimType {
 void runNeoAnim_none(struct NeoAnimation *animation);
 void runNeoAnim_polkadot(struct NeoAnimation *animation);
 void runNeoAnim_squiggle(struct NeoAnimation *animation);
+void runNeoAnim_range(struct NeoAnimation *animation);
 typedef void (*AnimationFunction)(NeoAnimation*); // function pointer type that accepts a NeoAnimation pointer
 
 struct NeoAnimation {
@@ -131,6 +136,9 @@ NeoAnimation neo_animation_home;
 NeoAnimation neo_animation_alert;
 // -----------------------------------
 
+// ----------- variables -------------
+long last_print = 0;
+// -----------------------------------
 
 
 void setup() {
@@ -147,11 +155,6 @@ void setup() {
 
 void loop() {
   
-  // if(millis()-last_print >= 500) {
-  //   Serial << millis() << " hi " << xPortGetCoreID() << endl;
-  //   last_print = millis();
-  // }
-
   updateNeoAnimation();
 
   if(Serial.available()) {
@@ -187,6 +190,22 @@ void loop() {
         setNeoAnim(&neo_animation_alert, NEO_ANIM_SQUIGGLE, NEO_ANIM_ALERT);
         setNeoAnimColours(&neo_animation_alert, NEO_WHITE, NEO_LAVENDER);
         setNeoAnimSpeed(&neo_animation_alert, 1000);
+        startNeoAnim(&neo_animation_alert);
+      break;
+      case '6':
+        setNeoAnim(&neo_animation_alert, NEO_ANIM_RANGE, NEO_ANIM_ALERT);
+        setNeoAnimColours(&neo_animation_alert, NEO_GREEN, NEO_OFF);
+        //setNeoAnimDuration(&neo_animation_alert, 300);
+        neo_animation_alert.dir = true;
+        neo_animation_alert.helper1 = 5;
+        startNeoAnim(&neo_animation_alert);
+      break;
+      case '7':
+        setNeoAnim(&neo_animation_alert, NEO_ANIM_RANGE, NEO_ANIM_ALERT);
+        setNeoAnimColours(&neo_animation_alert, NEO_GREEN, NEO_OFF);
+        //setNeoAnimDuration(&neo_animation_alert, 300);
+        neo_animation_alert.dir = false;
+        neo_animation_alert.helper1 = 5;
         startNeoAnim(&neo_animation_alert);
       break;
       case 's':

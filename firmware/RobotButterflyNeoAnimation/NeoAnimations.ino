@@ -180,22 +180,36 @@ void runNeoAnim_polkadot(struct NeoAnimation *a) {
 }
 
 
-// this is a template for copying and pasting
-void runNeoAnim_template(struct NeoAnimation *a) {
+void runNeoAnim_range(struct NeoAnimation *a) {
 
   if(!neoAnimationChecks(a)) return;
 
-  switch(a->frame_index) {
-    case 0: {
-      pixels.clear();
-      pixels.setPixelColor(0, a->colour_primary);
+  pixels.clear();
+
+  int range = a->helper1;
+  bool dir = a->dir;
+
+  if(range > pixels.numPixels()) range = pixels.numPixels();
+  if(range < 0) range = 0;
+
+  if(dir) { // back to front
+    
+    for(uint8_t i=0; i<pixels.numPixels(); i++) {
+      pixels.setPixelColor(i, colourPalette[a->colour_secondary]);
     }
-    break;
-    case 1: {
-      pixels.clear();
-      pixels.setPixelColor(0, a->colour_secondary);
+    for(uint8_t i=0; i<range; i++) {
+      pixels.setPixelColor(i, colourPalette[a->colour_primary]);
     }
-    break;
+
+  } else { // front to back
+
+    for(uint8_t i=pixels.numPixels()-1; i>0; i--) {
+      pixels.setPixelColor(i, colourPalette[a->colour_secondary]);
+    }
+    for(uint8_t i=pixels.numPixels()-1; i>(pixels.numPixels()-1-range); i--) {
+      pixels.setPixelColor(i, colourPalette[a->colour_primary]);
+    }
+
   }
 
   pixels.show();
@@ -204,12 +218,31 @@ void runNeoAnim_template(struct NeoAnimation *a) {
 }
 
 
-void colorWipe(uint32_t color, int wait) {
-  for(int i=0; i<pixels.numPixels(); i++) {
-    pixels.setPixelColor(i, color);
-    pixels.show();
-    delay(wait);
+// this is a template for copying and pasting
+void runNeoAnim_template(struct NeoAnimation *a) {
+
+  if(!neoAnimationChecks(a)) return;
+
+  pixels.clear();
+
+  switch(a->frame_index) {
+    case 0: {
+      for(uint8_t i=0; i<pixels.numPixels(); i++) {
+        pixels.setPixelColor(i, colourPalette[a->colour_primary]);
+      }
+    }
+    break;
+    case 1: {
+      for(uint8_t i=0; i<pixels.numPixels(); i++) {
+        pixels.setPixelColor(i, colourPalette[a->colour_secondary]);
+      }
+    }
+    break;
   }
+
+  pixels.show();
+  a->last_frame = millis();
+
 }
 
 // ----------------------------------
@@ -298,6 +331,33 @@ void initNeoAnim_squiggle(struct NeoAnimation *a) {
   a->helper3 = 0;
 
   a->function = runNeoAnim_squiggle;
+}
+
+
+void initNeoAnim_range(struct NeoAnimation *a) {
+  a->id = NEO_ANIM_RANGE;
+  a->active = false;
+  a->type = NEO_ANIM_ALERT;
+
+  a->num_frames = 1;
+  a->frame_delay = 100;
+  a->frame_index = 0;
+  a->last_frame = 0;
+
+  a->num_repeats = -99;
+  a->repeat_count = 0;
+  a->repeat_delay = 0;
+  a->last_repeat = 0;
+
+  a->duration = -1;
+  a->start_time = -1;
+
+  a->dir = true;
+  a->helper1 = 0;
+  a->helper2 = 0;
+  a->helper3 = 0;
+
+  a->function = runNeoAnim_range;
 }
 
 
