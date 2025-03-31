@@ -74,16 +74,17 @@ In the inaugural version, all the LEDs are yellow, which can sometimes make it t
 
 ## Firmware
 
-Library dependencies:
+**Firmware is in active development**
+
+
+### Library Dependencies
+
+TODO
 
 In the Arduino IDE library manager, search for the following and download the library by the following authours:
-- ESP32Servo (by Kevin Harrington and John K. Bennett)
-- Streaming (by Mikal Hart)
-- Adafruit_NeoPixel (by Adafruit)
-- Bounce2 (by Thomas O Fredericks)
-- HCSR04 (by Dirk Sarodnick)
-- movingAvg (by Jack Christensen)
 
+
+### Upload Code
 
 Here’s how you can upload code to your Robot Butterfly!
 
@@ -91,26 +92,18 @@ Here’s how you can upload code to your Robot Butterfly!
 
 2. Tools -> Board -> Board Manager
 
-3. Search for ‘esp32’
+3. Search for **esp32**
 
 4. Install esp32 by Espressif Systems
 
-5. Tools -> Board -> esp32 -> Set board to ESP32 Dev Module
+5. Tools -> Board -> esp32 -> Set board to **ESP32 Dev Module**
 
-6. Tools -> Set upload speed to 115200 baud (it’s down at the bottom of the menu)
+6. Tools -> Set upload speed to **115200 baud** (it’s down at the bottom of the menu)
 
-7. Tools -> Set CPU speed to 80 MHz (it’s the 1st setting after a divider in the menu)
+7. Tools -> Set CPU speed to **80 MHz** (it’s the 1st setting after a divider in the menu)
 
 8. Tools -> Manage Libraries
-There are library dependencies that will need to be downloaded
-
-Search for the following and download the library by the following authours:
-- ESP32Servo (by Kevin Harrington and John K. Bennett)
-- Streaming (by Mikal Hart)
-- Adafruit_NeoPixel (by Adafruit)
-- Bounce2 (by Thomas O Fredericks)
-- HCSR04 (by Dirk Sarodnick)
-- movingAvg (by Jack Christensen)
+There are library dependencies that will need to be downloaded, see list above
 
 9. Download this sketch and open it:
 https://github.com/RobotGrrl/RobotButterfly/tree/main/firmware/RobotButterflyBasic 
@@ -122,6 +115,24 @@ https://github.com/RobotGrrl/RobotButterfly/tree/main/firmware/RobotButterflyBas
 12. Upload
 
 13. Congrats! You have uploaded code to your Robot Butterfly!
+
+
+### Animations
+
+How to make your own animation (servo and neopixel):
+
+1. Add identifier to enum servoAnimName (eg, `SERVO_ANIM_SOARING`)
+
+2. Add the run function protocol (eg, `void runServoAnim_soaring(struct ServoAnimation *animation);` )
+
+3. Write the run function (eg, `void runServoAnim_soaring(struct ServoAnimation *a) { ... }` )
+
+4. Write the init function (eg, `void initServoAnim_soaring(struct ServoAnimation *a) { ... }` )
+
+5. Add the case to setServoAnim (eg, `case SERVO_ANIM_SOARING: initServoAnim_soaring(a); break;` )
+
+6. Call the animation to run it! (eg, `setServoAnim(&servo_animation_alert, SERVO_ANIM_SOARING, SERVO_ANIM_ALERT); startServoAnim(&servo_animation_alert);` )
+
 
 ---
 
