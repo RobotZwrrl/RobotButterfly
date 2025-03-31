@@ -100,7 +100,7 @@ Here’s how you can upload code to your Robot Butterfly!
 
 6. Tools -> Set upload speed to **115200 baud** (it’s down at the bottom of the menu)
 
-7. Tools -> Set CPU speed to **80 MHz** (it’s the 1st setting after a divider in the menu)
+7. Tools -> Set CPU speed to **80 MHz** (it’s the first setting after a divider in the menu)
 
 8. Tools -> Manage Libraries
 There are library dependencies that will need to be downloaded, see list above
@@ -121,17 +121,26 @@ https://github.com/RobotGrrl/RobotButterfly/tree/main/firmware/RobotButterflyBas
 
 How to make your own animation (servo and neopixel):
 
-1. Add identifier to enum servoAnimName (eg, `SERVO_ANIM_SOARING`)
+1. Add identifier to enum servoAnimName
+`SERVO_ANIM_SOARING`
 
-2. Add the run function protocol (eg, `void runServoAnim_soaring(struct ServoAnimation *animation);` )
+2. Add the run function prototype
+`void runServoAnim_soaring(struct ServoAnimation *animation);`
 
-3. Write the run function (eg, `void runServoAnim_soaring(struct ServoAnimation *a) { ... }` )
+3. Write the run function
+`void runServoAnim_soaring(struct ServoAnimation *a) { ... }`
 
-4. Write the init function (eg, `void initServoAnim_soaring(struct ServoAnimation *a) { ... }` )
+4. Write the init function
+`void initServoAnim_soaring(struct ServoAnimation *a) { ... }`
 
-5. Add the case to setServoAnim (eg, `case SERVO_ANIM_SOARING: initServoAnim_soaring(a); break;` )
+5. Add the case to setServoAnim
+`case SERVO_ANIM_SOARING: 
+initServoAnim_soaring(a); 
+break;`
 
-6. Call the animation to run it! (eg, `setServoAnim(&servo_animation_alert, SERVO_ANIM_SOARING, SERVO_ANIM_ALERT); startServoAnim(&servo_animation_alert);` )
+6. Call the animation to run it!
+`setServoAnim(&servo_animation_alert, SERVO_ANIM_SOARING, SERVO_ANIM_ALERT); 
+startServoAnim(&servo_animation_alert);`
 
 
 ---
