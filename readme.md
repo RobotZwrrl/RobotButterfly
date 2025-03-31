@@ -122,23 +122,29 @@ https://github.com/RobotGrrl/RobotButterfly/tree/main/firmware/RobotButterflyBas
 How to make your own animation (servo and neopixel):
 
 1. Add identifier to enum servoAnimName
+
 `SERVO_ANIM_SOARING`
 
 2. Add the run function prototype
+
 `void runServoAnim_soaring(struct ServoAnimation *animation);`
 
 3. Write the run function
+
 `void runServoAnim_soaring(struct ServoAnimation *a) { ... }`
 
 4. Write the init function
+
 `void initServoAnim_soaring(struct ServoAnimation *a) { ... }`
 
 5. Add the case to setServoAnim
+
 `case SERVO_ANIM_SOARING: 
 initServoAnim_soaring(a); 
 break;`
 
 6. Call the animation to run it!
+
 `setServoAnim(&servo_animation_alert, SERVO_ANIM_SOARING, SERVO_ANIM_ALERT); 
 startServoAnim(&servo_animation_alert);`
 
