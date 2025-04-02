@@ -45,6 +45,9 @@ void setNeoAnim(struct NeoAnimation *a, uint8_t n, uint8_t t) {
     case NEO_ANIM_ZWOOP:
       initNeoAnim_zwoop(a);
     break;
+    case NEO_ANIM_SPRINKLE:
+      initNeoAnim_sprinkle(a);
+    break;
   }
 
   a->type = t;

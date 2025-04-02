@@ -316,6 +316,52 @@ void runNeoAnim_zwoop(struct NeoAnimation *a) {
 }
 
 
+void runNeoAnim_sprinkle(struct NeoAnimation *a) {
+
+  if(!neoAnimationChecks(a)) return;
+
+  pixels.clear();
+
+  uint8_t place_a1;
+  uint8_t place_a2;
+  uint8_t place_a3;
+
+  place_a1 = (uint8_t)random(0, NEOPIXEL_COUNT);
+  place_a2 = (uint8_t)random(0, NEOPIXEL_COUNT);
+  while(place_a2 == place_a1) {
+    place_a2 = (uint8_t)random(0, NEOPIXEL_COUNT);
+  }
+  place_a3 = (uint8_t)random(0, NEOPIXEL_COUNT);
+  while(place_a3 == place_a1 || place_a3 == place_a2) {
+    place_a3 = (uint8_t)random(0, NEOPIXEL_COUNT);
+  }
+
+  uint8_t place_b1;
+  uint8_t place_b2;
+
+  place_b1 = (uint8_t)random(0, NEOPIXEL_COUNT);
+  while(place_b1 == place_a1 || place_b1 == place_a2 || place_b1 == place_a3) {
+    place_b1 = (uint8_t)random(0, NEOPIXEL_COUNT);
+  }
+
+  place_b2 = (uint8_t)random(0, NEOPIXEL_COUNT);
+  while(place_b1 == place_b2 || place_b2 == place_a1 || place_b2 == place_a2 || place_b2 == place_a3) {
+    place_b2 = (uint8_t)random(0, NEOPIXEL_COUNT);
+  }
+
+  pixels.setPixelColor(place_a1, colourPalette[a->colour_primary]);
+  pixels.setPixelColor(place_a2, colourPalette[a->colour_primary]);
+  pixels.setPixelColor(place_a3, colourPalette[a->colour_primary]);
+
+  pixels.setPixelColor(place_b1, colourPalette[a->colour_secondary]);
+  pixels.setPixelColor(place_b2, colourPalette[a->colour_secondary]);
+
+  pixels.show();
+  a->last_frame = millis();
+
+}
+
+
 // this is a template for copying and pasting
 void runNeoAnim_template(struct NeoAnimation *a) {
 
@@ -510,6 +556,33 @@ void initNeoAnim_zwoop(struct NeoAnimation *a) {
   a->helper3 = 0;
 
   a->function = runNeoAnim_zwoop;
+}
+
+
+void initNeoAnim_sprinkle(struct NeoAnimation *a) {
+  a->id = NEO_ANIM_SPRINKLE;
+  a->active = false;
+  a->type = NEO_ANIM_ALERT;
+
+  a->num_frames = 1;
+  a->frame_delay = 100;
+  a->frame_index = 0;
+  a->last_frame = 0;
+
+  a->num_repeats = -99;
+  a->repeat_count = 0;
+  a->repeat_delay = 0;
+  a->last_repeat = 0;
+
+  a->duration = -1;
+  a->start_time = -1;
+
+  a->dir = true;
+  a->helper1 = 0;
+  a->helper2 = 0;
+  a->helper3 = 0;
+
+  a->function = runNeoAnim_sprinkle;
 }
 
 
