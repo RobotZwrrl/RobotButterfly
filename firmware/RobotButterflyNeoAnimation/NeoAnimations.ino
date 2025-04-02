@@ -362,6 +362,53 @@ void runNeoAnim_sprinkle(struct NeoAnimation *a) {
 }
 
 
+void runNeoAnim_rainbow(struct NeoAnimation *a) {
+
+  if(!neoAnimationChecks(a)) return;
+
+  pixels.clear();
+
+  long pixel_hue = a->helper1*5;
+  if(pixel_hue > 5*65536) {
+    pixel_hue = 0;
+    a->helper1 = 0;
+  }
+
+  pixels.rainbow(pixel_hue);
+
+  a->helper1 += a->helper2;
+
+  pixels.show();
+  a->last_frame = millis();
+
+}
+
+
+void runNeoAnim_rainbow_all(struct NeoAnimation *a) {
+
+  if(!neoAnimationChecks(a)) return;
+
+  pixels.clear();
+
+  if(a->helper1 > (32767-100)) {
+    a->helper1 = 0;
+  }
+
+  uint32_t color = pixels.ColorHSV(a->helper1*2, 250, 250);
+  color = pixels.gamma32(color);
+
+  for(uint8_t i=0; i<pixels.numPixels(); i++) {
+    pixels.setPixelColor(i, color);
+  }
+
+  a->helper1 += a->helper2;
+
+  pixels.show();
+  a->last_frame = millis();
+
+}
+
+
 // this is a template for copying and pasting
 void runNeoAnim_template(struct NeoAnimation *a) {
 
@@ -583,6 +630,60 @@ void initNeoAnim_sprinkle(struct NeoAnimation *a) {
   a->helper3 = 0;
 
   a->function = runNeoAnim_sprinkle;
+}
+
+
+void initNeoAnim_rainbow(struct NeoAnimation *a) {
+  a->id = NEO_ANIM_RAINBOW;
+  a->active = false;
+  a->type = NEO_ANIM_ALERT;
+
+  a->num_frames = 1;
+  a->frame_delay = 100;
+  a->frame_index = 0;
+  a->last_frame = 0;
+
+  a->num_repeats = -99;
+  a->repeat_count = 0;
+  a->repeat_delay = 0;
+  a->last_repeat = 0;
+
+  a->duration = -1;
+  a->start_time = -1;
+
+  a->dir = true;
+  a->helper1 = 15545;  // hue counter start on green
+  a->helper2 = 150;    // hue steps
+  a->helper3 = 0;
+
+  a->function = runNeoAnim_rainbow;
+}
+
+
+void initNeoAnim_rainbow_all(struct NeoAnimation *a) {
+  a->id = NEO_ANIM_RAINBOW_ALL;
+  a->active = false;
+  a->type = NEO_ANIM_ALERT;
+
+  a->num_frames = 1;
+  a->frame_delay = 100;
+  a->frame_index = 0;
+  a->last_frame = 0;
+
+  a->num_repeats = -99;
+  a->repeat_count = 0;
+  a->repeat_delay = 0;
+  a->last_repeat = 0;
+
+  a->duration = -1;
+  a->start_time = -1;
+
+  a->dir = true;
+  a->helper1 = 15545;   // hue counter start on green (appears as blue though lol)
+  a->helper2 = 500;     // hue steps
+  a->helper3 = 0;
+
+  a->function = runNeoAnim_rainbow_all;
 }
 
 
