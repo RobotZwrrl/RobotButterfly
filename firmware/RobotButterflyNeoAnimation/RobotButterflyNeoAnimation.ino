@@ -19,6 +19,11 @@
 #include <Adafruit_NeoPixel.h>
 
 
+// ----------- neoanim callbacks -----------
+void callback_NeoAnimDone(struct NeoAnimation *a);
+void callback_NeoAnimLoop(struct NeoAnimation *a);
+// -----------------------------------
+
 
 // ----------- neopixel colours -----------
 // go with 400 kHz as 800 kHz would leave pixel colour ghosts
@@ -89,7 +94,9 @@ enum neoAnimName {
   NEO_ANIM_NONE,
   NEO_ANIM_POLKADOT,
   NEO_ANIM_SQUIGGLE,
-  NEO_ANIM_RANGE
+  NEO_ANIM_RANGE,
+  NEO_ANIM_FUNKY,
+  NEO_ANIM_ZWOOP
 };
 
 enum neoAnimType {
@@ -101,6 +108,8 @@ void runNeoAnim_none(struct NeoAnimation *animation);
 void runNeoAnim_polkadot(struct NeoAnimation *animation);
 void runNeoAnim_squiggle(struct NeoAnimation *animation);
 void runNeoAnim_range(struct NeoAnimation *animation);
+void runNeoAnim_funky(struct NeoAnimation *animation);
+void runNeoAnim_zwoop(struct NeoAnimation *animation);
 typedef void (*AnimationFunction)(NeoAnimation*); // function pointer type that accepts a NeoAnimation pointer
 
 struct NeoAnimation {
@@ -206,6 +215,18 @@ void loop() {
         //setNeoAnimDuration(&neo_animation_alert, 300);
         neo_animation_alert.dir = false;
         neo_animation_alert.helper1 = 5;
+        startNeoAnim(&neo_animation_alert);
+      break;
+      case '8':
+        setNeoAnim(&neo_animation_alert, NEO_ANIM_FUNKY, NEO_ANIM_ALERT);
+        setNeoAnimColours(&neo_animation_alert, NEO_LAVENDER, NEO_SKY_BLUE);
+        setNeoAnimSpeed(&neo_animation_alert, 300);
+        startNeoAnim(&neo_animation_alert);
+      break;
+      case '9':
+        setNeoAnim(&neo_animation_alert, NEO_ANIM_ZWOOP, NEO_ANIM_ALERT);
+        setNeoAnimColours(&neo_animation_alert, NEO_LAVENDER, NEO_OFF);
+        setNeoAnimSpeed(&neo_animation_alert, 500);
         startNeoAnim(&neo_animation_alert);
       break;
       case 's':

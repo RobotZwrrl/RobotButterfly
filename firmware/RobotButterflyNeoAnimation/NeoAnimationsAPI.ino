@@ -8,6 +8,12 @@ void callback_NeoAnimDone(struct NeoAnimation *a) {
   Serial << "Callback: Neo animation (" << a->id << ") done" << endl;
 }
 
+// the neo animation is done a loop
+void callback_NeoAnimLoop(struct NeoAnimation *a) {
+  if(a->type == NEO_ANIM_HOME) return;
+  Serial << "Callback: Neo animation (" << a->id << ") looped" << endl;
+}
+
 // ----------------------------------
 
 
@@ -32,6 +38,12 @@ void setNeoAnim(struct NeoAnimation *a, uint8_t n, uint8_t t) {
     break;
     case NEO_ANIM_RANGE:
       initNeoAnim_range(a);
+    break;
+    case NEO_ANIM_FUNKY:
+      initNeoAnim_funky(a);
+    break;
+    case NEO_ANIM_ZWOOP:
+      initNeoAnim_zwoop(a);
     break;
   }
 

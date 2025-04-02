@@ -66,6 +66,7 @@ bool neoAnimationChecks(struct NeoAnimation *a) {
       a->frame_index = 0;
       a->repeat_count++;
       a->last_repeat = millis();
+      callback_NeoAnimLoop(a);
     }
   } else {
     return false;
@@ -218,6 +219,103 @@ void runNeoAnim_range(struct NeoAnimation *a) {
 }
 
 
+void runNeoAnim_funky(struct NeoAnimation *a) {
+
+  if(!neoAnimationChecks(a)) return;
+
+  pixels.clear();
+
+  switch(a->frame_index) {
+    case 0: {
+      pixels.setPixelColor(0, colourPalette[a->colour_primary]);
+      pixels.setPixelColor(1, colourPalette[a->colour_primary]);
+      pixels.setPixelColor(2, colourPalette[a->colour_primary]);
+
+      pixels.setPixelColor(3, colourPalette[a->colour_secondary]);
+      pixels.setPixelColor(4, colourPalette[a->colour_secondary]);
+
+      pixels.setPixelColor(5, colourPalette[a->colour_primary]);
+      pixels.setPixelColor(6, colourPalette[a->colour_primary]);
+      pixels.setPixelColor(7, colourPalette[a->colour_primary]);
+    }
+    break;
+    case 1: {
+      pixels.setPixelColor(0, colourPalette[a->colour_secondary]);
+      pixels.setPixelColor(1, colourPalette[a->colour_secondary]);
+      pixels.setPixelColor(2, colourPalette[a->colour_secondary]);
+
+      pixels.setPixelColor(3, colourPalette[a->colour_primary]);
+      pixels.setPixelColor(4, colourPalette[a->colour_primary]);
+
+      pixels.setPixelColor(5, colourPalette[a->colour_secondary]);
+      pixels.setPixelColor(6, colourPalette[a->colour_secondary]);
+      pixels.setPixelColor(7, colourPalette[a->colour_secondary]);
+    }
+    break;
+  }
+
+  pixels.show();
+  a->last_frame = millis();
+
+}
+
+
+void runNeoAnim_zwoop(struct NeoAnimation *a) {
+
+  if(!neoAnimationChecks(a)) return;
+
+  pixels.clear();
+
+  int frame = a->frame_index;
+
+  if(a->frame_index > 3) {
+    frame = ((4*2)-1)-a->frame_index;
+  }
+
+  if(a->frame_index == 4) return; // skip duplicate
+  if(a->frame_index == 7) return; // skip duplicate
+
+  switch(frame) {
+    case 0: {
+      for(uint8_t i=0; i<pixels.numPixels(); i++) {
+        pixels.setPixelColor(i, colourPalette[a->colour_secondary]);
+      }
+      pixels.setPixelColor(3, colourPalette[a->colour_primary]);
+      pixels.setPixelColor(4, colourPalette[a->colour_primary]);
+    }
+    break;
+    case 1: {
+      for(uint8_t i=0; i<pixels.numPixels(); i++) {
+        pixels.setPixelColor(i, colourPalette[a->colour_secondary]);
+      }
+      pixels.setPixelColor(2, colourPalette[a->colour_primary]);
+      pixels.setPixelColor(5, colourPalette[a->colour_primary]);
+    }
+    break;
+    case 2: {
+      for(uint8_t i=0; i<pixels.numPixels(); i++) {
+        pixels.setPixelColor(i, colourPalette[a->colour_secondary]);
+      }
+      pixels.setPixelColor(1, colourPalette[a->colour_primary]);
+      pixels.setPixelColor(6, colourPalette[a->colour_primary]);
+    }
+    break;
+    case 3: {
+      for(uint8_t i=0; i<pixels.numPixels(); i++) {
+        pixels.setPixelColor(i, colourPalette[a->colour_secondary]);
+      }
+      pixels.setPixelColor(0, colourPalette[a->colour_primary]);
+      pixels.setPixelColor(7, colourPalette[a->colour_primary]);
+    }
+    break;
+  }
+
+  pixels.show();
+  a->last_frame = millis();
+
+}
+
+
 // this is a template for copying and pasting
 void runNeoAnim_template(struct NeoAnimation *a) {
 
@@ -358,6 +456,60 @@ void initNeoAnim_range(struct NeoAnimation *a) {
   a->helper3 = 0;
 
   a->function = runNeoAnim_range;
+}
+
+
+void initNeoAnim_funky(struct NeoAnimation *a) {
+  a->id = NEO_ANIM_FUNKY;
+  a->active = false;
+  a->type = NEO_ANIM_ALERT;
+
+  a->num_frames = 2;
+  a->frame_delay = 100;
+  a->frame_index = 0;
+  a->last_frame = 0;
+
+  a->num_repeats = -99;
+  a->repeat_count = 0;
+  a->repeat_delay = 0;
+  a->last_repeat = 0;
+
+  a->duration = -1;
+  a->start_time = -1;
+
+  a->dir = true;
+  a->helper1 = 0;
+  a->helper2 = 0;
+  a->helper3 = 0;
+
+  a->function = runNeoAnim_funky;
+}
+
+
+void initNeoAnim_zwoop(struct NeoAnimation *a) {
+  a->id = NEO_ANIM_ZWOOP;
+  a->active = false;
+  a->type = NEO_ANIM_ALERT;
+
+  a->num_frames = 8;
+  a->frame_delay = 100;
+  a->frame_index = 0;
+  a->last_frame = 0;
+
+  a->num_repeats = -99;
+  a->repeat_count = 0;
+  a->repeat_delay = 0;
+  a->last_repeat = 0;
+
+  a->duration = -1;
+  a->start_time = -1;
+
+  a->dir = true;
+  a->helper1 = 0;
+  a->helper2 = 0;
+  a->helper3 = 0;
+
+  a->function = runNeoAnim_zwoop;
 }
 
 
