@@ -540,6 +540,51 @@ void runNeoAnim_cycle3(struct NeoAnimation *a) {
 }
 
 
+void runNeoAnim_ambiance(struct NeoAnimation *a) {
+
+  if(!neoAnimationChecks(a)) return;
+
+  uint32_t paletteSpring[5] = { colourPalette[NEO_LAVENDER], colourPalette[NEO_CANARY_YELLOW], colourPalette[NEO_PINK], colourPalette[NEO_GREEN], colourPalette[NEO_LAVENDER] };
+  uint32_t paletteSummer[5] = { colourPalette[NEO_GREEN], colourPalette[NEO_SKY_BLUE], colourPalette[NEO_CYAN], colourPalette[NEO_CANARY_YELLOW], colourPalette[NEO_GREEN] };
+  uint32_t paletteAutumn[5] = { colourPalette[NEO_ORANGE], colourPalette[NEO_GOLDEN_YELLOW], colourPalette[NEO_RED], colourPalette[NEO_GOLDEN_YELLOW], colourPalette[NEO_ORANGE] };
+  uint32_t paletteWinter[5] = { colourPalette[NEO_BLUE], colourPalette[NEO_WHITE], colourPalette[NEO_SKY_BLUE], colourPalette[NEO_WHITE], colourPalette[NEO_BLUE] };
+  uint32_t paletteTuttiFruiti[5] = { colourPalette[NEO_MAGENTA], colourPalette[NEO_CYAN], colourPalette[NEO_GOLDEN_YELLOW], colourPalette[NEO_PURPLE], colourPalette[NEO_MAGENTA] };
+
+  pixels.clear();
+
+  for(uint8_t i=0; i<pixels.numPixels(); i++) {
+    if(a->helper1 == 0) pixels.setPixelColor(i, paletteSpring[a->helper3]);
+    if(a->helper1 == 1) pixels.setPixelColor(i, paletteSummer[a->helper3]);
+    if(a->helper1 == 2) pixels.setPixelColor(i, paletteAutumn[a->helper3]);
+    if(a->helper1 == 3) pixels.setPixelColor(i, paletteWinter[a->helper3]);
+    if(a->helper1 == 4) pixels.setPixelColor(i, paletteTuttiFruiti[a->helper3]);
+  }
+
+  for(uint8_t i=0; i<a->helper2; i++) {
+    if(a->helper1 == 0) pixels.setPixelColor(i, paletteSpring[a->helper3+1]);
+    if(a->helper1 == 1) pixels.setPixelColor(i, paletteSummer[a->helper3+1]);
+    if(a->helper1 == 2) pixels.setPixelColor(i, paletteAutumn[a->helper3+1]);
+    if(a->helper1 == 3) pixels.setPixelColor(i, paletteWinter[a->helper3+1]);
+    if(a->helper1 == 4) pixels.setPixelColor(i, paletteTuttiFruiti[a->helper3+1]);
+  }
+
+  if(a->helper2 >= pixels.numPixels()-1) {
+    a->helper2 = 0;
+    a->helper3++; // colour index
+    if(a->helper3+1 >= 5) {
+      a->helper3 = 0;
+      a->frame_index = a->num_frames-1-1; // push it to callback
+    }
+  } else {
+    a->helper2++;
+  }
+
+  pixels.show();
+  a->last_frame = millis();
+
+}
+
+
 // this is a template for copying and pasting
 void runNeoAnim_template(struct NeoAnimation *a) {
 
@@ -923,6 +968,33 @@ void initNeoAnim_cycle3(struct NeoAnimation *a) {
   a->helper3 = 0;
 
   a->function = runNeoAnim_cycle3;
+}
+
+
+void initNeoAnim_ambiance(struct NeoAnimation *a) {
+  a->id = NEO_ANIM_AMBIANCE;
+  a->active = false;
+  a->type = NEO_ANIM_ALERT;
+
+  a->num_frames = 255;
+  a->frame_delay = 100;
+  a->frame_index = 0;
+  a->last_frame = 0;
+
+  a->num_repeats = -99;
+  a->repeat_count = 0;
+  a->repeat_delay = 0;
+  a->last_repeat = 0;
+
+  a->duration = -1;
+  a->start_time = -1;
+
+  a->dir = true;
+  a->helper1 = 0;  // colour palette
+  a->helper2 = 0;  // leading pixel
+  a->helper3 = 0;  // colour index
+
+  a->function = runNeoAnim_ambiance;
 }
 
 

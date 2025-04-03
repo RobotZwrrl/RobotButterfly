@@ -24,8 +24,9 @@ void callback_NeoAnimLoop(struct NeoAnimation *a) {
 // params: neo animation, id of animation, type
 void setNeoAnim(struct NeoAnimation *a, uint8_t n, uint8_t t) {
   
+  pixels.setBrightness(PREFS_NEO_BRIGHTNESS); // reset the brightness
+
   // init
-  // TODO - all of the neo animations
   switch(n) {
     case NEO_ANIM_NONE:
       initNeoAnim_none(a);
@@ -65,6 +66,9 @@ void setNeoAnim(struct NeoAnimation *a, uint8_t n, uint8_t t) {
     break;
     case NEO_ANIM_CYCLE3:
       initNeoAnim_cycle3(a);
+    break;
+    case NEO_ANIM_AMBIANCE:
+      initNeoAnim_ambiance(a);
     break;
   }
 

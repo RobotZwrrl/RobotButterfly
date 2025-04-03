@@ -103,7 +103,8 @@ enum neoAnimName {
   NEO_ANIM_BOUNCE,
   NEO_ANIM_BREATHE,
   NEO_ANIM_CYCLE8,
-  NEO_ANIM_CYCLE3
+  NEO_ANIM_CYCLE3,
+  NEO_ANIM_AMBIANCE
 };
 
 enum neoAnimType {
@@ -124,6 +125,7 @@ void runNeoAnim_bounce(struct NeoAnimation *animation);
 void runNeoAnim_breathe(struct NeoAnimation *animation);
 void runNeoAnim_cycle8(struct NeoAnimation *animation);
 void runNeoAnim_cycle3(struct NeoAnimation *animation);
+void runNeoAnim_ambiance(struct NeoAnimation *animation);
 typedef void (*AnimationFunction)(NeoAnimation*); // function pointer type that accepts a NeoAnimation pointer
 
 struct NeoAnimation {
@@ -279,6 +281,31 @@ void loop() {
       case 'u':
         setNeoAnim(&neo_animation_alert, NEO_ANIM_CYCLE3, NEO_ANIM_ALERT);
         setNeoAnimColours(&neo_animation_alert, NEO_BLUE, NEO_PINK);
+        startNeoAnim(&neo_animation_alert);
+      break;
+      case 'i':
+        setNeoAnim(&neo_animation_alert, NEO_ANIM_AMBIANCE, NEO_ANIM_ALERT);
+        neo_animation_alert.helper1 = 0;
+        startNeoAnim(&neo_animation_alert);
+      break;
+      case 'o':
+        setNeoAnim(&neo_animation_alert, NEO_ANIM_AMBIANCE, NEO_ANIM_ALERT);
+        neo_animation_alert.helper1 = 1;
+        startNeoAnim(&neo_animation_alert);
+      break;
+      case 'p':
+        setNeoAnim(&neo_animation_alert, NEO_ANIM_AMBIANCE, NEO_ANIM_ALERT);
+        neo_animation_alert.helper1 = 2;
+        startNeoAnim(&neo_animation_alert);
+      break;
+      case '[':
+        setNeoAnim(&neo_animation_alert, NEO_ANIM_AMBIANCE, NEO_ANIM_ALERT);
+        neo_animation_alert.helper1 = 3;
+        startNeoAnim(&neo_animation_alert);
+      break;
+      case ']':
+        setNeoAnim(&neo_animation_alert, NEO_ANIM_AMBIANCE, NEO_ANIM_ALERT);
+        neo_animation_alert.helper1 = 4;
         startNeoAnim(&neo_animation_alert);
       break;
       case 's':
