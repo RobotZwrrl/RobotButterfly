@@ -102,7 +102,8 @@ enum neoAnimName {
   NEO_ANIM_RAINBOW_ALL,
   NEO_ANIM_BOUNCE,
   NEO_ANIM_BREATHE,
-  NEO_ANIM_CYCLE8
+  NEO_ANIM_CYCLE8,
+  NEO_ANIM_CYCLE3
 };
 
 enum neoAnimType {
@@ -122,6 +123,7 @@ void runNeoAnim_rainbow_all(struct NeoAnimation *animation);
 void runNeoAnim_bounce(struct NeoAnimation *animation);
 void runNeoAnim_breathe(struct NeoAnimation *animation);
 void runNeoAnim_cycle8(struct NeoAnimation *animation);
+void runNeoAnim_cycle3(struct NeoAnimation *animation);
 typedef void (*AnimationFunction)(NeoAnimation*); // function pointer type that accepts a NeoAnimation pointer
 
 struct NeoAnimation {
@@ -271,6 +273,11 @@ void loop() {
       break;
       case 'y':
         setNeoAnim(&neo_animation_alert, NEO_ANIM_CYCLE8, NEO_ANIM_ALERT);
+        setNeoAnimColours(&neo_animation_alert, NEO_BLUE, NEO_PINK);
+        startNeoAnim(&neo_animation_alert);
+      break;
+      case 'u':
+        setNeoAnim(&neo_animation_alert, NEO_ANIM_CYCLE3, NEO_ANIM_ALERT);
         setNeoAnimColours(&neo_animation_alert, NEO_BLUE, NEO_PINK);
         startNeoAnim(&neo_animation_alert);
       break;

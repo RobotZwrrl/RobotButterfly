@@ -504,6 +504,42 @@ void runNeoAnim_cycle8(struct NeoAnimation *a) {
 }
 
 
+void runNeoAnim_cycle3(struct NeoAnimation *a) {
+
+  if(!neoAnimationChecks(a)) return;
+
+  pixels.clear();
+
+  for(uint8_t i=0; i<pixels.numPixels(); i++) {
+    pixels.setPixelColor(i, colourPalette[a->colour_secondary]);
+  }
+
+  pixels.setPixelColor(a->helper1-1, colourPalette[a->colour_primary]);
+  pixels.setPixelColor(a->helper1, colourPalette[a->colour_primary]);
+  pixels.setPixelColor(a->helper1+1, colourPalette[a->colour_primary]);
+
+  pixels.setPixelColor(a->helper2-1, colourPalette[a->colour_primary]);
+  pixels.setPixelColor(a->helper2, colourPalette[a->colour_primary]);
+  pixels.setPixelColor(a->helper2+1, colourPalette[a->colour_primary]);
+
+  a->helper1++;
+  a->helper2++;
+
+  if(a->helper1-3 >= pixels.numPixels()) {
+    a->helper1 = -1;
+    a->frame_index = a->num_frames-1-1; // push it to callback
+  }
+
+  if(a->helper2-3 >= pixels.numPixels()) {
+    a->helper2 = -1;
+  }
+
+  pixels.show();
+  a->last_frame = millis();
+
+}
+
+
 // this is a template for copying and pasting
 void runNeoAnim_template(struct NeoAnimation *a) {
 
@@ -860,6 +896,33 @@ void initNeoAnim_cycle8(struct NeoAnimation *a) {
   a->helper3 = 0;
 
   a->function = runNeoAnim_cycle8;
+}
+
+
+void initNeoAnim_cycle3(struct NeoAnimation *a) {
+  a->id = NEO_ANIM_CYCLE3;
+  a->active = false;
+  a->type = NEO_ANIM_ALERT;
+
+  a->num_frames = 255;
+  a->frame_delay = 100;
+  a->frame_index = 0;
+  a->last_frame = 0;
+
+  a->num_repeats = -99;
+  a->repeat_count = 0;
+  a->repeat_delay = 0;
+  a->last_repeat = 0;
+
+  a->duration = -1;
+  a->start_time = -1;
+
+  a->dir = true;
+  a->helper1 = 1;
+  a->helper2 = 7;
+  a->helper3 = 0;
+
+  a->function = runNeoAnim_cycle3;
 }
 
 

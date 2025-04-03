@@ -63,6 +63,9 @@ void setNeoAnim(struct NeoAnimation *a, uint8_t n, uint8_t t) {
     case NEO_ANIM_CYCLE8:
       initNeoAnim_cycle8(a);
     break;
+    case NEO_ANIM_CYCLE3:
+      initNeoAnim_cycle3(a);
+    break;
   }
 
   a->type = t;
