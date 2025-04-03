@@ -462,8 +462,40 @@ void runNeoAnim_breathe(struct NeoAnimation *a) {
     a->helper1 -= a->helper2;
     if(a->helper1 <= 0) {
       a->dir = !a->dir;
-      a->frame_index = a->num_frames-1-1;
+      a->frame_index = a->num_frames-1-1; // push it to callback
     }
+  }
+
+  pixels.show();
+  a->last_frame = millis();
+
+}
+
+
+void runNeoAnim_cycle8(struct NeoAnimation *a) {
+
+  if(!neoAnimationChecks(a)) return;
+
+  pixels.clear();
+
+  for(uint8_t i=0; i<pixels.numPixels(); i++) {
+    pixels.setPixelColor(i, colourPalette[a->colour_primary]);
+  }
+
+  for(uint8_t i=a->helper1; i<a->helper2; i++) {
+    pixels.setPixelColor(i, colourPalette[a->colour_secondary]);
+  }
+
+  if(a->helper2 >= pixels.numPixels()) {
+    a->helper2 = pixels.numPixels();
+    a->helper1++;
+    if(a->helper1 >= pixels.numPixels()) {
+      a->helper1 = 0;
+      a->helper2 = 0;
+      a->frame_index = a->num_frames-1-1; // push it to callback
+    }
+  } else {
+    a->helper2++;
   }
 
   pixels.show();
@@ -801,6 +833,33 @@ void initNeoAnim_breathe(struct NeoAnimation *a) {
   a->helper3 = PREFS_NEO_BRIGHTNESS;  // max brightness
 
   a->function = runNeoAnim_breathe;
+}
+
+
+void initNeoAnim_cycle8(struct NeoAnimation *a) {
+  a->id = NEO_ANIM_CYCLE8;
+  a->active = false;
+  a->type = NEO_ANIM_ALERT;
+
+  a->num_frames = 255;
+  a->frame_delay = 100;
+  a->frame_index = 0;
+  a->last_frame = 0;
+
+  a->num_repeats = -99;
+  a->repeat_count = 0;
+  a->repeat_delay = 0;
+  a->last_repeat = 0;
+
+  a->duration = -1;
+  a->start_time = -1;
+
+  a->dir = true;
+  a->helper1 = 0;  // trailing pixel
+  a->helper2 = 0;  // leading pixel
+  a->helper3 = 0;
+
+  a->function = runNeoAnim_cycle8;
 }
 
 
