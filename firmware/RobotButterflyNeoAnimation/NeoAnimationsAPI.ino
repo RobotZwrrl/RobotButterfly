@@ -54,6 +54,12 @@ void setNeoAnim(struct NeoAnimation *a, uint8_t n, uint8_t t) {
     case NEO_ANIM_RAINBOW_ALL:
       initNeoAnim_rainbow_all(a);
     break;
+    case NEO_ANIM_BOUNCE:
+      initNeoAnim_bounce(a);
+    break;
+    case NEO_ANIM_BREATHE:
+      initNeoAnim_breathe(a);
+    break;
   }
 
   a->type = t;

@@ -99,7 +99,9 @@ enum neoAnimName {
   NEO_ANIM_ZWOOP,
   NEO_ANIM_SPRINKLE,
   NEO_ANIM_RAINBOW,
-  NEO_ANIM_RAINBOW_ALL
+  NEO_ANIM_RAINBOW_ALL,
+  NEO_ANIM_BOUNCE,
+  NEO_ANIM_BREATHE
 };
 
 enum neoAnimType {
@@ -116,6 +118,8 @@ void runNeoAnim_zwoop(struct NeoAnimation *animation);
 void runNeoAnim_sprinkle(struct NeoAnimation *animation);
 void runNeoAnim_rainbow(struct NeoAnimation *animation);
 void runNeoAnim_rainbow_all(struct NeoAnimation *animation);
+void runNeoAnim_bounce(struct NeoAnimation *animation);
+void runNeoAnim_breathe(struct NeoAnimation *animation);
 typedef void (*AnimationFunction)(NeoAnimation*); // function pointer type that accepts a NeoAnimation pointer
 
 struct NeoAnimation {
@@ -249,6 +253,18 @@ void loop() {
       case 'e':
         setNeoAnim(&neo_animation_alert, NEO_ANIM_RAINBOW_ALL, NEO_ANIM_ALERT);
         neo_animation_alert.helper2 = 250;   // hue steps
+        startNeoAnim(&neo_animation_alert);
+      break;
+      case 'r':
+        setNeoAnim(&neo_animation_alert, NEO_ANIM_BOUNCE, NEO_ANIM_ALERT);
+        setNeoAnimColours(&neo_animation_alert, NEO_CANARY_YELLOW, NEO_OFF);
+        startNeoAnim(&neo_animation_alert);
+      break;
+      case 't':
+        setNeoAnim(&neo_animation_alert, NEO_ANIM_BREATHE, NEO_ANIM_ALERT);
+        setNeoAnimColours(&neo_animation_alert, NEO_WARM_WHITE, NEO_OFF);
+        neo_animation_alert.helper2 = 10;   // brightness steps
+        neo_animation_alert.helper3 = PREFS_NEO_BRIGHTNESS+50; // max brightness
         startNeoAnim(&neo_animation_alert);
       break;
       case 's':

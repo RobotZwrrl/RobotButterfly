@@ -11,3 +11,8 @@ void initNeoColours() {
   }
 }
 
+uint32_t colourFromHSV(uint16_t hue, uint16_t sat, uint16_t val) {
+  return pixels.gamma32( pixels.ColorHSV(hue, sat, val) );
+}
+
+
