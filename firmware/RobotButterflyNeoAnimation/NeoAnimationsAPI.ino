@@ -106,5 +106,35 @@ void stopNeoAnim(struct NeoAnimation *a) {
   a->active = false;
   callback_NeoAnimDone(a);
 }
+
+// params: neo animation, direction
+void setNeoAnimDir(struct NeoAnimation *a, bool dir) {
+  a->dir = dir;
+}
+
+// params: neo animation, val for number of leds lit
+void setNeoAnimRangeVal(struct NeoAnimation *a, int val) {
+  a->helper1 = val;
+}
+
+// params: neo animation, val for number of steps (larger = faster)
+void setNeoAnimRainbowSteps(struct NeoAnimation *a, int val) {
+  a->helper2 = val;
+}
+
+// params: neo animation, val for number of steps (larger = faster)
+void setNeoAnimBreatheSteps(struct NeoAnimation *a, int val) {
+  a->helper2 = val;
+}
+
+// params: neo animation, val for max brightness which can be more than prefs
+void setNeoAnimBreatheMaxBrightness(struct NeoAnimation *a, int val) {
+  a->helper3 = val;
+}
+
+// params: neo animation, id of the ambiance animation - see enum neoAnimAmbianceID
+void setNeoAnimAmbiance(struct NeoAnimation *a, int id) {
+  a->helper1 = id;
+}
 // ----------------------------------
 

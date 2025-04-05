@@ -112,6 +112,14 @@ enum neoAnimType {
   NEO_ANIM_HOME
 };
 
+enum neoAnimAmbianceID {
+  NEO_ANIM_AMBIANCE_SPRING,
+  NEO_ANIM_AMBIANCE_SUMMER,
+  NEO_ANIM_AMBIANCE_AUTUMN,
+  NEO_ANIM_AMBIANCE_WINTER,
+  NEO_ANIM_AMBIANCE_TUTTI_FRUITI
+};
+
 void runNeoAnim_none(struct NeoAnimation *animation);
 void runNeoAnim_polkadot(struct NeoAnimation *animation);
 void runNeoAnim_squiggle(struct NeoAnimation *animation);
@@ -161,7 +169,7 @@ NeoAnimation neo_animation_home;
 NeoAnimation neo_animation_alert;
 // -----------------------------------
 
-// ----------- variables -------------
+// -------------- other --------------
 long last_print = 0;
 // -----------------------------------
 
@@ -181,6 +189,13 @@ void setup() {
 void loop() {
   
   updateNeoAnimation();
+
+  console();
+
+}
+
+
+void console() {
 
   if(Serial.available()) {
     char c = Serial.read();
@@ -221,16 +236,16 @@ void loop() {
         setNeoAnim(&neo_animation_alert, NEO_ANIM_RANGE, NEO_ANIM_ALERT);
         setNeoAnimColours(&neo_animation_alert, NEO_GREEN, NEO_OFF);
         //setNeoAnimDuration(&neo_animation_alert, 300);
-        neo_animation_alert.dir = true;
-        neo_animation_alert.helper1 = 5;
+        setNeoAnimDir(&neo_animation_alert, true);
+        setNeoAnimRangeVal(&neo_animation_alert, 5);
         startNeoAnim(&neo_animation_alert);
       break;
       case '7':
         setNeoAnim(&neo_animation_alert, NEO_ANIM_RANGE, NEO_ANIM_ALERT);
         setNeoAnimColours(&neo_animation_alert, NEO_GREEN, NEO_OFF);
         //setNeoAnimDuration(&neo_animation_alert, 300);
-        neo_animation_alert.dir = false;
-        neo_animation_alert.helper1 = 5;
+        setNeoAnimDir(&neo_animation_alert, false);
+        setNeoAnimRangeVal(&neo_animation_alert, 5);
         startNeoAnim(&neo_animation_alert);
       break;
       case '8':
@@ -253,12 +268,12 @@ void loop() {
       break;
       case 'w':
         setNeoAnim(&neo_animation_alert, NEO_ANIM_RAINBOW, NEO_ANIM_ALERT);
-        neo_animation_alert.helper2 = 150;  // hue steps
+        setNeoAnimRainbowSteps(&neo_animation_alert, 150);   // hue steps
         startNeoAnim(&neo_animation_alert);
       break;
       case 'e':
         setNeoAnim(&neo_animation_alert, NEO_ANIM_RAINBOW_ALL, NEO_ANIM_ALERT);
-        neo_animation_alert.helper2 = 250;   // hue steps
+        setNeoAnimRainbowSteps(&neo_animation_alert, 250);   // hue steps
         startNeoAnim(&neo_animation_alert);
       break;
       case 'r':
@@ -269,8 +284,8 @@ void loop() {
       case 't':
         setNeoAnim(&neo_animation_alert, NEO_ANIM_BREATHE, NEO_ANIM_ALERT);
         setNeoAnimColours(&neo_animation_alert, NEO_WARM_WHITE, NEO_OFF);
-        neo_animation_alert.helper2 = 10;   // brightness steps
-        neo_animation_alert.helper3 = PREFS_NEO_BRIGHTNESS+50; // max brightness
+        setNeoAnimBreatheSteps(&neo_animation_alert, 10);   // brightness steps
+        setNeoAnimBreatheMaxBrightness(&neo_animation_alert, PREFS_NEO_BRIGHTNESS+50);   // max brightness
         startNeoAnim(&neo_animation_alert);
       break;
       case 'y':
@@ -285,27 +300,27 @@ void loop() {
       break;
       case 'i':
         setNeoAnim(&neo_animation_alert, NEO_ANIM_AMBIANCE, NEO_ANIM_ALERT);
-        neo_animation_alert.helper1 = 0;
+        setNeoAnimAmbiance(&neo_animation_alert, NEO_ANIM_AMBIANCE_SPRING);
         startNeoAnim(&neo_animation_alert);
       break;
       case 'o':
         setNeoAnim(&neo_animation_alert, NEO_ANIM_AMBIANCE, NEO_ANIM_ALERT);
-        neo_animation_alert.helper1 = 1;
+        setNeoAnimAmbiance(&neo_animation_alert, NEO_ANIM_AMBIANCE_SUMMER);
         startNeoAnim(&neo_animation_alert);
       break;
       case 'p':
         setNeoAnim(&neo_animation_alert, NEO_ANIM_AMBIANCE, NEO_ANIM_ALERT);
-        neo_animation_alert.helper1 = 2;
+        setNeoAnimAmbiance(&neo_animation_alert, NEO_ANIM_AMBIANCE_AUTUMN);
         startNeoAnim(&neo_animation_alert);
       break;
       case '[':
         setNeoAnim(&neo_animation_alert, NEO_ANIM_AMBIANCE, NEO_ANIM_ALERT);
-        neo_animation_alert.helper1 = 3;
+        setNeoAnimAmbiance(&neo_animation_alert, NEO_ANIM_AMBIANCE_WINTER);
         startNeoAnim(&neo_animation_alert);
       break;
       case ']':
         setNeoAnim(&neo_animation_alert, NEO_ANIM_AMBIANCE, NEO_ANIM_ALERT);
-        neo_animation_alert.helper1 = 4;
+        setNeoAnimAmbiance(&neo_animation_alert, NEO_ANIM_AMBIANCE_TUTTI_FRUITI);
         startNeoAnim(&neo_animation_alert);
       break;
       case 's':

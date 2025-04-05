@@ -16,6 +16,12 @@ void print_wakeup_reason() {
 }
 
 
+void heartbeatUpdate() {
+  uint16_t slice = millis() % 1000;
+  digitalWrite(LED_HEARTBEAT_PIN, slice < 100 || (slice > 200 && slice < 300));
+}
+
+
 void friendlyPrint() {
   if(millis()-last_print >= 500) {
     Serial << millis() << " hi " << xPortGetCoreID() << endl;

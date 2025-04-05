@@ -553,19 +553,19 @@ void runNeoAnim_ambiance(struct NeoAnimation *a) {
   pixels.clear();
 
   for(uint8_t i=0; i<pixels.numPixels(); i++) {
-    if(a->helper1 == 0) pixels.setPixelColor(i, paletteSpring[a->helper3]);
-    if(a->helper1 == 1) pixels.setPixelColor(i, paletteSummer[a->helper3]);
-    if(a->helper1 == 2) pixels.setPixelColor(i, paletteAutumn[a->helper3]);
-    if(a->helper1 == 3) pixels.setPixelColor(i, paletteWinter[a->helper3]);
-    if(a->helper1 == 4) pixels.setPixelColor(i, paletteTuttiFruiti[a->helper3]);
+    if(a->helper1 == NEO_ANIM_AMBIANCE_SPRING) pixels.setPixelColor(i, paletteSpring[a->helper3]);
+    if(a->helper1 == NEO_ANIM_AMBIANCE_SUMMER) pixels.setPixelColor(i, paletteSummer[a->helper3]);
+    if(a->helper1 == NEO_ANIM_AMBIANCE_AUTUMN) pixels.setPixelColor(i, paletteAutumn[a->helper3]);
+    if(a->helper1 == NEO_ANIM_AMBIANCE_WINTER) pixels.setPixelColor(i, paletteWinter[a->helper3]);
+    if(a->helper1 == NEO_ANIM_AMBIANCE_TUTTI_FRUITI) pixels.setPixelColor(i, paletteTuttiFruiti[a->helper3]);
   }
 
   for(uint8_t i=0; i<a->helper2; i++) {
-    if(a->helper1 == 0) pixels.setPixelColor(i, paletteSpring[a->helper3+1]);
-    if(a->helper1 == 1) pixels.setPixelColor(i, paletteSummer[a->helper3+1]);
-    if(a->helper1 == 2) pixels.setPixelColor(i, paletteAutumn[a->helper3+1]);
-    if(a->helper1 == 3) pixels.setPixelColor(i, paletteWinter[a->helper3+1]);
-    if(a->helper1 == 4) pixels.setPixelColor(i, paletteTuttiFruiti[a->helper3+1]);
+    if(a->helper1 == NEO_ANIM_AMBIANCE_SPRING) pixels.setPixelColor(i, paletteSpring[a->helper3+1]);
+    if(a->helper1 == NEO_ANIM_AMBIANCE_SUMMER) pixels.setPixelColor(i, paletteSummer[a->helper3+1]);
+    if(a->helper1 == NEO_ANIM_AMBIANCE_AUTUMN) pixels.setPixelColor(i, paletteAutumn[a->helper3+1]);
+    if(a->helper1 == NEO_ANIM_AMBIANCE_WINTER) pixels.setPixelColor(i, paletteWinter[a->helper3+1]);
+    if(a->helper1 == NEO_ANIM_AMBIANCE_TUTTI_FRUITI) pixels.setPixelColor(i, paletteTuttiFruiti[a->helper3+1]);
   }
 
   if(a->helper2 >= pixels.numPixels()-1) {
