@@ -585,6 +585,33 @@ void runNeoAnim_ambiance(struct NeoAnimation *a) {
 }
 
 
+void runNeoAnim_uno(struct NeoAnimation *a) {
+
+  if(!neoAnimationChecks(a)) return;
+
+  pixels.clear();
+
+  int uno = a->helper1;
+  if(uno < 0) uno = 0;
+  if(uno > pixels.numPixels()) uno = pixels.numPixels()-1;
+
+  switch(a->frame_index) {
+    case 0: {
+      pixels.setPixelColor(uno, colourPalette[a->colour_primary]);
+    }
+    break;
+    case 1: {
+      pixels.setPixelColor(uno, colourPalette[a->colour_secondary]);
+    }
+    break;
+  }
+
+  pixels.show();
+  a->last_frame = millis();
+
+}
+
+
 // this is a template for copying and pasting
 void runNeoAnim_template(struct NeoAnimation *a) {
 
@@ -995,6 +1022,33 @@ void initNeoAnim_ambiance(struct NeoAnimation *a) {
   a->helper3 = 0;  // colour index
 
   a->function = runNeoAnim_ambiance;
+}
+
+
+void initNeoAnim_uno(struct NeoAnimation *a) {
+  a->id = NEO_ANIM_UNO;
+  a->active = false;
+  a->type = NEO_ANIM_ALERT;
+
+  a->num_frames = 2;
+  a->frame_delay = 100;
+  a->frame_index = 0;
+  a->last_frame = 0;
+
+  a->num_repeats = -99;
+  a->repeat_count = 0;
+  a->repeat_delay = 0;
+  a->last_repeat = 0;
+
+  a->duration = -1;
+  a->start_time = -1;
+
+  a->dir = true;
+  a->helper1 = 0; // index of pixel
+  a->helper2 = 0;
+  a->helper3 = 0;
+
+  a->function = runNeoAnim_uno;
 }
 
 

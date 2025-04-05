@@ -104,7 +104,8 @@ enum neoAnimName {
   NEO_ANIM_BREATHE,
   NEO_ANIM_CYCLE8,
   NEO_ANIM_CYCLE3,
-  NEO_ANIM_AMBIANCE
+  NEO_ANIM_AMBIANCE,
+  NEO_ANIM_UNO
 };
 
 enum neoAnimType {
@@ -134,6 +135,7 @@ void runNeoAnim_breathe(struct NeoAnimation *animation);
 void runNeoAnim_cycle8(struct NeoAnimation *animation);
 void runNeoAnim_cycle3(struct NeoAnimation *animation);
 void runNeoAnim_ambiance(struct NeoAnimation *animation);
+void runNeoAnim_uno(struct NeoAnimation *animation);
 typedef void (*AnimationFunction)(NeoAnimation*); // function pointer type that accepts a NeoAnimation pointer
 
 struct NeoAnimation {
@@ -260,6 +262,7 @@ void console() {
         setNeoAnimSpeed(&neo_animation_alert, 500);
         startNeoAnim(&neo_animation_alert);
       break;
+
       case 'q':
         setNeoAnim(&neo_animation_alert, NEO_ANIM_SPRINKLE, NEO_ANIM_ALERT);
         setNeoAnimColours(&neo_animation_alert, NEO_MAGENTA, NEO_CYAN);
@@ -323,6 +326,21 @@ void console() {
         setNeoAnimAmbiance(&neo_animation_alert, NEO_ANIM_AMBIANCE_TUTTI_FRUITI);
         startNeoAnim(&neo_animation_alert);
       break;
+
+      case 'd':
+        setNeoAnim(&neo_animation_alert, NEO_ANIM_UNO, NEO_ANIM_ALERT);
+        setNeoAnimColours(&neo_animation_alert, NEO_RED, NEO_OFF);
+        setNeoAnimUno(&neo_animation_alert, 3);
+        startNeoAnim(&neo_animation_alert);
+      break;
+      case 'f':
+        setNeoAnim(&neo_animation_alert, NEO_ANIM_UNO, NEO_ANIM_ALERT);
+        setNeoAnimColours(&neo_animation_alert, NEO_RED, NEO_BLUE);
+        setNeoAnimSpeed(&neo_animation_alert, 1000);
+        setNeoAnimUno(&neo_animation_alert, 7);
+        startNeoAnim(&neo_animation_alert);
+      break;
+
       case 's':
         stopNeoAnim(&neo_animation_alert);
       break;

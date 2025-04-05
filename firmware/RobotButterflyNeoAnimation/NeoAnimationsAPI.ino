@@ -70,6 +70,9 @@ void setNeoAnim(struct NeoAnimation *a, uint8_t n, uint8_t t) {
     case NEO_ANIM_AMBIANCE:
       initNeoAnim_ambiance(a);
     break;
+    case NEO_ANIM_UNO:
+      initNeoAnim_uno(a);
+    break;
   }
 
   a->type = t;
@@ -135,6 +138,11 @@ void setNeoAnimBreatheMaxBrightness(struct NeoAnimation *a, int val) {
 // params: neo animation, id of the ambiance animation - see enum neoAnimAmbianceID
 void setNeoAnimAmbiance(struct NeoAnimation *a, int id) {
   a->helper1 = id;
+}
+
+// params: neo animation, index of the lit pixel
+void setNeoAnimUno(struct NeoAnimation *a, int uno) {
+  a->helper1 = uno;
 }
 // ----------------------------------
 
