@@ -22,3 +22,11 @@ void heartbeatUpdate() {
 }
 
 
+void friendlyPrint() {
+  if(millis()-last_print >= 500) {
+    Serial << millis() << " hi " << xPortGetCoreID() << endl;
+    last_print = millis();
+  }
+}
+
+

@@ -1,5 +1,5 @@
 /*
- * Robot Butterfly Buzzer
+ * Robot Butterfly Sound
  * -------------------------
  * Jingles and sounds on the buzzer
  * 
@@ -18,33 +18,48 @@
 #include <Streaming.h>
 #include "pitches.h"
 
-// ------- function definitions for reference --------
-void playStartup();
-void playAlert();
-void playSleep();
-void playSneeze();
-void playMissionComplete();
-void playMoonlightMode();
-void playChirpy();
-void playWiFiConnect();
-void playWiFiDisconnect();
-void playMQTTSend();
-void playMQTTReceive();
-void playFlowerSmell();
-void playRoseSmell();
-void playWildflowerSmell();
-void playLavenderSmell();
-void playDaisySmell();
-void playSunflowerSmell();
-void playFlutterMemory();
-void playFlutterJoy();
-void playFlutterCalm();
-void playFlutterSurprise();
-void playFlutterConfused();
-void playFlutterSleepy();
-void playFlutterGrateful();
+
+// ----------- buzzer api ------------
+void playSound(uint8_t id);
+void soundDoneCallback(uint8_t id);
 // -----------------------------------
 
+
+// ------------ sound id -------------
+enum soundID {
+  SOUND_ALERT_STARTUP,
+  SOUND_ALERT_ALERT,
+  SOUND_ALERT_SLEEP,
+  SOUND_ALERT_SNEEZE,
+  SOUND_ALERT_MISSION_COMPLETE,
+  SOUND_ALERT_MOONLIGHT_MODE,
+  SOUND_ALERT_CHIRPY,
+  SOUND_ALERT_WIFI_CONNECT,
+  SOUND_ALERT_WIFI_DISCONNECT,
+  SOUND_ALERT_MQTT_SEND,
+  SOUND_ALERT_MQTT_RECEIVE,
+
+  SOUND_SMELL_FLOWER,
+  SOUND_SMELL_ROSE,
+  SOUND_SMELL_WILDFLOWER,
+  SOUND_SMELL_LAVENDER,
+  SOUND_SMELL_DAISY,
+  SOUND_SMELL_SUNFLOWER,
+
+  SOUND_FLUTTER_MEMORY,
+  SOUND_FLUTTER_JOY,
+  SOUND_FLUTTER_CALM,
+  SOUND_FLUTTER_SURPRISE,
+  SOUND_FLUTTER_CONFUSED,
+  SOUND_FLUTTER_SLEEPY,
+  SOUND_FLUTTER_GRATEFUL
+};
+// -----------------------------------
+
+
+// ------------- other ---------------
+long last_print = 0;
+// -----------------------------------
 
 
 void setup() {
@@ -59,11 +74,6 @@ void setup() {
 
 
 void loop() {
-  
-  // if(millis()-last_print >= 500) {
-  //   Serial << millis() << " hi " << xPortGetCoreID() << endl;
-  //   last_print = millis();
-  // }
 
   console();
 
@@ -71,131 +81,106 @@ void loop() {
 
 
 void console() {
-
-  if(Serial.available()) {
+  if (Serial.available()) {
     char c = Serial.read();
-    switch(c) {
+    switch (c) {
       case '1':
         Serial << "playStartup" << endl;
-        playStartup();
-        Serial << "done" << endl;
+        playSound(SOUND_ALERT_STARTUP);
       break;
       case '2':
         Serial << "playAlert" << endl;
-        playAlert();
-        Serial << "done" << endl;
+        playSound(SOUND_ALERT_ALERT);
       break;
       case '3':
         Serial << "playSleep" << endl;
-        playSleep();
-        Serial << "done" << endl;
+        playSound(SOUND_ALERT_SLEEP);
       break;
       case '4':
         Serial << "playSneeze" << endl;
-        playSneeze();
-        Serial << "done" << endl;
+        playSound(SOUND_ALERT_SNEEZE);
       break;
       case '5':
         Serial << "playMissionComplete" << endl;
-        playMissionComplete();
-        Serial << "done" << endl;
+        playSound(SOUND_ALERT_MISSION_COMPLETE);
       break;
       case '6':
         Serial << "playMoonlightMode" << endl;
-        playMoonlightMode();
-        Serial << "done" << endl;
+        playSound(SOUND_ALERT_MOONLIGHT_MODE);
       break;
       case '7':
         Serial << "playChirpy" << endl;
-        playChirpy();
-        Serial << "done" << endl;
+        playSound(SOUND_ALERT_CHIRPY);
       break;
       case '8':
         Serial << "playWiFiConnect" << endl;
-        playWiFiConnect();
-        Serial << "done" << endl;
+        playSound(SOUND_ALERT_WIFI_CONNECT);
       break;
       case '9':
         Serial << "playWiFiDisconnect" << endl;
-        playWiFiDisconnect();
-        Serial << "done" << endl;
+        playSound(SOUND_ALERT_WIFI_DISCONNECT);
       break;
-        
+
       case 'q':
         Serial << "playMQTTSend" << endl;
-        playMQTTSend();
-        Serial << "done" << endl;
+        playSound(SOUND_ALERT_MQTT_SEND);
       break;
       case 'w':
         Serial << "playMQTTReceive" << endl;
-        playMQTTReceive();
-        Serial << "done" << endl;
+        playSound(SOUND_ALERT_MQTT_RECEIVE);
       break;
       case 'e':
         Serial << "playFlowerSmell" << endl;
-        playFlowerSmell();
-        Serial << "done" << endl;
+        playSound(SOUND_SMELL_FLOWER);
       break;
       case 'r':
         Serial << "playRoseSmell" << endl;
-        playRoseSmell();
-        Serial << "done" << endl;
+        playSound(SOUND_SMELL_ROSE);
       break;
       case 't':
         Serial << "playWildflowerSmell" << endl;
-        playWildflowerSmell();
-        Serial << "done" << endl;
+        playSound(SOUND_SMELL_WILDFLOWER);
       break;
       case 'y':
         Serial << "playLavenderSmell" << endl;
-        playLavenderSmell();
-        Serial << "done" << endl;
+        playSound(SOUND_SMELL_LAVENDER);
       break;
       case 'u':
         Serial << "playDaisySmell" << endl;
-        playDaisySmell();
-        Serial << "done" << endl;
+        playSound(SOUND_SMELL_DAISY);
       break;
       case 'i':
         Serial << "playSunflowerSmell" << endl;
-        playSunflowerSmell();
-        Serial << "done" << endl;
+        playSound(SOUND_SMELL_SUNFLOWER);
       break;
       case 'o':
         Serial << "playFlutterMemory" << endl;
-        playFlutterMemory();
-        Serial << "done" << endl;
+        playSound(SOUND_FLUTTER_MEMORY);
       break;
       case 'p':
         Serial << "playFlutterJoy" << endl;
-        playFlutterJoy();
-        Serial << "done" << endl;
+        playSound(SOUND_FLUTTER_JOY);
       break;
 
       case 'a':
         Serial << "playFlutterCalm" << endl;
-        playFlutterCalm();
-        Serial << "done" << endl;
+        playSound(SOUND_FLUTTER_CALM);
       break;
       case 's':
         Serial << "playFlutterSurprise" << endl;
-        playFlutterSurprise();
-        Serial << "done" << endl;
+        playSound(SOUND_FLUTTER_SURPRISE);
       break;
       case 'd':
         Serial << "playFlutterConfused" << endl;
-        playFlutterConfused();
-        Serial << "done" << endl;
+        playSound(SOUND_FLUTTER_CONFUSED);
       break;
       case 'f':
         Serial << "playFlutterSleepy" << endl;
-        playFlutterSleepy();
-        Serial << "done" << endl;
+        playSound(SOUND_FLUTTER_SLEEPY);
       break;
       case 'g':
         Serial << "playFlutterGrateful" << endl;
-        playFlutterGrateful();
-        Serial << "done" << endl;
+        playSound(SOUND_FLUTTER_GRATEFUL);
       break;
 
       case 'h':
@@ -226,6 +211,6 @@ void console() {
       break;
     }
   }
-
 }
+
 
