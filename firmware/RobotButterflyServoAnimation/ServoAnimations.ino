@@ -408,7 +408,7 @@ void runServoAnim_flutter(struct ServoAnimation *a) {
   }
 
   switch(main) {
-    case 0: {  // both home
+    case SERVO_ANIM_FLUTTER_WINGS_BOTH_HOME: {  // both home
       
       if(sign == 1) {
         left_val = SERVO_LEFT_HOME+(2*flutter_offset);
@@ -420,12 +420,12 @@ void runServoAnim_flutter(struct ServoAnimation *a) {
 
     }
     break;
-    case 1: {  // both up
+    case SERVO_ANIM_FLUTTER_WINGS_BOTH_UP: {  // both up
       left_val = SERVO_LEFT_UP-(sign*2*flutter_offset);
       right_val = SERVO_RIGHT_UP+(sign*2*flutter_offset);
     }
     break;
-    case 2: {  // left home
+    case SERVO_ANIM_FLUTTER_WINGS_LEFT_HOME: {  // left home
 
       if(sign == 1) {
         left_val = SERVO_LEFT_HOME+(2*flutter_offset);
@@ -433,31 +433,31 @@ void runServoAnim_flutter(struct ServoAnimation *a) {
         left_val = SERVO_LEFT_HOME;
       }
 
-      if(alt == 1) { // alt home
+      if(alt == SERVO_ANIM_FLUTTER_POS_HOME) { // alt home
         right_val = SERVO_RIGHT_HOME;
-      } else if(alt == 2) { // alt up
+      } else if(alt == SERVO_ANIM_FLUTTER_POS_UP) { // alt up
         right_val = SERVO_RIGHT_UP;
-      } else if(alt == 3) { // alt down
+      } else if(alt == SERVO_ANIM_FLUTTER_POS_DOWN) { // alt down
         right_val = SERVO_RIGHT_DOWN;
       }
 
     }
     break;
-    case 3: {  // left up
+    case SERVO_ANIM_FLUTTER_WINGS_LEFT_UP: {  // left up
 
       left_val = SERVO_LEFT_UP-(sign*2*flutter_offset);
 
-      if(alt == 1) { // alt home
+      if(alt == SERVO_ANIM_FLUTTER_POS_HOME) { // alt home
         right_val = SERVO_RIGHT_HOME;
-      } else if(alt == 2) { // alt up
+      } else if(alt == SERVO_ANIM_FLUTTER_POS_UP) { // alt up
         right_val = SERVO_RIGHT_UP;
-      } else if(alt == 3) { // alt down
+      } else if(alt == SERVO_ANIM_FLUTTER_POS_DOWN) { // alt down
         right_val = SERVO_RIGHT_DOWN;
       }
 
     }
     break;
-    case 4: {  // right home
+    case SERVO_ANIM_FLUTTER_WINGS_RIGHT_HOME: {  // right home
 
       if(sign == 1) {
         right_val = SERVO_RIGHT_HOME-(2*flutter_offset);
@@ -465,25 +465,25 @@ void runServoAnim_flutter(struct ServoAnimation *a) {
         right_val = SERVO_RIGHT_HOME;
       }
 
-      if(alt == 1) { // alt home
+      if(alt == SERVO_ANIM_FLUTTER_POS_HOME) { // alt home
         left_val = SERVO_LEFT_HOME;
-      } else if(alt == 2) { // alt up
+      } else if(alt == SERVO_ANIM_FLUTTER_POS_UP) { // alt up
         left_val = SERVO_LEFT_UP;
-      } else if(alt == 3) { // alt down
+      } else if(alt == SERVO_ANIM_FLUTTER_POS_DOWN) { // alt down
         left_val = SERVO_LEFT_DOWN;
       }
 
     }
     break;
-    case 5: {  // right up
+    case SERVO_ANIM_FLUTTER_WINGS_RIGHT_UP: {  // right up
 
       right_val = SERVO_RIGHT_UP+(sign*2*flutter_offset);
 
-      if(alt == 1) { // alt home
+      if(alt == SERVO_ANIM_FLUTTER_POS_HOME) { // alt home
         left_val = SERVO_LEFT_HOME;
-      } else if(alt == 2) { // alt up
+      } else if(alt == SERVO_ANIM_FLUTTER_POS_UP) { // alt up
         left_val = SERVO_LEFT_UP;
-      } else if(alt == 3) { // alt down
+      } else if(alt == SERVO_ANIM_FLUTTER_POS_DOWN) { // alt down
         left_val = SERVO_LEFT_DOWN;
       }
 
@@ -521,17 +521,17 @@ void runServoAnim_range(struct ServoAnimation *a) {
   int right_val = -99;
   
   switch(range) {
-    case 0: { // down to up
+    case SERVO_ANIM_RANGE_DOWN_UP: { // down to up
       left_val = map(val, 0, 9, SERVO_LEFT_DOWN, SERVO_LEFT_UP);
       right_val = map(val, 0, 9, SERVO_RIGHT_DOWN, SERVO_RIGHT_UP);
     }
     break;
-    case 1: { // home to up
+    case SERVO_ANIM_RANGE_HOME_UP: { // home to up
       left_val = map(val, 0, 9, SERVO_LEFT_HOME, SERVO_LEFT_UP);
       right_val = map(val, 0, 9, SERVO_RIGHT_HOME, SERVO_RIGHT_UP);
     }
     break;
-    case 2: { // alt
+    case SERVO_ANIM_RANGE_ALT_HOME_UP: { // alt
       left_val = map(val, 0, 9, SERVO_LEFT_HOME, SERVO_LEFT_UP);
       right_val = map(val, 0, 9, SERVO_RIGHT_UP, SERVO_RIGHT_HOME);
     }
@@ -569,13 +569,13 @@ void runServoAnim_position(struct ServoAnimation *a) {
   int del_L = 0;
   int del_R = 0;
 
-  if(pos_L == 0) left_val = SERVO_LEFT_DOWN;
-  if(pos_L == 1) left_val = SERVO_LEFT_HOME;
-  if(pos_L == 2) left_val = SERVO_LEFT_UP;
+  if(pos_L == SERVO_ANIM_POSITION_DOWN) left_val = SERVO_LEFT_DOWN;
+  if(pos_L == SERVO_ANIM_POSITION_HOME) left_val = SERVO_LEFT_HOME;
+  if(pos_L == SERVO_ANIM_POSITION_UP) left_val = SERVO_LEFT_UP;
 
-  if(pos_R == 0) right_val = SERVO_RIGHT_DOWN;
-  if(pos_R == 1) right_val = SERVO_RIGHT_HOME;
-  if(pos_R == 2) right_val = SERVO_RIGHT_UP;
+  if(pos_R == SERVO_ANIM_POSITION_DOWN) right_val = SERVO_RIGHT_DOWN;
+  if(pos_R == SERVO_ANIM_POSITION_HOME) right_val = SERVO_RIGHT_HOME;
+  if(pos_R == SERVO_ANIM_POSITION_UP) right_val = SERVO_RIGHT_UP;
 
   // -- only one frame --
 
@@ -821,8 +821,8 @@ void initServoAnim_flutter(struct ServoAnimation *a) {
   a->start_time = -1;
 
   a->dir = true;
-  a->helper1 = 0;      // main wings: 0 = both home, 1 = both up, 2 = left home, 3 = left up, 4 = right home, 5 = right up
-  a->helper2 = 0;      // alt pos: 0 = none, 1 = home, 2 = up, 3 = down
+  a->helper1 = 0;      // main wings: see enum servoAnimFlutterWings - 0 = both home, 1 = both up, 2 = left home, 3 = left up, 4 = right home, 5 = right up
+  a->helper2 = 0;      // alt pos: see enum servoAnimFlutterPos - 0 = none, 1 = home, 2 = up, 3 = down
   a->helper3 = 200;    // flutter offset
 
   a->function = runServoAnim_flutter;
@@ -849,8 +849,8 @@ void initServoAnim_range(struct ServoAnimation *a) {
   a->start_time = -1;
 
   a->dir = true;
-  a->helper1 = 0;      // range: 0 = down to up, 1 = home to up
-  a->helper2 = 0;      // val: 0-9
+  a->helper1 = 0;      // range: see enum servoAnimRangeSpan - 0 = down to up, 1 = home to up, 2 = alt home to up
+  a->helper2 = 0;      // val: 0-9 inclusive
   a->helper3 = 0;
 
   a->function = runServoAnim_range;
@@ -858,7 +858,7 @@ void initServoAnim_range(struct ServoAnimation *a) {
 
 
 void initServoAnim_position(struct ServoAnimation *a) {
-  a->id = SERVO_ANIM_RANGE;
+  a->id = SERVO_ANIM_POSITION;
   a->active = false;
   a->type = SERVO_ANIM_ALERT;
   a->velocity = 50;
@@ -877,8 +877,8 @@ void initServoAnim_position(struct ServoAnimation *a) {
   a->start_time = -1;
 
   a->dir = true;
-  a->helper1 = 0;      // position L: 0 = down, 1 = home, 2 = up
-  a->helper2 = 0;      // position R: 0 = down, 1 = home, 2 = up
+  a->helper1 = 0;      // position L: see enum servoAnimPosition - 0 = down, 1 = home, 2 = up
+  a->helper2 = 0;      // position R: see enum servoAnimPosition - 0 = down, 1 = home, 2 = up
   a->helper3 = 0;
 
   a->function = runServoAnim_position;

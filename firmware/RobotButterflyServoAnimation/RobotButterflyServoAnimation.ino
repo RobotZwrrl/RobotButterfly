@@ -63,6 +63,34 @@ enum servoAnimType {
   SERVO_ANIM_HOME
 };
 
+enum servoAnimFlutterWings {
+  SERVO_ANIM_FLUTTER_WINGS_BOTH_HOME,
+  SERVO_ANIM_FLUTTER_WINGS_BOTH_UP,
+  SERVO_ANIM_FLUTTER_WINGS_LEFT_HOME,
+  SERVO_ANIM_FLUTTER_WINGS_LEFT_UP,
+  SERVO_ANIM_FLUTTER_WINGS_RIGHT_HOME,
+  SERVO_ANIM_FLUTTER_WINGS_RIGHT_UP
+};
+
+enum servoAnimFlutterPos {
+  SERVO_ANIM_FLUTTER_POS_NONE,
+  SERVO_ANIM_FLUTTER_POS_HOME,
+  SERVO_ANIM_FLUTTER_POS_UP,
+  SERVO_ANIM_FLUTTER_POS_DOWN
+};
+
+enum servoAnimRangeSpan {
+  SERVO_ANIM_RANGE_DOWN_UP,
+  SERVO_ANIM_RANGE_HOME_UP,
+  SERVO_ANIM_RANGE_ALT_HOME_UP
+};
+
+enum servoAnimPosition {
+  SERVO_ANIM_POSITION_DOWN,
+  SERVO_ANIM_POSITION_HOME,
+  SERVO_ANIM_POSITION_UP
+};
+
 void runServoAnim_none(struct ServoAnimation *animation);
 void runServoAnim_gentle(struct ServoAnimation *animation);
 void runServoAnim_sway(struct ServoAnimation *animation);
@@ -130,12 +158,19 @@ void loop() {
     if(servo_animation_alert.id == SERVO_ANIM_RANGE) {
       ranger++;
       if(ranger > 9) ranger = 0;
-      servo_animation_alert.helper2 = ranger;
+      setServoAnimRange(&servo_animation_alert, ranger);
     }
     last_print = millis();
   }
 
   updateServoAnimation();
+
+  console();
+
+}
+
+
+void console() {
 
   if(Serial.available()) {
     char c = Serial.read();
@@ -196,6 +231,7 @@ void loop() {
         setServoAnim(&servo_animation_alert, SERVO_ANIM_TOUCHGRASS, SERVO_ANIM_ALERT);
         startServoAnim(&servo_animation_alert);
       break;
+
       case 'q':
         Serial << "Swoosh" << endl;
         setServoAnim(&servo_animation_alert, SERVO_ANIM_SWOOSH, SERVO_ANIM_ALERT);
@@ -227,72 +263,73 @@ void loop() {
         startServoAnim(&servo_animation_alert);
       break;
       case 'y':
-        Serial << "Flutter left home, right up" << endl;
+        Serial << "Flutter left home, right up stationary" << endl;
         setServoAnim(&servo_animation_alert, SERVO_ANIM_FLUTTER, SERVO_ANIM_ALERT);
-        servo_animation_alert.helper1 = 2;
-        servo_animation_alert.helper2 = 2;
+        setServoAnimFlutterWings(&servo_animation_alert, SERVO_ANIM_FLUTTER_WINGS_LEFT_HOME);
+        setServoAnimFlutterPos(&servo_animation_alert, SERVO_ANIM_FLUTTER_POS_UP);
         startServoAnim(&servo_animation_alert);
       break;
       case 'u':
-        Serial << "Flutter home" << endl;
+        Serial << "Flutter home both" << endl;
         setServoAnim(&servo_animation_alert, SERVO_ANIM_FLUTTER, SERVO_ANIM_ALERT);
-        servo_animation_alert.helper1 = 0;
+        setServoAnimFlutterWings(&servo_animation_alert, SERVO_ANIM_FLUTTER_WINGS_BOTH_HOME);
         startServoAnim(&servo_animation_alert);
       break;
       case 'i':
-        Serial << "Flutter right up, left up" << endl;
+        Serial << "Flutter right, left up stationary" << endl;
         setServoAnim(&servo_animation_alert, SERVO_ANIM_FLUTTER, SERVO_ANIM_ALERT);
-        servo_animation_alert.helper1 = 5;
-        servo_animation_alert.helper2 = 2;
+        setServoAnimFlutterWings(&servo_animation_alert, SERVO_ANIM_FLUTTER_WINGS_RIGHT_UP);
+        setServoAnimFlutterPos(&servo_animation_alert, SERVO_ANIM_FLUTTER_POS_UP);
         startServoAnim(&servo_animation_alert);
       break;
       case 'o':
         Serial << "Range down to up" << endl;
         setServoAnim(&servo_animation_alert, SERVO_ANIM_RANGE, SERVO_ANIM_ALERT);
-        servo_animation_alert.helper1 = 0;
-        servo_animation_alert.helper2 = ranger;
+        setServoAnimRangeSpan(&servo_animation_alert, SERVO_ANIM_RANGE_DOWN_UP);
+        setServoAnimRangeVal(&servo_animation_alert, ranger);
         startServoAnim(&servo_animation_alert);
       break;
       case 'p':
         Serial << "Range home to up" << endl;
         setServoAnim(&servo_animation_alert, SERVO_ANIM_RANGE, SERVO_ANIM_ALERT);
-        servo_animation_alert.helper1 = 1;
-        servo_animation_alert.helper2 = ranger;
+        setServoAnimRangeSpan(&servo_animation_alert, SERVO_ANIM_RANGE_HOME_UP);
+        setServoAnimRangeVal(&servo_animation_alert, ranger);
         startServoAnim(&servo_animation_alert);
       break;
       case '[':
         Serial << "Range alt" << endl;
         setServoAnim(&servo_animation_alert, SERVO_ANIM_RANGE, SERVO_ANIM_ALERT);
-        servo_animation_alert.helper1 = 2;
-        servo_animation_alert.helper2 = ranger;
+        setServoAnimRangeSpan(&servo_animation_alert, SERVO_ANIM_RANGE_ALT_HOME_UP);
+        setServoAnimRangeVal(&servo_animation_alert, ranger);
         startServoAnim(&servo_animation_alert);
       break;
+
       case 'g':
-        Serial << "Position" << endl;
+        Serial << "Position L home R home" << endl;
         setServoAnim(&servo_animation_alert, SERVO_ANIM_POSITION, SERVO_ANIM_ALERT);
-        servo_animation_alert.helper1 = 1;
-        servo_animation_alert.helper2 = 1;
+        setServoAnimPositionLeft(&servo_animation_alert, SERVO_ANIM_POSITION_HOME);
+        setServoAnimPositionRight(&servo_animation_alert, SERVO_ANIM_POSITION_HOME);
         startServoAnim(&servo_animation_alert);
       break;
       case 'j':
-        Serial << "Position" << endl;
+        Serial << "Position L up R home" << endl;
         setServoAnim(&servo_animation_alert, SERVO_ANIM_POSITION, SERVO_ANIM_ALERT);
-        servo_animation_alert.helper1 = 2;
-        servo_animation_alert.helper2 = 1;
+        setServoAnimPositionLeft(&servo_animation_alert, SERVO_ANIM_POSITION_UP);
+        setServoAnimPositionRight(&servo_animation_alert, SERVO_ANIM_POSITION_HOME);
         startServoAnim(&servo_animation_alert);
       break;
       case 'k':
-        Serial << "Position" << endl;
+        Serial << "Position L up R up" << endl;
         setServoAnim(&servo_animation_alert, SERVO_ANIM_POSITION, SERVO_ANIM_ALERT);
-        servo_animation_alert.helper1 = 2;
-        servo_animation_alert.helper2 = 2;
+        setServoAnimPositionLeft(&servo_animation_alert, SERVO_ANIM_POSITION_UP);
+        setServoAnimPositionRight(&servo_animation_alert, SERVO_ANIM_POSITION_UP);
         startServoAnim(&servo_animation_alert);
       break;
       case 'l':
-        Serial << "Position" << endl;
+        Serial << "Position L home R down" << endl;
         setServoAnim(&servo_animation_alert, SERVO_ANIM_POSITION, SERVO_ANIM_ALERT);
-        servo_animation_alert.helper1 = 1;
-        servo_animation_alert.helper2 = 0;
+        setServoAnimPositionLeft(&servo_animation_alert, SERVO_ANIM_POSITION_HOME);
+        setServoAnimPositionRight(&servo_animation_alert, SERVO_ANIM_POSITION_DOWN);
         startServoAnim(&servo_animation_alert);
       break;
       case 's':

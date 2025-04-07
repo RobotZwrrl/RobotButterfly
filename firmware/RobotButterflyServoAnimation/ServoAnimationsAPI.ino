@@ -15,7 +15,7 @@ void callback_ServoAnimDone(struct ServoAnimation *a) {
 // ------------ setters -------------
 // ----------------------------------
 
-// params: Servo animation, name of animation, type
+// params: Servo animation, id of animation, type
 void setServoAnim(struct ServoAnimation *a, uint8_t n, uint8_t t) {
   
   // init
@@ -56,30 +56,70 @@ void setServoAnim(struct ServoAnimation *a, uint8_t n, uint8_t t) {
   a->type = t;
 }
 
-// params: Servo animation, duration of animation
+// params: servo animation, duration of animation
 void setServoAnimDuration(struct ServoAnimation *a, long duration) {
   a->duration = duration;
 }
 
-// params: Servo animation, num repeats of animation
+// params: servo animation, num repeats of animation
 void setServoAnimRepeats(struct ServoAnimation *a, int r) {
   a->num_repeats = r;
 }
 
-// params: Servo animation, velocity (degrees per second)
+// params: servo animation, velocity (degrees per second)
 void setServoAnimSpeed(struct ServoAnimation *a, uint16_t del) {
   a->velocity = del;
 }
 
-// params: Servo animation
+// params: servo animation
 void startServoAnim(struct ServoAnimation *a) {
   a->active = true;
 }
 
-// params: Servo animation
+// params: servo animation
 void stopServoAnim(struct ServoAnimation *a) {
   a->active = false;
   callback_ServoAnimDone(a);
+}
+
+// params: servo animation, range
+void setServoAnimRange(struct ServoAnimation *a, int n) {
+  a->helper2 = n;
+}
+
+// params: servo animation, wings to flutter - see enum servoAnimFlutterWings
+void setServoAnimFlutterWings(struct ServoAnimation *a, int n) {
+  a->helper1 = n;
+}
+
+// params: servo animation, wings flutter position - see enum servoAnimFlutterPos
+void setServoAnimFlutterPos(struct ServoAnimation *a, int n) {
+  a->helper2 = n;
+}
+
+// params: servo animation, flutter offset (larger number = bigger movement)
+void setServoAnimFlutterOffset(struct ServoAnimation *a, int n) {
+  a->helper3 = n;
+}
+
+// params: servo animation, span for the range val - see enum servoAnimRangeSpan
+void setServoAnimRangeSpan(struct ServoAnimation *a, int n) {
+  a->helper1 = n;
+}
+
+// params: servo animation, range 0-9 inclusive
+void setServoAnimRangeVal(struct ServoAnimation *a, int n) {
+  a->helper2 = n;
+}
+
+// params: servo animation, position - see enum servoAnimPosition
+void setServoAnimPositionLeft(struct ServoAnimation *a, int n) {
+  a->helper1 = n;
+}
+
+// params: servo animation, position - see enum servoAnimPosition
+void setServoAnimPositionRight(struct ServoAnimation *a, int n) {
+  a->helper2 = n;
 }
 // ----------------------------------
 
