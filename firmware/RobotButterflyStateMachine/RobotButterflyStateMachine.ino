@@ -18,12 +18,9 @@
 #include <Streaming.h>
 
 
-// ------------ tests ------------
-long last_print;
-// -------------------------------
-
 // ------------ states -----------
-enum StatesMachine { // this is where you can order the behaviours
+// this is where you can order the behaviours
+enum StatesMachine {
   STATE1,
   STATE2,
   STATE3,
@@ -34,96 +31,30 @@ enum StatesMachine { // this is where you can order the behaviours
   STATE8
 };
 
-uint8_t CURRENT_STATE = STATE1; // this is where you can set the initial behaviour
-uint8_t PREV_STATE = CURRENT_STATE;
+uint8_t CURRENT_STATE;
+uint8_t PREV_STATE;
 long last_state_change = 0;
 long last_state_print = 0;
 
 volatile bool enter_state = false;
-bool transition_state = false;
-bool update_state = true;
-long last_transition_print = 0;
+volatile bool update_state = false;
+volatile bool new_print = false;
+long t_transition = 0;
+long t_enter = 0;
+long t_delta = 0;
 
-hw_timer_t *timer1_cfg = NULL;
-void IRAM_ATTR Timer1_ISR() {
-  enter_state = true;
+hw_timer_t *timer_state_cfg = NULL;
+
+void IRAM_ATTR Timer_State_ISR() {
+  enter_state = false;
+  update_state = true;
+  new_print = true;
 }
 // -------------------------------
 
-// ----------- buttons -----------
-enum ButtonStates {
-  BUTTON_RELEASED,
-  BUTTON_PRESSED,
-  BUTTON_LONG_HOLD
-};
-
-struct Button {
-  uint8_t state;
-  bool pressed;
-  bool flag_pressed;
-  bool flag_released;
-  long press_time;
-  long release_time;
-  char name;
-};
-
-volatile static struct Button Button_L;
-volatile static struct Button Button_R;
-
-bool double_hold = false;
-// -----------------------------------
-
-// ----------- buttons isr -----------
-void IRAM_ATTR button_L_isr() {
-  
-  volatile struct Button *b = &Button_L;
-  
-  if(digitalRead(BUTTON2_PIN) == HIGH) { // pressed
-    if(millis()-b->press_time <= DEBOUNCE_TIME && b->press_time > 0) { // debounce time
-      return;
-    }
-    if(millis()-b->release_time <= ACCIDENTAL_CLICK_TIME && b->release_time > 0) { // accidental double click
-      return; 
-    }
-    b->pressed = true;
-    b->flag_pressed = true;
-    b->press_time = millis();
-  } else { // released
-    if(millis()-b->release_time <= DEBOUNCE_TIME && b->release_time > 0) { // debounce time
-      return;
-    }
-    b->flag_released = true;
-    b->pressed = false;
-    b->release_time = millis();
-  }
-}
-
-
-void IRAM_ATTR button_R_isr() {
-
-  volatile struct Button *b = &Button_R;
-  
-  if(digitalRead(BUTTON1_PIN) == HIGH) { // pressed
-    if(millis()-b->press_time <= DEBOUNCE_TIME && b->press_time > 0) { // debounce time
-      return;
-    }
-    if(millis()-b->release_time <= ACCIDENTAL_CLICK_TIME && b->release_time > 0) { // accidental double click
-      return; 
-    }
-    b->pressed = true;
-    b->flag_pressed = true;
-    b->press_time = millis();
-  } else { // released
-    if(millis()-b->release_time <= DEBOUNCE_TIME && b->release_time > 0) { // debounce time
-      return;
-    }
-    b->flag_released = true;
-    b->pressed = false;
-    b->release_time = millis();
-  }
-}
-// -----------------------------------
-
+// ------------ other ------------
+long last_print;
+// -------------------------------
 
 
 void setup() {
@@ -131,38 +62,29 @@ void setup() {
 
   print_wakeup_reason();
 
-  initButtons();
+  changeState(STATE1); // this is where you can set the initial state
 
-  // TODO: get the time to be TRANSITION_FRAME_TIME
-  // timer transition - timer 1
-  timer1_cfg = timerBegin(80000);
-  timerAttachInterrupt(timer1_cfg, &Timer1_ISR);
-  // params: timer, tick count, auto-reload (false to run once), reload count (0 = infinite)
-  timerAlarm(timer1_cfg, TRANSITION_FRAME_TIME, false, 0);
-  timerStart(timer1_cfg);
-  timerStop(timer1_cfg);
-  
   Serial << "Ready" << endl;
 }
 
 
-
 void loop() {
-  
-  // if(millis()-last_print >= 500) {
-  //   Serial << millis() << " hi " << xPortGetCoreID() << endl;
-  //   last_print = millis();
-  // }
 
-  updateButtons();
+  console();
 
-  // state machine init
+  // state entrance
   if(enter_state) {
-    //timerEnd(timer1_cfg);
-    Serial << millis() << " enter state" << endl;
-    transition_state = false;
+    t_enter = millis();
+    //t_delta = t_enter - t_transition;
+    //if(DEBUG_STATEMACHINE) Serial << "enter: " << t_enter << " - transition: " << t_transition << " = delta: " << t_delta << endl;
+
+    // only have the state entrance happen once
     enter_state = false;
-    update_state = true;
+
+    // if(timer_state_cfg != NULL) {
+    //   if(DEBUG_STATEMACHINE) Serial << "timer done" << endl;
+    //   timerEnd(timer_state_cfg);
+    // }
 
     switch(CURRENT_STATE) {
       case STATE1:
@@ -193,72 +115,118 @@ void loop() {
 
   }
 
-  if(transition_state) {
-    //if(millis()-last_transition_print >= TRANSITION_FRAME_TIME-100 || last_transition_print == 0) {
-      Serial << millis() << " getting ready to transition to state index: " << CURRENT_STATE << endl;
-      for(uint8_t i=0; i<CURRENT_STATE+1; i++) {
-        Serial << "*";
-      }
-      Serial << endl;
-      last_transition_print = millis();
-    //}
-  }
-
-
+  
   // state machine loop
   if(update_state) {
     switch(CURRENT_STATE) {
       case STATE1:
-        if(millis()-last_state_print >= STATE_LOOP_PRINT) {
+        if(millis()-last_state_print >= STATE_LOOP_PRINT || new_print == true) {
           Serial << "STATE1 loop" << endl;
+          new_print = false;
           last_state_print = millis();
         }
       break;
       case STATE2:
-        if(millis()-last_state_print >= STATE_LOOP_PRINT) {
+        if(millis()-last_state_print >= STATE_LOOP_PRINT || new_print == true) {
           Serial << "STATE2 loop" << endl;
+          new_print = false;
           last_state_print = millis();
         }
       break;
       case STATE3:
-        if(millis()-last_state_print >= STATE_LOOP_PRINT) {
+        if(millis()-last_state_print >= STATE_LOOP_PRINT || new_print == true) {
           Serial << "STATE3 loop" << endl;
+          new_print = false;
           last_state_print = millis();
         }
       break;
       case STATE4:
-        if(millis()-last_state_print >= STATE_LOOP_PRINT) {
+        if(millis()-last_state_print >= STATE_LOOP_PRINT || new_print == true) {
           Serial << "STATE4 loop" << endl;
+          new_print = false;
           last_state_print = millis();
         }
       break;
       case STATE5:
-        if(millis()-last_state_print >= STATE_LOOP_PRINT) {
+        if(millis()-last_state_print >= STATE_LOOP_PRINT || new_print == true) {
           Serial << "STATE5 loop" << endl;
+          new_print = false;
           last_state_print = millis();
         }
       break;
       case STATE6:
-        if(millis()-last_state_print >= STATE_LOOP_PRINT) {
+        if(millis()-last_state_print >= STATE_LOOP_PRINT || new_print == true) {
           Serial << "STATE6 loop" << endl;
+          new_print = false;
           last_state_print = millis();
         }
       break;
       case STATE7:
-        if(millis()-last_state_print >= STATE_LOOP_PRINT) {
+        if(millis()-last_state_print >= STATE_LOOP_PRINT || new_print == true) {
           Serial << "STATE7 loop" << endl;
+          new_print = false;
           last_state_print = millis();
         }
       break;
       case STATE8:
-        if(millis()-last_state_print >= STATE_LOOP_PRINT) {
+        if(millis()-last_state_print >= STATE_LOOP_PRINT || new_print == true) {
           Serial << "STATE8 loop" << endl;
+          new_print = false;
           last_state_print = millis();
         }
       break;
     }
   }
 
+
+}
+
+
+void console() {
+
+  if(Serial.available()) {
+    char c = Serial.read();
+    switch(c) {
+      case '1':
+        changeState(STATE1);
+      break;
+      case '2':
+        changeState(STATE2);
+      break;
+      case '3':
+        changeState(STATE3);
+      break;
+      case '4':
+        changeState(STATE4);
+      break;
+      case '5':
+        changeState(STATE5);
+      break;
+      case '6':
+        changeState(STATE6);
+      break;
+      case '7':
+        changeState(STATE7);
+      break;
+      case '8':
+        changeState(STATE8);
+      break;
+
+      case 'a':
+        decrementState();
+      break;
+      case 'd':
+        incrementState();
+      break;
+
+      case 'h':
+        Serial << "1-8: states" << endl;
+        Serial << "a: r button" << endl;
+        Serial << "d: l button" << endl;
+        Serial << "h: help" << endl;
+      break;
+    }
+  }
 
 }
 

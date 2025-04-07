@@ -206,8 +206,8 @@ void initSensors() {
   }
 
   
-  // set up timer 2 for every 0.1 second
-  // params: timer #2, prescaler amount, count up (true)
+  // set up timer 1 for every 0.1 second
+  // params: timer #1, prescaler amount, count up (true)
   timer_10Hz_config = timerBegin(1, 16000, true);
   timerAttachInterrupt(timer_10Hz_config, &Timer_10Hz_ISR, true);
   // params: timer, tick count, auto-reload (true)
