@@ -1,7 +1,8 @@
 /*
  * Robot Butterfly State Machine
  * ------------------------------
- * Go through various states
+ * Go through various states, uses timer 3 for state 
+ * entrance transition
  * 
  * Board: ESP32 Dev Module
  * CPU speed: 80 MHz
@@ -72,112 +73,7 @@ void loop() {
 
   console();
 
-  // state entrance
-  if(enter_state) {
-    t_enter = millis();
-    //t_delta = t_enter - t_transition;
-    //if(DEBUG_STATEMACHINE) Serial << "enter: " << t_enter << " - transition: " << t_transition << " = delta: " << t_delta << endl;
-
-    // only have the state entrance happen once
-    enter_state = false;
-
-    // if(timer_state_cfg != NULL) {
-    //   if(DEBUG_STATEMACHINE) Serial << "timer done" << endl;
-    //   timerEnd(timer_state_cfg);
-    // }
-
-    switch(CURRENT_STATE) {
-      case STATE1:
-        Serial << "STATE1 init" << endl;
-      break;
-      case STATE2:
-        Serial << "STATE2 init" << endl;
-      break;
-      case STATE3:
-        Serial << "STATE3 init" << endl;
-      break;
-      case STATE4:
-        Serial << "STATE4 init" << endl;
-      break;
-      case STATE5:
-        Serial << "STATE5 init" << endl;
-      break;
-      case STATE6:
-        Serial << "STATE6 init" << endl;
-      break;
-      case STATE7:
-        Serial << "STATE7 init" << endl;
-      break;
-      case STATE8:
-        Serial << "STATE8 init" << endl;
-      break;
-    }
-
-  }
-
-  
-  // state machine loop
-  if(update_state) {
-    switch(CURRENT_STATE) {
-      case STATE1:
-        if(millis()-last_state_print >= STATE_LOOP_PRINT || new_print == true) {
-          Serial << "STATE1 loop" << endl;
-          new_print = false;
-          last_state_print = millis();
-        }
-      break;
-      case STATE2:
-        if(millis()-last_state_print >= STATE_LOOP_PRINT || new_print == true) {
-          Serial << "STATE2 loop" << endl;
-          new_print = false;
-          last_state_print = millis();
-        }
-      break;
-      case STATE3:
-        if(millis()-last_state_print >= STATE_LOOP_PRINT || new_print == true) {
-          Serial << "STATE3 loop" << endl;
-          new_print = false;
-          last_state_print = millis();
-        }
-      break;
-      case STATE4:
-        if(millis()-last_state_print >= STATE_LOOP_PRINT || new_print == true) {
-          Serial << "STATE4 loop" << endl;
-          new_print = false;
-          last_state_print = millis();
-        }
-      break;
-      case STATE5:
-        if(millis()-last_state_print >= STATE_LOOP_PRINT || new_print == true) {
-          Serial << "STATE5 loop" << endl;
-          new_print = false;
-          last_state_print = millis();
-        }
-      break;
-      case STATE6:
-        if(millis()-last_state_print >= STATE_LOOP_PRINT || new_print == true) {
-          Serial << "STATE6 loop" << endl;
-          new_print = false;
-          last_state_print = millis();
-        }
-      break;
-      case STATE7:
-        if(millis()-last_state_print >= STATE_LOOP_PRINT || new_print == true) {
-          Serial << "STATE7 loop" << endl;
-          new_print = false;
-          last_state_print = millis();
-        }
-      break;
-      case STATE8:
-        if(millis()-last_state_print >= STATE_LOOP_PRINT || new_print == true) {
-          Serial << "STATE8 loop" << endl;
-          new_print = false;
-          last_state_print = millis();
-        }
-      break;
-    }
-  }
-
+  updateStateMachine();
 
 }
 
