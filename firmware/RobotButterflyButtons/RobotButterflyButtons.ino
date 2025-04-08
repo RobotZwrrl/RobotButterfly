@@ -13,6 +13,9 @@
  * http://robotmissions.org
  */
 
+ // @module: Buttons
+ // @version: 0.1.0
+
 #include "Board.h"
 #include "Params.h"
 #include <Streaming.h>
@@ -56,8 +59,8 @@ struct Button {
   char name;
 };
 
-volatile static struct Button Button_L;
-volatile static struct Button Button_R;
+static struct Button Button_L;
+static struct Button Button_R;
 // -----------------------------------
 
 
@@ -68,58 +71,20 @@ void buttonClickCallback(uint8_t n);
 void buttonReleaseCallback(uint8_t n);
 // -----------------------------------
 
+volatile bool button_L_changed = false;
+volatile bool button_R_changed = false;
+
 
 // ----------- buttons isr -----------
 void IRAM_ATTR button_L_isr() {
-  
-  volatile struct Button *b = &Button_L;
-  
-  if(digitalRead(BUTTON2_PIN) == HIGH) { // pressed
-    if(millis()-b->press_time <= DEBOUNCE_TIME && b->press_time > 0) { // debounce time
-      return;
-    }
-    if(millis()-b->release_time <= ACCIDENTAL_CLICK_TIME && b->release_time > 0) { // accidental double click
-      return; 
-    }
-    b->pressed = true;
-    b->flag_pressed = true;
-    b->press_time = millis();
-  } else { // released
-    if(millis()-b->release_time <= DEBOUNCE_TIME && b->release_time > 0) { // debounce time
-      return;
-    }
-    b->flag_released = true;
-    b->pressed = false;
-    b->release_time = millis();
-  }
+  button_L_changed = true;
 }
 
 
 void IRAM_ATTR button_R_isr() {
-
-  volatile struct Button *b = &Button_R;
-  
-  if(digitalRead(BUTTON1_PIN) == HIGH) { // pressed
-    if(millis()-b->press_time <= DEBOUNCE_TIME && b->press_time > 0) { // debounce time
-      return;
-    }
-    if(millis()-b->release_time <= ACCIDENTAL_CLICK_TIME && b->release_time > 0) { // accidental double click
-      return; 
-    }
-    b->pressed = true;
-    b->flag_pressed = true;
-    b->press_time = millis();
-  } else { // released
-    if(millis()-b->release_time <= DEBOUNCE_TIME && b->release_time > 0) { // debounce time
-      return;
-    }
-    b->flag_released = true;
-    b->pressed = false;
-    b->release_time = millis();
-  }
+  button_R_changed = true;
 }
 // -----------------------------------
-
 
 
 void setup() {
@@ -127,84 +92,35 @@ void setup() {
 
   print_wakeup_reason();
 
+  pinMode(BUZZER_PIN, OUTPUT);
+
   initButtons();
 
   Serial << "Ready" << endl;
 }
 
 
-
 void loop() {
-  
-  // if(millis()-last_print >= 500) {
-  //   Serial << millis() << " hi " << xPortGetCoreID() << endl;
-  //   last_print = millis();
-  // }
 
   updateButtons();
+
 }
 
 
-// ------------------------------------
-// --------- Button Callbacks ---------
-// ------------------------------------
 
-// give user feedback that they have held the
-// button and its time to to release the button
-void buttonHoldNotificationCallback(uint8_t n) {
-  switch(n) {
-    case BUTTON_BOTH:
-      tone(BUZZER_PIN, NOTE_F5, 500);
-      noTone(BUZZER_PIN);
-      delay(200);
-    break;
-    case BUTTON_LEFT:
-      tone(BUZZER_PIN, NOTE_A5, 500);
-      noTone(BUZZER_PIN);
-    break;
-    case BUTTON_RIGHT:
-      tone(BUZZER_PIN, NOTE_A7, 500);
-      noTone(BUZZER_PIN);
-    break;
+void playSimpleTone(int freq, int duration) {
+  int pwmVal = 127; // Half duty cycle
+  int delayMicros = 1000000 / freq / 2;
+
+  unsigned long startTime = millis();
+  while (millis() - startTime < duration) {
+    digitalWrite(BUZZER_PIN, HIGH);
+    delayMicroseconds(delayMicros);
+    digitalWrite(BUZZER_PIN, LOW);
+    delayMicroseconds(delayMicros);
   }
 }
 
-// do an action here
-void buttonHoldReleasedCallback(uint8_t n) {
-  switch(n) {
-    case BUTTON_BOTH:
-      counter *= 2;
-    break;
-    case BUTTON_LEFT:
-      counter += 10;
-    break;
-    case BUTTON_RIGHT:
-      counter -= 10;
-    break;
-  }
-  Serial << "count: " << counter << endl;
+void playNoTone() {
+  digitalWrite(BUZZER_PIN, LOW);
 }
-
-// do an action here
-void buttonClickCallback(uint8_t n) {
-  switch(n) {
-    case BUTTON_LEFT:
-      tone(BUZZER_PIN, NOTE_A5, 100);
-      noTone(BUZZER_PIN);
-      counter++;
-    break;
-    case BUTTON_RIGHT:
-      tone(BUZZER_PIN, NOTE_A7, 100);
-      noTone(BUZZER_PIN);
-      counter--;
-    break;
-  }
-  Serial << "count: " << counter << endl;
-}
-
-// probably not necessary to do anything here
-void buttonReleaseCallback(uint8_t n) {
-
-}
-
-

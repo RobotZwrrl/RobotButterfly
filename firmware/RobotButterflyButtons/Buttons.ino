@@ -170,8 +170,64 @@ void updateButton(volatile struct Button *b) {
     b->flag_state_change = false;
   }
 
+  buttonLChanged();
+  buttonRChanged();
+
 }
 
+
+void buttonLChanged() {
+  if(button_L_changed) {
+    struct Button *b = &Button_L;
+  
+    if(digitalRead(BUTTON2_PIN) == HIGH) { // pressed
+      if(millis()-b->press_time <= DEBOUNCE_TIME && b->press_time > 0) { // debounce time
+        return;
+      }
+      if(millis()-b->release_time <= ACCIDENTAL_CLICK_TIME && b->release_time > 0) { // accidental double click
+        return; 
+      }
+      b->pressed = true;
+      b->flag_pressed = true;
+      b->press_time = millis();
+    } else { // released
+      if(millis()-b->release_time <= DEBOUNCE_TIME && b->release_time > 0) { // debounce time
+        return;
+      }
+      b->flag_released = true;
+      b->pressed = false;
+      b->release_time = millis();
+    }
+    button_L_changed = false;
+  }
+}
+
+
+void buttonRChanged() {
+  if(button_R_changed) {
+    struct Button *b = &Button_R;
+  
+    if(digitalRead(BUTTON1_PIN) == HIGH) { // pressed
+      if(millis()-b->press_time <= DEBOUNCE_TIME && b->press_time > 0) { // debounce time
+        return;
+      }
+      if(millis()-b->release_time <= ACCIDENTAL_CLICK_TIME && b->release_time > 0) { // accidental double click
+        return; 
+      }
+      b->pressed = true;
+      b->flag_pressed = true;
+      b->press_time = millis();
+    } else { // released
+      if(millis()-b->release_time <= DEBOUNCE_TIME && b->release_time > 0) { // debounce time
+        return;
+      }
+      b->flag_released = true;
+      b->pressed = false;
+      b->release_time = millis();
+    }
+    button_R_changed = false;
+  }
+}
 
 
 void initButtons() {
