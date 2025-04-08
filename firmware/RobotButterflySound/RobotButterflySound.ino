@@ -13,6 +13,9 @@
  * http://robotmissions.org
  */
 
+// @module: Sound
+// @version: 0.1.0
+
 #include "Board.h"
 #include "Params.h"
 #include <Streaming.h>
@@ -26,6 +29,7 @@ void soundDoneCallback(uint8_t id);
 
 
 // ------------ sound id -------------
+// @globals_start
 enum soundID {
   SOUND_ALERT_STARTUP,
   SOUND_ALERT_ALERT,
@@ -54,6 +58,7 @@ enum soundID {
   SOUND_FLUTTER_SLEEPY,
   SOUND_FLUTTER_GRATEFUL
 };
+// @globals_end
 // -----------------------------------
 
 
@@ -67,7 +72,7 @@ void setup() {
 
   print_wakeup_reason();
 
-  initBuzzer();
+  initSound();
 
   Serial << "Ready" << endl;
 }

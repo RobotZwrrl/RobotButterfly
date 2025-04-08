@@ -15,9 +15,9 @@ void playStartup() {
 
   for (int i = 0; i < length; i++) {
     int noteDuration = 1000 / noteDurations[i];
-    tone(BUZZER_PIN, melody[i], noteDuration);
+    playSimpleTone(melody[i], noteDuration);
     delay(noteDuration * 1.2);
-    noTone(BUZZER_PIN);
+    playNoTone();
   }
 }
 
@@ -34,9 +34,9 @@ void playAlert() {
 
   for (int i = 0; i < length; i++) {
     int noteDuration = 1000 / noteDurations[i];
-    tone(BUZZER_PIN, melody[i], noteDuration);
+    playSimpleTone(melody[i], noteDuration);
     delay(noteDuration * 1.2);
-    noTone(BUZZER_PIN);
+    playNoTone();
   }
 }
 
@@ -53,9 +53,9 @@ void playSleep() {
 
   for (int i = 0; i < length; i++) {
     int noteDuration = 1000 / noteDurations[i];
-    tone(BUZZER_PIN, melody[i], noteDuration);
+    playSimpleTone(melody[i], noteDuration);
     delay(noteDuration * 1.3);
-    noTone(BUZZER_PIN);
+    playNoTone();
   }
 }
 
@@ -63,19 +63,19 @@ void playSneeze() {
   // build-up — a rising wobble, like a pre-sneeze sniffle
   int buildup[] = { NOTE_C5, NOTE_CS5, NOTE_D5, NOTE_DS5 };
   for (int i = 0; i < 4; i++) {
-    tone(BUZZER_PIN, buildup[i], 50);
+    playSimpleTone(buildup[i], 50);
     delay(60);
-    noTone(BUZZER_PIN);
+    playNoTone();
   }
 
   delay(80); // pause... uh oh...
 
   // sneeze burst! AACHOOOO
-  tone(BUZZER_PIN, NOTE_A3, 200);
+  playSimpleTone(NOTE_A3, 200);
   delay(200);
-  tone(BUZZER_PIN, NOTE_E3, 150);
+  playSimpleTone(NOTE_E3, 150);
   delay(150);
-  noTone(BUZZER_PIN);
+  playNoTone();
 
   // post-sneeze silence
   delay(250);
@@ -98,9 +98,9 @@ void playMissionComplete() {
 
   for (int i = 0; i < length; i++) {
     int noteDuration = 1000 / noteDurations[i];
-    tone(BUZZER_PIN, melody[i], noteDuration);
+    playSimpleTone(melody[i], noteDuration);
     delay(noteDuration * 1.2);
-    noTone(BUZZER_PIN);
+    playNoTone();
   }
 
   delay(200);
@@ -123,9 +123,9 @@ void playMoonlightMode() {
 
   for (int i = 0; i < length; i++) {
     int noteDuration = 1000 / noteDurations[i];
-    tone(BUZZER_PIN, melody[i], noteDuration);
+    playSimpleTone(melody[i], noteDuration);
     delay(noteDuration * 1.4);
-    noTone(BUZZER_PIN);
+    playNoTone();
   }
 
 }
@@ -151,9 +151,9 @@ void playChirpy() {
 
   for (int i = 0; i < length; i++) {
     int duration = 1000 / noteDurations[i];
-    tone(BUZZER_PIN, melody[i], duration);
+    playSimpleTone(melody[i], duration);
     delay(duration * 1.2);
-    noTone(BUZZER_PIN);
+    playNoTone();
   }
 
   delay(150);
@@ -177,9 +177,9 @@ void playWiFiConnect() {
 
   for (int i = 0; i < length; i++) {
     int noteDuration = 1000 / noteDurations[i];
-    tone(BUZZER_PIN, melody[i], noteDuration);
+    playSimpleTone(melody[i], noteDuration);
     delay(noteDuration * 1.2);
-    noTone(BUZZER_PIN);
+    playNoTone();
   }
 
   delay(100);
@@ -198,9 +198,9 @@ void playWiFiDisconnect() {
 
   for (int i = 0; i < length; i++) {
     int noteDuration = 1000 / noteDurations[i];
-    tone(BUZZER_PIN, melody[i], noteDuration);
+    playSimpleTone(melody[i], noteDuration);
     delay(noteDuration * 1.2);
-    noTone(BUZZER_PIN);
+    playNoTone();
   }
 
   delay(100);
@@ -219,9 +219,9 @@ void playMQTTSend() {
 
   for (int i = 0; i < length; i++) {
     int noteDuration = 1000 / noteDurations[i];
-    tone(BUZZER_PIN, melody[i], noteDuration);
+    playSimpleTone(melody[i], noteDuration);
     delay(noteDuration * 1.2);
-    noTone(BUZZER_PIN);
+    playNoTone();
   }
 
   delay(80);
@@ -240,9 +240,9 @@ void playMQTTReceive() {
 
   for (int i = 0; i < length; i++) {
     int noteDuration = 1000 / noteDurations[i];
-    tone(BUZZER_PIN, melody[i], noteDuration);
+    playSimpleTone(melody[i], noteDuration);
     delay(noteDuration * 1.2);
-    noTone(BUZZER_PIN);
+    playNoTone();
   }
 
   delay(80);
@@ -264,15 +264,15 @@ void playFlowerSmell() {
 
   for (int i = 0; i < length; i++) {
     int noteDuration = 1000 / noteDurations[i];
-    tone(BUZZER_PIN, melody[i], noteDuration);
+    playSimpleTone(melody[i], noteDuration);
     delay(noteDuration * 1.2);
-    noTone(BUZZER_PIN);
+    playNoTone();
   }
 
   for (int i = 0; i < 4; i++) {
-    tone(BUZZER_PIN, (i % 2 == 0) ? NOTE_E5 : NOTE_DS5, 60); // Alternate tones
+    playSimpleTone((i % 2 == 0) ? NOTE_E5 : NOTE_DS5, 60); // Alternate tones
     delay(70);
-    noTone(BUZZER_PIN);
+    playNoTone();
   }
 }
 
@@ -291,9 +291,9 @@ void playRoseSmell() {
 
   for (int i = 0; i < length; i++) {
     int noteDuration = 1000 / noteDurations[i];
-    tone(BUZZER_PIN, melody[i], noteDuration);
+    playSimpleTone(melody[i], noteDuration);
     delay(noteDuration * 1.3);
-    noTone(BUZZER_PIN);
+    playNoTone();
   }
 
 }
@@ -313,9 +313,9 @@ void playWildflowerSmell() {
 
   for (int i = 0; i < length; i++) {
     int noteDuration = 1000 / noteDurations[i];
-    tone(BUZZER_PIN, melody[i], noteDuration);
+    playSimpleTone(melody[i], noteDuration);
     delay(noteDuration * 1.2);
-    noTone(BUZZER_PIN);
+    playNoTone();
   }
 
 }
@@ -335,9 +335,9 @@ void playLavenderSmell() {
 
   for (int i = 0; i < length; i++) {
     int noteDuration = 1000 / noteDurations[i];
-    tone(BUZZER_PIN, melody[i], noteDuration);
+    playSimpleTone(melody[i], noteDuration);
     delay(noteDuration * 1.3); // slightly slower, smoother
-    noTone(BUZZER_PIN);
+    playNoTone();
   }
 
 }
@@ -357,9 +357,9 @@ void playDaisySmell() {
 
   for (int i = 0; i < length; i++) {
     int noteDuration = 1000 / noteDurations[i];
-    tone(BUZZER_PIN, melody[i], noteDuration);
+    playSimpleTone(melody[i], noteDuration);
     delay(noteDuration * 1.1);
-    noTone(BUZZER_PIN);
+    playNoTone();
   }
 }
 
@@ -380,9 +380,9 @@ void playSunflowerSmell() {
 
   for (int i = 0; i < length; i++) {
     int noteDuration = 1000 / noteDurations[i];
-    tone(BUZZER_PIN, melody[i], noteDuration);
+    playSimpleTone(melody[i], noteDuration);
     delay(noteDuration * 1.3);
-    noTone(BUZZER_PIN);
+    playNoTone();
   }
 
 }
@@ -392,18 +392,18 @@ void playSunflowerSmell() {
 
 void playFlutterMemory() {
   for (int i = 0; i < 3; i++) {
-    tone(BUZZER_PIN, (i % 2 == 0) ? NOTE_E6 : NOTE_D6, 50);
+    playSimpleTone((i % 2 == 0) ? NOTE_E6 : NOTE_D6, 50);
     delay(60);
-    noTone(BUZZER_PIN);
+    playNoTone();
   }
   delay(100);
 }
 
 void playFlutterJoy() {
   for (int i = 0; i < 4; i++) {
-    tone(BUZZER_PIN, (i % 2 == 0) ? NOTE_G5 : NOTE_A5, 40);
+    playSimpleTone((i % 2 == 0) ? NOTE_G5 : NOTE_A5, 40);
     delay(50);
-    noTone(BUZZER_PIN);
+    playNoTone();
   }
   delay(80);
 }
@@ -411,9 +411,9 @@ void playFlutterJoy() {
 void playFlutterCalm() {
   int notes[] = { NOTE_E5, NOTE_D5, NOTE_CS5 };
   for (int i = 0; i < 3; i++) {
-    tone(BUZZER_PIN, notes[i], 100);
+    playSimpleTone(notes[i], 100);
     delay(120);
-    noTone(BUZZER_PIN);
+    playNoTone();
   }
   delay(150);
 }
@@ -421,9 +421,9 @@ void playFlutterCalm() {
 void playFlutterSurprise() {
   int notes[] = { NOTE_B4, NOTE_E5, NOTE_B4 };
   for (int i = 0; i < 3; i++) {
-    tone(BUZZER_PIN, notes[i], 60);
+    playSimpleTone(notes[i], 60);
     delay(70);
-    noTone(BUZZER_PIN);
+    playNoTone();
   }
   delay(100);
 }
@@ -433,9 +433,9 @@ void playFlutterConfused() {
   int durations[] = { 50, 50, 50, 50, 150 };
 
   for (int i = 0; i < 5; i++) {
-    tone(BUZZER_PIN, notes[i], durations[i]);
+    playSimpleTone(notes[i], durations[i]);
     delay(durations[i] + 20);
-    noTone(BUZZER_PIN);
+    playNoTone();
   }
 
   delay(100);
@@ -444,9 +444,9 @@ void playFlutterConfused() {
 void playFlutterSleepy() {
   int notes[] = { NOTE_E5, NOTE_CS5, NOTE_A4 };
   for (int i = 0; i < 3; i++) {
-    tone(BUZZER_PIN, notes[i], 120);
+    playSimpleTone(notes[i], 120);
     delay(140);
-    noTone(BUZZER_PIN);
+    playNoTone();
   }
 
   delay(200);
@@ -457,14 +457,14 @@ void playFlutterGrateful() {
   int durations[] = { 100, 100, 100, 150 };
 
   for (int i = 0; i < 4; i++) {
-    tone(BUZZER_PIN, notes[i], durations[i]);
+    playSimpleTone(notes[i], durations[i]);
     delay(durations[i] + 20);
-    noTone(BUZZER_PIN);
+    playNoTone();
   }
 
-  tone(BUZZER_PIN, NOTE_D6, 50);
+  playSimpleTone(NOTE_D6, 50);
   delay(60);
-  noTone(BUZZER_PIN);
+  playNoTone();
 
   delay(150);
 }
@@ -472,7 +472,24 @@ void playFlutterGrateful() {
 // ------------------------------------
 // ------------------------------------
 
-void initBuzzer() {
+void playSimpleTone(int freq, int duration) {
+  int pwmVal = 127; // Half duty cycle
+  int delayMicros = 1000000 / freq / 2;
+
+  unsigned long startTime = millis();
+  while (millis() - startTime < duration) {
+    digitalWrite(BUZZER_PIN, HIGH);
+    delayMicroseconds(delayMicros);
+    digitalWrite(BUZZER_PIN, LOW);
+    delayMicroseconds(delayMicros);
+  }
+}
+
+void playNoTone() {
+  digitalWrite(BUZZER_PIN, LOW);
+}
+
+void initSound() {
   pinMode(BUZZER_PIN, OUTPUT);
 }
 
