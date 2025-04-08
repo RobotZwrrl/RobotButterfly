@@ -3,9 +3,6 @@ void updateStateMachine() {
   // state entrance
   if(enter_state) {
 
-    // only have the state entrance happen once
-    enter_state = false;
-
     switch(CURRENT_STATE) {
       case STATE1:
         setupState1();
@@ -39,17 +36,13 @@ void updateStateMachine() {
   // state machine loop
   if(update_state) {
 
+    t_enter = millis();
+    t_delta = t_enter - t_transition;
+    //if(DEBUG_STATEMACHINE) Serial << "delta: " << t_delta << " enter (" << t_enter << ") - transition (" << t_transition << ")" << endl;
+
     // stop the timer
-    if(timer_state_cfg != NULL) {
-      if(DEBUG_STATEMACHINE) Serial << "timer done" << endl;
-
-      t_enter = millis();
-      t_delta = t_enter - t_transition;
-      if(DEBUG_STATEMACHINE) Serial << "delta: " << t_delta << " enter (" << t_enter << ") - transition (" << t_transition << ")" << endl;
-
-      timerEnd(timer_state_cfg);
-      timer_state_cfg = NULL;
-    }
+    //if(DEBUG_STATEMACHINE) Serial << "timer done" << endl;
+    //timerEnd(timer_state_cfg);
 
     switch(CURRENT_STATE) {
       case STATE1:
@@ -131,7 +124,14 @@ void transitionState() {
   t_transition = millis();
   update_state = false;
 
-  initStateMachine();
+  // timer transition - timer 3
+  timer_state_cfg = timerBegin(3, 8000, true);
+  timerAttachInterrupt(timer_state_cfg, &Timer_State_ISR, true);
+  // params: timer, tick count, auto-reload (false to run once)
+  timerAlarmWrite(timer_state_cfg, TRANSITION_FRAME_TIME, false);
+  timerAlarmEnable(timer_state_cfg);
+  enter_state = true;
+  new_enter = true;
   
   last_state_change = millis();
   if(DEBUG_STATEMACHINE) Serial << "entering state index: " << CURRENT_STATE << " from index: " << PREV_STATE << endl;
@@ -143,11 +143,6 @@ void initStateMachine() {
   // timer transition - timer 3
   timer_state_cfg = timerBegin(3, 8000, true);
   timerAttachInterrupt(timer_state_cfg, &Timer_State_ISR, true);
-  // params: timer, tick count, auto-reload (false to run once)
-  timerAlarmWrite(timer_state_cfg, TRANSITION_FRAME_TIME, false);
-  timerAlarmEnable(timer_state_cfg);
-
-  enter_state = true;
 
 }
 

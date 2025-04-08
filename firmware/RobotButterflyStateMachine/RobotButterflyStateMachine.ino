@@ -14,6 +14,9 @@
  * http://robotmissions.org
  */
 
+// @module: StateMachine
+// @version: 0.1.0
+
 #include "Board.h"
 #include "Params.h"
 #include <Streaming.h>
@@ -21,6 +24,7 @@
 
 // ------------ states -----------
 // this is where you can order the behaviours
+// @globals_start
 enum StatesMachine {
   STATE1,
   STATE2,
@@ -40,17 +44,23 @@ long last_state_print = 0;
 volatile bool enter_state = false;
 volatile bool update_state = false;
 volatile bool new_print = false;
+volatile bool new_enter = false;
+volatile bool new_update = false;
 long t_transition = 0;
 long t_enter = 0;
 long t_delta = 0;
 
 hw_timer_t *timer_state_cfg = NULL;
+// @globals_end
 
+// @isr_start
 void IRAM_ATTR Timer_State_ISR() {
   enter_state = false;
   update_state = true;
   new_print = true;
+  new_update = true;
 }
+// @isr_end
 // -------------------------------
 
 // ------------ other ------------
@@ -63,6 +73,7 @@ void setup() {
 
   print_wakeup_reason();
 
+  initStateMachine();
   changeState(STATE1); // this is where you can set the initial state
 
   Serial << "Ready" << endl;
