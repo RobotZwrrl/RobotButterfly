@@ -175,13 +175,12 @@ void initIMU() {
   mpu.setFullScaleAccelRange(MPU6050_ACCEL_FS_4);
   mpu.setFullScaleGyroRange(MPU6050_GYRO_FS_500);
 
-  // set up timer 2 for every 0.1 second
   // params: timer #2, prescaler amount, count up (true)
-  timer2_cfg = timerBegin(2, 16000, true);
-  timerAttachInterrupt(timer2_cfg, &Timer2_ISR, true);
+  timer_10Hz_cfg = timerBegin(2, 16000, true);
+  timerAttachInterrupt(timer_10Hz_cfg, &Timer_10Hz_ISR, true);
   // params: timer, tick count, auto-reload (true)
-  timerAlarmWrite(timer2_cfg, 2500, true);
-  timerAlarmEnable(timer2_cfg);
+  timerAlarmWrite(timer_10Hz_cfg, 500, true); // 10 Hz
+  timerAlarmEnable(timer_10Hz_cfg);
 
   imu_home.ax = 0;
   imu_home.ay = 0;
@@ -425,6 +424,10 @@ void checkRecalibrateIMUHome() {
 
 
 void printIMUStats() {
+
+  if(millis()-last_imu_stats_print < 500) return;
+
+  last_imu_stats_print = millis();
 
   String readable_state = "";
   switch(IMU_STATE) {

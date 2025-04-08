@@ -35,7 +35,7 @@ void imuEventDetectedCallback(uint8_t e);
 // ------------------------------------
 
 // --------------- imu ----------------
-hw_timer_t *timer2_cfg = NULL;
+hw_timer_t *timer_10Hz_cfg = NULL;
 volatile bool new_avg_sample = false;
 
 MPU6050 mpu;
@@ -110,6 +110,7 @@ long settle_start = 0;
 long calibration_start = 0;
 long last_score_clear = 0;
 int home_recalibrate_score = 0;
+long last_imu_stats_print = 0;
 
 bool IMU_PRINT_RAW = false;
 bool IMU_PRINT_DATA_AVG = false;
@@ -119,8 +120,7 @@ bool IMU_PRINT_STATS = true; // usually true during testing
 // ------------------------------------
 
 // ------------- imu isr --------------
-// every 0.1 seconds
-void IRAM_ATTR Timer2_ISR() {
+void IRAM_ATTR Timer_10Hz_ISR() { // every 0.1 seconds
   new_avg_sample = true;
 }
 // ------------------------------------
