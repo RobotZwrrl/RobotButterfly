@@ -2,21 +2,15 @@
 // --------- State 4 ---------
 // ---------------------------
 
-long last_movement1 = 0;
+long last_proximity_sound = 0;
 
 void setupState4() {
-
   if(new_enter) {
     new_enter = false;
     Serial << "STATE 4 entrance" << endl;
 
-    setServoAnim(&servo_animation_home, SERVO_ANIM_POSITION, SERVO_ANIM_HOME);
-    setServoAnimPositionLeft(&servo_animation_home, SERVO_ANIM_POSITION_UP);
-    setServoAnimPositionRight(&servo_animation_home, SERVO_ANIM_POSITION_UP);
+    setServoAnim(&servo_animation_home, SERVO_ANIM_NONE, SERVO_ANIM_HOME);
     startServoAnim(&servo_animation_home);
-
-    setNeoAnim(&neo_animation_home, NEO_ANIM_NONE, NEO_ANIM_HOME);
-    startNeoAnim(&neo_animation_home);
 
     setNeoAnim(&neo_animation_alert, NEO_ANIM_UNO, NEO_ANIM_ALERT);
     setNeoAnimColours(&neo_animation_alert, NEO_GREEN, NEO_OFF);
@@ -29,37 +23,59 @@ void setupState4() {
     setNeoAnimDuration(&neo_animation_home, 500);
     startNeoAnim(&neo_animation_home);
   }
-  
-  updateNeoAnimation();
-  updateServoAnimation();
 
+  updateNeoAnimation();
+  
 }
+
 
 void loopState4() {
   printStateHeartbeat(4);
+  
   if(new_update) {
     new_update = false;
-    t_enter = millis(); // eh
 
-    setNeoAnim(&neo_animation_home, NEO_ANIM_ZWOOP, NEO_ANIM_HOME);
-    setNeoAnimColours(&neo_animation_home, NEO_LAVENDER, NEO_OFF);
-    setNeoAnimSpeed(&neo_animation_home, 300);
+    stopServoAnim(&servo_animation_alert);
+
+    setNeoAnim(&neo_animation_home, NEO_ANIM_RANGE, NEO_ANIM_HOME);
+    setNeoAnimColours(&neo_animation_home, NEO_GOLDEN_YELLOW, NEO_OFF);
     startNeoAnim(&neo_animation_home);
+
+    setServoAnim(&servo_animation_home, SERVO_ANIM_RANGE, SERVO_ANIM_HOME);
+    setServoAnimRangeSpan(&servo_animation_home, SERVO_ANIM_RANGE_DOWN_UP);
+    startServoAnim(&servo_animation_home);
   }
-  
-  if(millis()-last_movement1 >= 60000 && t_enter > 65000) {
-    
+
+  // less laggy with some commented out
+  updateServoAnimation();
+  //updateSensors();
+  updateProximity();
+  updateNeoAnimation();
+  //updateIMU();
+
+  int proximity8 = getProximity8(&ultrasonic)+1;
+  setNeoAnimRangeVal(&neo_animation_home, proximity8);
+
+  int proximity10 = getProximity10(&ultrasonic)+1;
+  setServoAnimRangeVal(&servo_animation_home, proximity10);
+
+  if(proximity8 <= 2 && millis()-last_proximity_sound >= 6000) {
+    playSound(SOUND_FLUTTER_SURPRISE);
+
+    setNeoAnim(&neo_animation_alert, NEO_ANIM_SPRINKLE, NEO_ANIM_ALERT);
+    setNeoAnimColours(&neo_animation_alert, NEO_GOLDEN_YELLOW, NEO_WHITE);
+    setNeoAnimSpeed(&neo_animation_alert, 100);
+    setNeoAnimDuration(&neo_animation_alert, 2000);
+    startNeoAnim(&neo_animation_alert);
+
     setServoAnim(&servo_animation_alert, SERVO_ANIM_FLUTTER, SERVO_ANIM_ALERT);
-    setServoAnimFlutterWings(&servo_animation_alert, SERVO_ANIM_FLUTTER_WINGS_BOTH_UP);
-    //setServoAnimSpeed();
-    setServoAnimDuration(&servo_animation_alert, 3000);
+    setServoAnimFlutterWings(&servo_animation_alert, SERVO_ANIM_FLUTTER_WINGS_BOTH_HOME);
+    setServoAnimSpeed(&servo_animation_alert, 200);
+    setServoAnimDuration(&servo_animation_alert, 2000);
     startServoAnim(&servo_animation_alert);
 
-    last_movement1 = millis();
+    last_proximity_sound = millis();
   }
-
-  updateServoAnimation();
-  updateNeoAnimation();
 
 }
 
