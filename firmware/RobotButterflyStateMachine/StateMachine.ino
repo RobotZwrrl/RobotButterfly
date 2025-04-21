@@ -3,31 +3,38 @@ void updateStateMachine() {
   // state entrance
   if(enter_state) {
 
-    switch(CURRENT_STATE) {
-      case STATE1:
-        setupState1();
-      break;
-      case STATE2:
-        setupState2();
-      break;
-      case STATE3:
-        setupState3();
-      break;
-      case STATE4:
-        setupState4();
-      break;
-      case STATE5:
-        setupState5();
-      break;
-      case STATE6:
-        setupState6();
-      break;
-      case STATE7:
-        setupState7();
-      break;
-      case STATE8:
-        setupState8();
-      break;
+    // have two separate state machines
+    // - one for AA battery mode, and
+    // the other for USB power mode
+    if(!BATTERY_AA_MODE) {
+
+      switch(CURRENT_STATE) {
+        case STATE1: {
+          setupState1();
+        break;
+        case STATE2:
+          setupState2();
+        break;
+        case STATE3:
+          setupState3();
+        break;
+        case STATE4:
+          setupState4();
+        break;
+        case STATE5:
+          setupState5();
+        break;
+        case STATE6:
+          setupState6();
+        break;
+        case STATE7:
+          setupState7();
+        break;
+        case STATE8:
+          setupState8();
+        break;
+      }
+
     }
 
   }
@@ -44,32 +51,36 @@ void updateStateMachine() {
     //if(DEBUG_STATEMACHINE) Serial << "timer done" << endl;
     //timerEnd(timer_state_cfg);
 
-    switch(CURRENT_STATE) {
-      case STATE1:
-        loopState1();
-      break;
-      case STATE2:
-        loopState2();
-      break;
-      case STATE3:
-        loopState3();
-      break;
-      case STATE4:
-        loopState4();
-      break;
-      case STATE5:
-        loopState5();
-      break;
-      case STATE6:
-        loopState6();
-      break;
-      case STATE7:
-        loopState7();
-      break;
-      case STATE8:
-        loopState8();
-      break;
+    if(!BATTERY_AA_MODE) {
+
+      switch(CURRENT_STATE) {
+        case STATE1:
+          loopState1();
+        break;
+        case STATE2:
+          loopState2();
+        break;
+        case STATE3:
+          loopState3();
+        break;
+        case STATE4:
+          loopState4();
+        break;
+        case STATE5:
+          loopState5();
+        break;
+        case STATE6:
+          loopState6();
+        break;
+        case STATE7:
+          loopState7();
+        break;
+        case STATE8:
+          loopState8();
+        break;
+      }
     }
+
   }
 
 }

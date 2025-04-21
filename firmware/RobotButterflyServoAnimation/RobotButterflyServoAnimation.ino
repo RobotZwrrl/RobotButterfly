@@ -13,6 +13,9 @@
  * http://robotmissions.org
  */
 
+// @module: ServoAnimation
+// @version: 0.1.0
+
 #include "Board.h"
 #include "Params.h"
 #include <Streaming.h>
@@ -35,6 +38,12 @@ struct ServoMotor {
   bool active;
   bool calibrated;
   String name;
+};
+
+enum ServoModeInit {
+  SERVO_MODE_INIT_BOTH,
+  SERVO_MODE_INIT_LEFT,
+  SERVO_MODE_INIT_RIGHT
 };
 
 struct ServoMotor wing_left;
@@ -144,7 +153,7 @@ void setup() {
 
   print_wakeup_reason();
 
-  initServos();
+  initServos(SERVO_MODE_INIT_BOTH);
   initServoAnimations();
 
   Serial << "Ready" << endl;

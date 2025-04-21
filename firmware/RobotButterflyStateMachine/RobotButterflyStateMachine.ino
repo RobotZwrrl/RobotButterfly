@@ -65,6 +65,7 @@ void IRAM_ATTR Timer_State_ISR() {
 
 // ------------ other ------------
 long last_print;
+bool BATTERY_AA_MODE = false;
 // -------------------------------
 
 
