@@ -144,5 +144,10 @@ void setNeoAnimAmbiance(struct NeoAnimation *a, int id) {
 void setNeoAnimUno(struct NeoAnimation *a, int uno) {
   a->helper1 = uno;
 }
+
+// params: neo animation, index of the lit pixel
+void setNeoAnimDuo(struct NeoAnimation *a, int duo) {
+  a->helper2 = duo;
+}
 // ----------------------------------
 

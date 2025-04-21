@@ -733,11 +733,22 @@ int counter = 0;
 bool BATTERY_AA_MODE = true;
 // -------------------------------
 
+// ----- servo calibration -------
+bool SERVO_CAL_MODE = false;
+bool left_cal_dir = true;
+int left_cal_mode = 0;
+bool right_cal_dir = true;
+int right_cal_mode = 0;
+bool button_calib_changed = false;
+int servo_calib_pos_left = 0;
+int servo_calib_pos_right = 0;
+// -------------------------------
+
 uint8_t BUTTON1_PREV = 0;
 uint8_t BUTTON2_PREV = 0;
 
 
-void setup() {
+void setup() { // heya
   
   Serial.begin(9600);
 
@@ -813,7 +824,49 @@ void setup() {
 
 void loop() {
   
-  updateStateMachine();
+  if(!SERVO_CAL_MODE) {
+    updateStateMachine();
+  } else {
+
+    if(button_calib_changed) {
+
+      if(left_cal_mode == 0) { // wing up
+        servo_calib_pos_left = SERVO_ANIM_POSITION_UP;
+      } else if(left_cal_mode == 1) { // wing home
+        servo_calib_pos_left = SERVO_ANIM_POSITION_HOME;
+      } else if(left_cal_mode == 2) { // wing down
+        servo_calib_pos_left = SERVO_ANIM_POSITION_DOWN;
+      }
+
+      if(right_cal_mode == 0) { // wing up
+        servo_calib_pos_right = SERVO_ANIM_POSITION_UP;
+      } else if(right_cal_mode == 1) { // wing home
+        servo_calib_pos_right = SERVO_ANIM_POSITION_HOME;
+      } else if(right_cal_mode == 2) { // wing down
+        servo_calib_pos_right = SERVO_ANIM_POSITION_DOWN;
+      }
+
+      setServoAnim(&servo_animation_alert, SERVO_ANIM_POSITION, SERVO_ANIM_ALERT);
+      setServoAnimRepeats(&servo_animation_alert, -99);
+      setServoAnimPositionLeft(&servo_animation_alert, servo_calib_pos_left);
+      setServoAnimPositionRight(&servo_animation_alert, servo_calib_pos_right);
+      startServoAnim(&servo_animation_alert);
+
+      setNeoAnim(&neo_animation_alert, NEO_ANIM_UNO, NEO_ANIM_ALERT);
+      setNeoAnimColours(&neo_animation_alert, NEO_GREEN, NEO_GREEN);
+      setNeoAnimSpeed(&neo_animation_alert, 1000);
+      setNeoAnimUno(&neo_animation_alert, left_cal_mode); // top-most leds near the back
+      setNeoAnimDuo(&neo_animation_alert, 5+right_cal_mode); // bottom-most leds near the front
+      startNeoAnim(&neo_animation_alert);
+      
+      button_calib_changed = false;
+    }
+
+    updateNeoAnimation();
+    updateServoAnimation();
+
+  }
+  
   updateButtons();
 
   console();

@@ -16,7 +16,7 @@ void playStartup() {
   for (int i = 0; i < length; i++) {
     int noteDuration = 1000 / noteDurations[i];
     playSimpleTone(melody[i], noteDuration);
-    delay(noteDuration * 1.2);
+    delay(noteDuration * 1.0);
     playNoTone();
   }
 }
