@@ -13,6 +13,9 @@
  * http://robotmissions.org
  */
 
+// @module: NeoAnimation
+// @version: 0.1.0
+
 #include "Board.h"
 #include "Params.h"
 #include <Streaming.h>
@@ -338,6 +341,14 @@ void console() {
         setNeoAnimColours(&neo_animation_alert, NEO_RED, NEO_BLUE);
         setNeoAnimSpeed(&neo_animation_alert, 1000);
         setNeoAnimUno(&neo_animation_alert, 7);
+        startNeoAnim(&neo_animation_alert);
+      break;
+      case 'g':
+        setNeoAnim(&neo_animation_alert, NEO_ANIM_UNO, NEO_ANIM_ALERT);
+        setNeoAnimColours(&neo_animation_alert, NEO_GREEN, NEO_GREEN);
+        setNeoAnimSpeed(&neo_animation_alert, 1000);
+        setNeoAnimUno(&neo_animation_alert, 0);
+        setNeoAnimDuo(&neo_animation_alert, 6);
         startNeoAnim(&neo_animation_alert);
       break;
 

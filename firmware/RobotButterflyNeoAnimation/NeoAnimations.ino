@@ -594,14 +594,22 @@ void runNeoAnim_uno(struct NeoAnimation *a) {
   int uno = a->helper1;
   if(uno < 0) uno = 0;
   if(uno > pixels.numPixels()) uno = pixels.numPixels()-1;
+  if(a->helper1 == -99) uno = -99;
+
+  int duo = a->helper2;
+  if(duo < 0) duo = 0;
+  if(duo > pixels.numPixels()) duo = pixels.numPixels()-1;
+  if(a->helper2 == -99) duo = -99;
 
   switch(a->frame_index) {
     case 0: {
-      pixels.setPixelColor(uno, colourPalette[a->colour_primary]);
+      if(uno != -99) pixels.setPixelColor(uno, colourPalette[a->colour_primary]);
+      if(duo != -99) pixels.setPixelColor(duo, colourPalette[a->colour_primary]);
     }
     break;
     case 1: {
-      pixels.setPixelColor(uno, colourPalette[a->colour_secondary]);
+      if(uno != -99) pixels.setPixelColor(uno, colourPalette[a->colour_secondary]);
+      if(duo != -99) pixels.setPixelColor(duo, colourPalette[a->colour_secondary]);
     }
     break;
   }
@@ -1044,8 +1052,8 @@ void initNeoAnim_uno(struct NeoAnimation *a) {
   a->start_time = -1;
 
   a->dir = true;
-  a->helper1 = 0; // index of pixel
-  a->helper2 = 0;
+  a->helper1 = -99; // index of pixel 1
+  a->helper2 = -99; // index of pixel 2
   a->helper3 = 0;
 
   a->function = runNeoAnim_uno;
