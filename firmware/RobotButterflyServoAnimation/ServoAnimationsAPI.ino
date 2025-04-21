@@ -18,8 +18,6 @@ void callback_ServoAnimDone(struct ServoAnimation *a) {
 // params: Servo animation, id of animation, type
 void setServoAnim(struct ServoAnimation *a, uint8_t n, uint8_t t) {
   
-  // init
-  // TODO - all of the Servo animations
   switch(n) {
     case SERVO_ANIM_NONE:
       initServoAnim_none(a);
