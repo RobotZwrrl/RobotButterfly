@@ -15,6 +15,11 @@ void setupState1() {
     setServoAnimPositionRight(&servo_animation_home, SERVO_ANIM_POSITION_UP);
     startServoAnim(&servo_animation_home);
 
+    setServoAnim(&servo_animation_alert, SERVO_ANIM_POSITION, SERVO_ANIM_ALERT);
+    setServoAnimPositionLeft(&servo_animation_alert, SERVO_ANIM_POSITION_UP);
+    setServoAnimPositionRight(&servo_animation_alert, SERVO_ANIM_POSITION_UP);
+    startServoAnim(&servo_animation_alert);
+
     setNeoAnim(&neo_animation_home, NEO_ANIM_NONE, NEO_ANIM_HOME);
     startNeoAnim(&neo_animation_home);
 
