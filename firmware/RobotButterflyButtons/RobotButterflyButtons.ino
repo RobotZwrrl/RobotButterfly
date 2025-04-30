@@ -69,6 +69,12 @@ void buttonHoldNotificationCallback(uint8_t n);
 void buttonHoldReleasedCallback(uint8_t n);
 void buttonClickCallback(uint8_t n);
 void buttonReleaseCallback(uint8_t n);
+
+typedef void (*ButtonCallback)(uint8_t); // button callback type
+ButtonCallback onHoldNotificationCallback = NULL;
+ButtonCallback onHoldReleasedCallback = NULL;
+ButtonCallback onClickCallback = NULL;
+ButtonCallback onReleaseCallback = NULL;
 // -----------------------------------
 
 volatile bool button_L_changed = false;
