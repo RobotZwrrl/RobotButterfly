@@ -22,10 +22,18 @@
 #include "pitches.h"
 
 
-// ------------ tests ------------
-long last_print;
-int counter = 0;
-// -------------------------------
+// -------- button callbacks ---------
+void buttonHoldNotificationCallback(uint8_t n);
+void buttonHoldReleasedCallback(uint8_t n);
+void buttonClickCallback(uint8_t n);
+void buttonReleaseCallback(uint8_t n);
+
+typedef void (*ButtonCallback)(uint8_t); // button callback type
+ButtonCallback onHoldNotificationCallback = NULL;
+ButtonCallback onHoldReleasedCallback = NULL;
+ButtonCallback onClickCallback = NULL;
+ButtonCallback onReleaseCallback = NULL;
+// -----------------------------------
 
 
 // ----------- buttons -----------
@@ -61,25 +69,10 @@ struct Button {
 
 static struct Button Button_L;
 static struct Button Button_R;
-// -----------------------------------
-
-
-// -------- button callbacks ---------
-void buttonHoldNotificationCallback(uint8_t n);
-void buttonHoldReleasedCallback(uint8_t n);
-void buttonClickCallback(uint8_t n);
-void buttonReleaseCallback(uint8_t n);
-
-typedef void (*ButtonCallback)(uint8_t); // button callback type
-ButtonCallback onHoldNotificationCallback = NULL;
-ButtonCallback onHoldReleasedCallback = NULL;
-ButtonCallback onClickCallback = NULL;
-ButtonCallback onReleaseCallback = NULL;
-// -----------------------------------
 
 volatile bool button_L_changed = false;
 volatile bool button_R_changed = false;
-
+// -----------------------------------
 
 // ----------- buttons isr -----------
 void IRAM_ATTR button_L_isr() {
@@ -92,6 +85,10 @@ void IRAM_ATTR button_R_isr() {
 }
 // -----------------------------------
 
+// ------------ tests ------------
+long last_print;
+int counter = 0;
+// -------------------------------
 
 void setup() {
   Serial.begin(9600);
