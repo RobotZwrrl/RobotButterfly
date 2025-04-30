@@ -22,9 +22,11 @@
 #include "pitches.h"
 
 
-// ----------- buzzer api ------------
+// ----------- sound api ------------
 void playSound(uint8_t id);
 void soundDoneCallback(uint8_t id);
+typedef void (*SoundCallback)(uint8_t id);
+SoundCallback onSoundDoneCallback = NULL;
 // -----------------------------------
 
 

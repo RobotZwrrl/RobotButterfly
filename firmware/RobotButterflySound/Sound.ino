@@ -490,6 +490,7 @@ void playNoTone() {
 }
 
 void initSound() {
+  onSoundDoneCallback = soundDoneCallback;
   pinMode(BUZZER_PIN, OUTPUT);
 }
 

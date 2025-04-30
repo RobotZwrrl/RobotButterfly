@@ -106,7 +106,9 @@ void playSound(uint8_t id) {
     break;
   }
 
-  if(play) soundDoneCallback(id);
+  if(play) {
+    if(onSoundDoneCallback) onSoundDoneCallback(id);
+  }
 
 }
 
