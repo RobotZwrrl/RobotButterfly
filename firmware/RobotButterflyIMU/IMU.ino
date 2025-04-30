@@ -2,7 +2,9 @@ void updateIMU() {
 
   if(IMU_STATE == IMU_INACTIVE) return;
 
-  if(IMU_STATE_PREV != IMU_STATE) imuStateChangeCallback(IMU_STATE);
+  if(IMU_STATE_PREV != IMU_STATE) {
+    if(onStateChangeCallback) onStateChangeCallback(IMU_STATE);
+  }
 
   // vars for enter states
   if(IMU_STATE == IMU_SETTLE && IMU_STATE_PREV != IMU_STATE) {
@@ -172,15 +174,20 @@ void initIMU() {
 
   if(IMU_STATE == IMU_INACTIVE) return;
 
+  onStateChangeCallback = imuStateChangeCallback;
+  onOrientationChangeCallback = imuOrientationChangeCallback;
+  onPoseChangeCallback = imuPoseChangeCallback;
+  onEventDetectedCallback = imuEventDetectedCallback;
+
   mpu.setFullScaleAccelRange(MPU6050_ACCEL_FS_4);
   mpu.setFullScaleGyroRange(MPU6050_GYRO_FS_500);
 
   // params: timer #2, prescaler amount, count up (true)
-  timer_10Hz_cfg = timerBegin(2, 16000, true);
-  timerAttachInterrupt(timer_10Hz_cfg, &Timer_10Hz_ISR, true);
+  timer_10Hz_imu_cfg = timerBegin(2, 16000, true);
+  timerAttachInterrupt(timer_10Hz_imu_cfg, &Timer_10Hz_imu_ISR, true);
   // params: timer, tick count, auto-reload (true)
-  timerAlarmWrite(timer_10Hz_cfg, 500, true); // 10 Hz
-  timerAlarmEnable(timer_10Hz_cfg);
+  timerAlarmWrite(timer_10Hz_imu_cfg, 500, true); // 10 Hz
+  timerAlarmEnable(timer_10Hz_imu_cfg);
 
   imu_home.ax = 0;
   imu_home.ay = 0;
@@ -232,7 +239,7 @@ bool checkOrientationIMU() {
 
   if(IMU_ORIENTATION_PREV != IMU_ORIENTATION) {
     last_orientation_change = millis();
-    imuOrientationChangeCallback(IMU_ORIENTATION);
+    if(onOrientationChangeCallback) onOrientationChangeCallback(IMU_ORIENTATION);
   }
 
   if(orientation_detected) {
@@ -260,7 +267,9 @@ bool checkPositionIMU() {
 
   bool pose_detected = false;
 
-  if(IMU_POSE_PREV != IMU_POSE) imuPoseChangeCallback(IMU_POSE);
+  if(IMU_POSE_PREV != IMU_POSE) {
+    if(onPoseChangeCallback) onPoseChangeCallback(IMU_POSE);
+  }
   IMU_POSE_PREV = IMU_POSE;
 
   // left / right tilt
@@ -351,7 +360,7 @@ bool checkEventIMU() {
     last_event_detected = millis();
     event_score = 0;
     last_event_score_clear = millis();
-    imuEventDetectedCallback(EVENT_DETECTED);
+    if(onEventDetectedCallback) onEventDetectedCallback(EVENT_DETECTED);
     return true;
   }
 

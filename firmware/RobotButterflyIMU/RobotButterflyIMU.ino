@@ -20,6 +20,9 @@
  * http://robotmissions.org
  */
 
+// @module: IMU
+// @version: 0.1.0
+
 #include "Board.h"
 #include "Params.h"
 #include <Streaming.h>
@@ -32,10 +35,16 @@ void imuStateChangeCallback(uint8_t s);
 void imuOrientationChangeCallback(uint8_t o);
 void imuPoseChangeCallback(uint8_t p);
 void imuEventDetectedCallback(uint8_t e);
+
+typedef void (*IMUCallback)(uint8_t); // imu callback type
+IMUCallback onStateChangeCallback = NULL;
+IMUCallback onOrientationChangeCallback = NULL;
+IMUCallback onPoseChangeCallback = NULL;
+IMUCallback onEventDetectedCallback = NULL;
 // ------------------------------------
 
 // --------------- imu ----------------
-hw_timer_t *timer_10Hz_cfg = NULL;
+hw_timer_t *timer_10Hz_imu_cfg = NULL;
 volatile bool new_avg_sample = false;
 
 MPU6050 mpu;
@@ -120,7 +129,7 @@ bool IMU_PRINT_STATS = true; // usually true during testing
 // ------------------------------------
 
 // ------------- imu isr --------------
-void IRAM_ATTR Timer_10Hz_ISR() { // every 0.1 seconds
+void IRAM_ATTR Timer_10Hz_imu_ISR() { // every 0.1 seconds
   new_avg_sample = true;
 }
 // ------------------------------------
