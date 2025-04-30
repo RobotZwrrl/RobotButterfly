@@ -22,7 +22,7 @@ void updateProximity() {
 
   // detect close proximity trigger
   if(ultrasonic.raw <= ultrasonic.threshold && millis()-ultrasonic.last_trigger > PROXIMITY_TRIGGER_FREQ) {
-    proximityTriggerCallback(&ultrasonic);
+    if(onProximityTriggerCallback) onProximityTriggerCallback(&ultrasonic);
     ultrasonic.last_trigger = millis();
   }
 
@@ -41,6 +41,8 @@ void updateProximity() {
 
 
 void initProximity() {
+
+  onProximityTriggerCallback = proximityTriggerCallback;
 
   HCSR04.begin(ULTRASONIC_OUT_PIN, ULTRASONIC_IN_PIN);
   ultrasonic.initialised = true;

@@ -13,6 +13,9 @@
  * http://robotmissions.org
  */
 
+// @module: Proximity
+// @version: 0.1.0
+
 #include "Board.h"
 #include "Params.h"
 #include <Streaming.h>
@@ -22,6 +25,9 @@
 
 // ------------ callbacks ------------
 void proximityTriggerCallback(struct Proximity *p);
+
+typedef void (*ProximityCallback)(struct Proximity *p); // proximity callback type
+ProximityCallback onProximityTriggerCallback = NULL;
 // ------------------------------------
 
 // ----------- ultrasonic -------------
