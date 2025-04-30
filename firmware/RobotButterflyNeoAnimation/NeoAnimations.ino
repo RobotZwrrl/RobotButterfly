@@ -43,7 +43,7 @@ bool neoAnimationChecks(struct NeoAnimation *a) {
     a->active = false;
     if(DEBUG_NEO_ANIMATION == true && a->type != NEO_ANIM_HOME) Serial << "animation done (time elapsed)" << endl;
     // callback anim done (time elapsed)
-    callback_NeoAnimDone(a);
+    if(onNeoAnimDoneCallback) onNeoAnimDoneCallback(a);
     return false;
   }
 
@@ -55,7 +55,7 @@ bool neoAnimationChecks(struct NeoAnimation *a) {
     a->active = false;
     if(DEBUG_NEO_ANIMATION == true && a->type != NEO_ANIM_HOME) Serial << "animation done (num repeats)" << endl;
     // callback anim done (num repeats)
-    callback_NeoAnimDone(a);
+    if(onNeoAnimDoneCallback) onNeoAnimDoneCallback(a);
     return false;
   }
 
@@ -66,7 +66,7 @@ bool neoAnimationChecks(struct NeoAnimation *a) {
       a->frame_index = 0;
       a->repeat_count++;
       a->last_repeat = millis();
-      callback_NeoAnimLoop(a);
+      if(onNeoAnimLoopCallback) onNeoAnimLoopCallback(a);
     }
   } else {
     return false;
@@ -1061,6 +1061,10 @@ void initNeoAnim_uno(struct NeoAnimation *a) {
 
 
 void initNeoAnimations() {
+
+  onNeoAnimDoneCallback = neoAnimDoneCallback;
+  onNeoAnimLoopCallback = neoAnimLoopCallback;
+
   initNeoAnim_none(&neo_animation_home);
   neo_animation_home.type = NEO_ANIM_HOME;
   initNeoAnim_none(&neo_animation_alert);

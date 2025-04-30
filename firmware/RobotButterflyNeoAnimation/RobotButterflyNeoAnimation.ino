@@ -23,8 +23,12 @@
 
 
 // ----------- neoanim callbacks -----------
-void callback_NeoAnimDone(struct NeoAnimation *a);
-void callback_NeoAnimLoop(struct NeoAnimation *a);
+void neoAnimDoneCallback(struct NeoAnimation *a);
+void neoAnimLoopCallback(struct NeoAnimation *a);
+
+typedef void (*NeoCallback)(struct NeoAnimation *a); // neo animation callback type
+NeoCallback onNeoAnimDoneCallback = NULL;
+NeoCallback onNeoAnimLoopCallback = NULL;
 // -----------------------------------
 
 

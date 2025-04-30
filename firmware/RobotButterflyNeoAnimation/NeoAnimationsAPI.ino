@@ -3,13 +3,13 @@
 // ----------------------------------
 
 // the neo animation is done
-void callback_NeoAnimDone(struct NeoAnimation *a) {
+void neoAnimDoneCallback(struct NeoAnimation *a) {
   if(a->type == NEO_ANIM_HOME) return;
   Serial << "Callback: Neo animation (" << a->id << ") done" << endl;
 }
 
 // the neo animation is done a loop
-void callback_NeoAnimLoop(struct NeoAnimation *a) {
+void neoAnimLoopCallback(struct NeoAnimation *a) {
   if(a->type == NEO_ANIM_HOME) return;
   Serial << "Callback: Neo animation (" << a->id << ") looped" << endl;
 }
@@ -107,7 +107,7 @@ void startNeoAnim(struct NeoAnimation *a) {
 // params: neo animation
 void stopNeoAnim(struct NeoAnimation *a) {
   a->active = false;
-  callback_NeoAnimDone(a);
+  if(onNeoAnimDoneCallback) onNeoAnimDoneCallback(a);
 }
 
 // params: neo animation, direction
