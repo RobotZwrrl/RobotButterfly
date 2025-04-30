@@ -46,7 +46,7 @@ bool servoAnimationChecks(struct ServoAnimation *a) {
     a->active = false;
     if(DEBUG_SERVO_ANIM == true && a->type != SERVO_ANIM_HOME) Serial << "animation done (time elapsed)" << endl;
     // callback anim done (time elapsed)
-    callback_ServoAnimDone(a);
+    onServoAnimDoneCallback(a);
     return false;
   }
 
@@ -58,7 +58,7 @@ bool servoAnimationChecks(struct ServoAnimation *a) {
     a->active = false;
     if(DEBUG_SERVO_ANIM == true && a->type != SERVO_ANIM_HOME) Serial << "animation done (num repeats)" << endl;
     // callback anim done (num repeats)
-    callback_ServoAnimDone(a);
+    onServoAnimDoneCallback(a);
     return false;
   }
 
@@ -69,6 +69,7 @@ bool servoAnimationChecks(struct ServoAnimation *a) {
       a->frame_index = 0;
       a->repeat_count++;
       a->last_repeat = millis();
+      onServoAnimLoopCallback(a);
     }
   } else {
     return false;
@@ -886,6 +887,10 @@ void initServoAnim_position(struct ServoAnimation *a) {
 
 
 void initServoAnimations() {
+  
+  onServoAnimDoneCallback = servoAnimDoneCallback;
+  onServoAnimLoopCallback = servoAnimLoopCallback;
+  
   // all servo animations are initialised when setServoAnim() is called
   initServoAnim_none(&servo_animation_home);
   servo_animation_home.type = SERVO_ANIM_HOME;

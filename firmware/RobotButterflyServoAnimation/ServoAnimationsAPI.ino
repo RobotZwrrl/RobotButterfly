@@ -3,9 +3,16 @@
 // ----------------------------------
 
 // the servo animation is done
-void callback_ServoAnimDone(struct ServoAnimation *a) {
+void servoAnimDoneCallback(struct ServoAnimation *a) {
   if(a->type == SERVO_ANIM_HOME) return;
   Serial << "Callback: Servo animation (" << a->id << ") done" << endl;
+}
+
+// the servo animation has looped
+void servoAnimLoopCallback(struct ServoAnimation *a) {
+  if(a->type == SERVO_ANIM_HOME) return;
+  if(a->num_frames <= 1) return; // skip the one frame animations
+  Serial << "Callback: Servo animation (" << a->id << ") looped" << endl;
 }
 
 // ----------------------------------
@@ -77,7 +84,7 @@ void startServoAnim(struct ServoAnimation *a) {
 // params: servo animation
 void stopServoAnim(struct ServoAnimation *a) {
   a->active = false;
-  callback_ServoAnimDone(a);
+  onServoAnimDoneCallback(a);
 }
 
 // params: servo animation, range

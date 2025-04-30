@@ -52,6 +52,13 @@ struct ServoMotor wing_right;
 bool initialised_servos = false;
 // -----------------------------------
 
+// ----------- callbacks -----------
+void servoAnimDoneCallback(struct ServoAnimation *a);
+void servoAnimLoopCallback(struct ServoAnimation *a);
+typedef void (*ServoAnimCallback)(struct ServoAnimation *a);
+ServoAnimCallback onServoAnimDoneCallback = NULL;
+ServoAnimCallback onServoAnimLoopCallback = NULL;
+// -----------------------------------
 
 // ----------- servo animation -----------
 enum servoAnimName {
