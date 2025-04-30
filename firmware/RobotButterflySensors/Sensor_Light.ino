@@ -14,13 +14,13 @@ void updateSensor_Light(struct Sensor *s) {
       if(s->trigger_dir != false || millis()-s->last_sensor_trigger >= 500) { // avoid double triggers
         s->trigger_dir = false;
         s->trig_count++;
-        sensorLightChangeCallback(s, s->trigger_dir);
+        s->onSensorChangeCallback(s, s->trigger_dir);
       }
     } else {
       if(s->trigger_dir != true || millis()-s->last_sensor_trigger >= 500) { // avoid double triggers
         s->trigger_dir = true;
         s->trig_count++;
-        sensorLightChangeCallback(s, s->trigger_dir);
+        s->onSensorChangeCallback(s, s->trigger_dir);
       }
     }
     s->last_sensor_trigger = millis();
@@ -34,7 +34,7 @@ void updateSensor_Light(struct Sensor *s) {
     // and do this comparison every 1 min
     if(abs( s->ambient_data[5] - s->ambient_data[0] ) >= LIGHT_AMBIENT_THRESH 
       && millis()-s->last_ambient_trigger >= (1000*60) ) { // 1 min wait
-      sensorLightAmbientChangeCallback(s, s->ambient_data[5] - s->ambient_data[0]);
+      s->onSensorAmbientChangeCallback(s, s->ambient_data[5] - s->ambient_data[0]);
       s->last_ambient_trigger = millis();
     }
 
@@ -48,7 +48,7 @@ void initSensor_Light(struct Sensor *s) {
 
   s->id = SENSOR_ID_LIGHT;
   s->name = "Light";
-  s->print = true;
+  s->print = false;
   s->print_frequency = 1000;
   
   s->reload_raw = 1;          // every 0.1 seconds
@@ -58,6 +58,9 @@ void initSensor_Light(struct Sensor *s) {
   // functions
   s->getRawData = getSensor_Light;
   s->updateSensor = updateSensor_Light;
+
+  s->onSensorChangeCallback = sensorLightChangeCallback;
+  s->onSensorAmbientChangeCallback = sensorLightAmbientChangeCallback;
 
   s->last_val = -99;
   s->last_ambient = -99;

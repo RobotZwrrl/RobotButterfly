@@ -28,6 +28,8 @@ void initSensor_Battery(struct Sensor *s) {
   s->getRawData = getSensor_Battery;
   s->updateSensor = updateSensor_Battery;
 
+  // battery sensor has no trigger or ambient change callbacks
+
   s->last_val = -99;
   s->last_ambient = -99;
 

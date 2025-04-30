@@ -16,6 +16,9 @@
  * http://robotmissions.org
  */
 
+// @module: Sensors
+// @version: 0.1.0
+
 #include "Board.h"
 #include "Params.h"
 #include <Streaming.h>
@@ -32,6 +35,9 @@ void sensorTemperatureChangeCallback(struct Sensor *s, bool trigger_dir);
 void sensorTemperatureAmbientChangeCallback(struct Sensor *s, int change);
 void sensorHumidityChangeCallback(struct Sensor *s, bool trigger_dir);
 void sensorHumidityAmbientChangeCallback(struct Sensor *s, int change);
+
+typedef void (*SensorTriggerCallback)(struct Sensor *s, bool trigger_dir);
+typedef void (*SensorAmbientCallback)(struct Sensor *s, int change);
 // ------------------------------------
 
 // -------------- vars ---------------
@@ -106,6 +112,9 @@ struct Sensor {
   SensorDAQFunction getRawData;        // function pointer
   SensorUpdateFunction updateSensor;   // function pointer
 
+  SensorTriggerCallback onSensorChangeCallback;
+  SensorAmbientCallback onSensorAmbientChangeCallback;
+
   // constructor
   Sensor()
   : id(0), name(""), print(true), print_frequency(0), last_print(0), trig_count(0), trigger_dir(false), last_sensor_trigger(0), last_ambient_trigger(0),
@@ -115,7 +124,8 @@ struct Sensor {
     update_ambient(false), iteration_ambient(0), reload_ambient(0), ambient(0), ambient_prev(0), last_ambient(0),
     ambient_avg(SENSOR_MOVING_AVG_AMBIENT_WINDOW, true),
     ambient_data(),
-    getRawData(NULL), updateSensor(NULL)
+    getRawData(NULL), updateSensor(NULL),
+    onSensorChangeCallback(NULL), onSensorAmbientChangeCallback(NULL)
   {}
 
 };
