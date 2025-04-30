@@ -14,13 +14,13 @@ void updateSensor_Sound(struct Sensor *s) {
       if(s->trigger_dir != false || millis()-s->last_sensor_trigger >= 500) { // avoid double triggers
         s->trigger_dir = false;
         s->trig_count++;
-        s->onSensorChangeCallback(s, s->trigger_dir);
+        if(s->onSensorChangeCallback) s->onSensorChangeCallback(s, s->trigger_dir);
       }
     } else {
       if(s->trigger_dir != true || millis()-s->last_sensor_trigger >= 500) { // avoid double triggers
         s->trigger_dir = true;
         s->trig_count++;
-        s->onSensorChangeCallback(s, s->trigger_dir);
+        if(s->onSensorChangeCallback) s->onSensorChangeCallback(s, s->trigger_dir);
       }
     }
     s->last_sensor_trigger = millis();
@@ -34,7 +34,7 @@ void updateSensor_Sound(struct Sensor *s) {
     // and do this comparison every 1 min
     if(abs( s->ambient_data[5] - s->ambient_data[0] ) >= SOUND_AMBIENT_THRESH 
       && millis()-s->last_ambient_trigger >= (1000*60) ) { // 1 min wait
-      s->onSensorAmbientChangeCallback(s, s->ambient_data[5] - s->ambient_data[0]);
+      if(s->onSensorAmbientChangeCallback) s->onSensorAmbientChangeCallback(s, s->ambient_data[5] - s->ambient_data[0]);
       s->last_ambient_trigger = millis();
     }
 

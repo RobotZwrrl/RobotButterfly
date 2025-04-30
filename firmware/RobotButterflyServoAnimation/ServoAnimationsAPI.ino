@@ -84,7 +84,7 @@ void startServoAnim(struct ServoAnimation *a) {
 // params: servo animation
 void stopServoAnim(struct ServoAnimation *a) {
   a->active = false;
-  onServoAnimDoneCallback(a);
+  if(onServoAnimDoneCallback) onServoAnimDoneCallback(a);
 }
 
 // params: servo animation, range
