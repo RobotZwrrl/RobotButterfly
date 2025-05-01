@@ -71,7 +71,7 @@ void buttonClicked(volatile struct Button *b) {
     if(onClickCallback) onClickCallback(BUTTON_LEFT);
   }
   if(b->name == 'R') {
-    if(onClickCallback) buttonClickCallback(BUTTON_RIGHT);
+    if(onClickCallback) onClickCallback(BUTTON_RIGHT);
   }
 
   if(DEBUG_BUTTONS) Serial << "buttonClicked " << b->name << endl;
