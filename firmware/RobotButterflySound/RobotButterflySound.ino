@@ -31,8 +31,9 @@ SoundCallback onSoundDoneCallback = NULL;
 
 
 // ------------ sound id -------------
-// @globals_start
 enum soundID {
+  SOUND_NONE, 
+
   SOUND_ALERT_STARTUP,
   SOUND_ALERT_ALERT,
   SOUND_ALERT_SLEEP,
@@ -60,7 +61,8 @@ enum soundID {
   SOUND_FLUTTER_SLEEPY,
   SOUND_FLUTTER_GRATEFUL
 };
-// @globals_end
+
+uint8_t CURRENT_SOUND = SOUND_NONE;
 // -----------------------------------
 
 
@@ -83,6 +85,8 @@ void setup() {
 void loop() {
 
   console();
+
+  updateSound();
 
 }
 

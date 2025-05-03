@@ -66,9 +66,11 @@ void RobotButterfly::init() {
   // startServoAnim(&servo_animation_alert);
 
   // sensor testing
-  for(uint8_t i=0; i<NUM_SENSORS; i++) {
-    if(all_sensors[i]) all_sensors[i]->print = true;
-  }
+  // for(uint8_t i=0; i<NUM_SENSORS; i++) {
+  //   if(all_sensors[i]) all_sensors[i]->print = true;
+  // }
+
+  playSound(SOUND_ALERT_STARTUP);
 
 }
 
@@ -76,6 +78,7 @@ void RobotButterfly::init() {
 void RobotButterfly::update() {
 
     updateButtons();
+    updateSound();
     // updateIMU();
     // updateNeoAnimation();
     // updateServoAnimation();

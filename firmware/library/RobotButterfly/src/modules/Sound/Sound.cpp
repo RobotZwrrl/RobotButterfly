@@ -520,6 +520,7 @@ void playNoTone() {
 }
 
 void initSound() {
+  CURRENT_SOUND = SOUND_NONE;
   onSoundDoneCallback = NULL;
   pinMode(BUZZER_PIN, OUTPUT);
 }
@@ -529,8 +530,16 @@ void initSound() {
 
 
 void playSound(uint8_t id) {
+  CURRENT_SOUND = id;
+}
+
+
+void updateSound() {
+
+  if(CURRENT_SOUND == SOUND_NONE) return;
+
   bool play = false;
-  switch (id) {
+  switch(CURRENT_SOUND) {
     case SOUND_ALERT_STARTUP:
       playStartup();
       play = true;
@@ -632,12 +641,11 @@ void playSound(uint8_t id) {
   }
 
   if(play) {
-    if(onSoundDoneCallback) onSoundDoneCallback(id);
+    if(onSoundDoneCallback) onSoundDoneCallback(CURRENT_SOUND);
+    CURRENT_SOUND = SOUND_NONE;
   }
 
 }
-
-
 
 
 

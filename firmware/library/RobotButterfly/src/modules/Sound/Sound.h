@@ -18,7 +18,11 @@ void soundDoneCallback(uint8_t id);
 typedef void (*SoundCallback)(uint8_t id);
 extern SoundCallback onSoundDoneCallback;
 
+static uint8_t CURRENT_SOUND;
+
 enum soundID {
+  SOUND_NONE,
+
   SOUND_ALERT_STARTUP,
   SOUND_ALERT_ALERT,
   SOUND_ALERT_SLEEP,
