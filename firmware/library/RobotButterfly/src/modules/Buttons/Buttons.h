@@ -6,6 +6,18 @@
 #include "Board.h"
 #include "Params.h"
 
+// hi!
+struct Button;
+
+// ----------- callbacks -----------
+typedef void (*ButtonCallback)(uint8_t);
+
+extern ButtonCallback onHoldNotificationCallback;
+extern ButtonCallback onHoldReleasedCallback;
+extern ButtonCallback onClickCallback;
+extern ButtonCallback onReleaseCallback;
+// -----------------------------------
+
 void initButtons();
 void updateButtons();
 
@@ -23,13 +35,6 @@ enum ButtonStates {
   BUTTON_PRESSED,
   BUTTON_CLICK
 };
-
-typedef void (*ButtonCallback)(uint8_t);
-
-extern ButtonCallback onHoldNotificationCallback;
-extern ButtonCallback onHoldReleasedCallback;
-extern ButtonCallback onClickCallback;
-extern ButtonCallback onReleaseCallback;
 
 struct Button {
   uint8_t state;

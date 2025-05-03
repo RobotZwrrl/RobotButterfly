@@ -5,13 +5,6 @@ IMUCallback onOrientationChangeCallback = NULL;
 IMUCallback onPoseChangeCallback = NULL;
 IMUCallback onEventDetectedCallback = NULL;
 
-uint8_t getIMUState();
-uint8_t getIMUOrientation();
-uint8_t getIMUPose();
-
-void updateIMU();
-void initIMU();
-
 bool checkOrientationIMU();
 bool checkPositionIMU();
 bool checkEventIMU();

@@ -18,16 +18,31 @@ RobotButterfly::RobotButterfly() {
 
   onServoAnimDoneCallback = NULL;
   onServoAnimLoopCallback = NULL;
+
+  // -- sensor callbacks --
+  // all_sensors[SENSOR_ID_HUMIDITY]->onSensorChangeCallback = NULL;
+  // all_sensors[SENSOR_ID_HUMIDITY]->onSensorAmbientChangeCallback = NULL;
+
+  // all_sensors[SENSOR_ID_LIGHT]->onSensorChangeCallback = NULL;
+  // all_sensors[SENSOR_ID_LIGHT]->onSensorAmbientChangeCallback = NULL;
+
+  // all_sensors[SENSOR_ID_SOUND]->onSensorChangeCallback = NULL;
+  // all_sensors[SENSOR_ID_SOUND]->onSensorAmbientChangeCallback = NULL;
+
+  // all_sensors[SENSOR_ID_TEMPERATURE]->onSensorChangeCallback = NULL;
+  // all_sensors[SENSOR_ID_TEMPERATURE]->onSensorAmbientChangeCallback = NULL;
+  // --
 }
 
 void RobotButterfly::init() {
   initButtons();
   initSound();
-  initIMU();
-  initNeopixels();
-  initNeoAnimations();
-  initServos(SERVO_MODE_INIT_BOTH);
-  initServoAnimations();
+  // initIMU();
+  // initNeopixels();
+  // initNeoAnimations();
+  // initServos(SERVO_MODE_INIT_BOTH);
+  // initServoAnimations();
+  initSensors();
 
   // setNeoAnim(&neo_animation_home, NEO_ANIM_POLKADOT, NEO_ANIM_HOME);
   // setNeoAnimColours(&neo_animation_home, NEO_MAGENTA, NEO_CYAN);
@@ -59,14 +74,34 @@ void RobotButterfly::init() {
   onNeoAnimLoopCallback = neoAnimLoopCallback;
   // --
 
+  // -- sensor callbacks --
+  all_sensors[SENSOR_ID_HUMIDITY]->onSensorChangeCallback = sensorHumidityChangeCallback;
+  all_sensors[SENSOR_ID_HUMIDITY]->onSensorAmbientChangeCallback = sensorHumidityAmbientChangeCallback;
+
+  all_sensors[SENSOR_ID_LIGHT]->onSensorChangeCallback = sensorLightChangeCallback;
+  all_sensors[SENSOR_ID_LIGHT]->onSensorAmbientChangeCallback = sensorLightAmbientChangeCallback;
+
+  all_sensors[SENSOR_ID_SOUND]->onSensorChangeCallback = sensorSoundChangeCallback;
+  all_sensors[SENSOR_ID_SOUND]->onSensorAmbientChangeCallback = sensorSoundAmbientChangeCallback;
+
+  all_sensors[SENSOR_ID_TEMPERATURE]->onSensorChangeCallback = sensorTemperatureChangeCallback;
+  all_sensors[SENSOR_ID_TEMPERATURE]->onSensorAmbientChangeCallback = sensorTemperatureAmbientChangeCallback;
+  // --
+
+  // -- sensor testing
+  for(uint8_t i=0; i<NUM_SENSORS; i++) {
+    all_sensors[i]->print = true;
+  }
+
 }
 
 void RobotButterfly::update() {
-    
+
     updateButtons();
     //updateIMU();
-    updateNeoAnimation();
-    updateServoAnimation();
+    // updateNeoAnimation();
+    // updateServoAnimation();
+    updateSensors();
 
 }
 
@@ -257,3 +292,148 @@ void RobotButterfly::servoAnimLoopCallback(struct ServoAnimation *a) {
 // ----------------------------------
 
 
+// ----------------------------------
+// ------- sensor callbacks ---------
+// ----------------------------------
+
+void RobotButterfly::sensorLightChangeCallback(struct Sensor *s, bool trigger_dir) {
+
+  // TODO: remember to get rid of the lines below
+
+  if(trigger_dir == false) {
+    Serial << "---> Light on!";
+  } else {
+    Serial << "---> Light off!";
+  }
+  Serial << " (" << s->trig_count << ")" << endl;
+
+  // TODO: call user callback
+
+}
+
+void RobotButterfly::sensorLightAmbientChangeCallback(struct Sensor *s, int change) {
+  
+  // TODO: remember to get rid of the lines below
+
+  Serial << "\r\n\r\n" << endl;
+  
+  Serial << "-------- Ambient change detected! -------- " << change << endl;
+
+  if(change < 0) {
+    Serial << "---> Light ambient brighter!" << endl;
+  } else {
+    Serial << "---> Light ambient darker!" << endl;
+  }
+
+  Serial << "\r\n\r\n" << endl;
+
+  // TODO: call user callback
+
+}
+
+void RobotButterfly::sensorSoundChangeCallback(struct Sensor *s, bool trigger_dir) {
+
+  // TODO: remember to get rid of the lines below
+
+  if(trigger_dir == false) {
+    Serial << "---> Sound louder!";
+  } else {
+    Serial << "---> Sound quieter!";
+  }
+  Serial << " (" << s->trig_count << ")" << endl;
+
+  // TODO: call user callback
+
+}
+
+void RobotButterfly::sensorSoundAmbientChangeCallback(struct Sensor *s, int change) {
+  
+  // TODO: remember to get rid of the lines below
+
+  Serial << "\r\n\r\n" << endl;
+  
+  Serial << "-------- Ambient change detected! -------- " << change << endl;
+
+  if(change < 0) {
+    Serial << "---> Sound ambient louder!" << endl;
+  } else {
+    Serial << "---> Sound ambient quieter!" << endl;
+  }
+
+  Serial << "\r\n\r\n" << endl;
+
+  // TODO: call user callback
+
+}
+
+void RobotButterfly::sensorTemperatureChangeCallback(struct Sensor *s, bool trigger_dir) {
+
+  // TODO: remember to get rid of the lines below
+
+  if(trigger_dir == false) {
+    Serial << "---> Temperature warmer!";
+  } else {
+    Serial << "---> Temperature colder!";
+  }
+  Serial << " (" << s->trig_count << ")" << endl;
+
+  // TODO: call user callback
+
+}
+
+void RobotButterfly::sensorTemperatureAmbientChangeCallback(struct Sensor *s, int change) {
+  
+  // TODO: remember to get rid of the lines below
+
+  Serial << "\r\n\r\n" << endl;
+  
+  Serial << "-------- Ambient change detected! -------- " << change << endl;
+
+  if(change < 0) {
+    Serial << "---> Temperature ambient warmer" << endl;
+  } else {
+    Serial << "---> Temperature ambient colder" << endl;
+  }
+
+  Serial << "\r\n\r\n" << endl;
+
+  // TODO: call user callback
+
+}
+
+void RobotButterfly::sensorHumidityChangeCallback(struct Sensor *s, bool trigger_dir) {
+
+  // TODO: remember to get rid of the lines below
+
+  if(trigger_dir == true) {
+    Serial << "---> Humidity decrease!";
+  } else {
+    Serial << "---> Humidity increase!";
+  }
+  Serial << " (" << s->trig_count << ")" << endl;
+
+  // TODO: call user callback
+
+}
+
+void RobotButterfly::sensorHumidityAmbientChangeCallback(struct Sensor *s, int change) {
+  
+  // TODO: remember to get rid of the lines below
+
+  Serial << "\r\n\r\n" << endl;
+  
+  Serial << "-------- Ambient change detected! -------- " << change << endl;
+
+  if(change > 0) {
+    Serial << "---> Humidity ambient decrease" << endl;
+  } else {
+    Serial << "---> Humidity ambient increase" << endl;
+  }
+
+  Serial << "\r\n\r\n" << endl;
+
+  // TODO: call user callback
+
+}
+
+// ----------------------------------

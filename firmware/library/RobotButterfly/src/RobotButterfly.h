@@ -11,6 +11,7 @@
 // Adafruit Neopixel - v.1.12.4 https://github.com/adafruit/Adafruit_NeoPixel
 // ESP32Servo - v3.0.6 https://github.com/madhephaestus/ESP32Servo 
 // ServoEasing - v3.4.0 https://github.com/ArminJo/ServoEasing
+// DHT.h - v1.4.6 https://github.com/adafruit/DHT-sensor-library & 1.1.15 https://github.com/adafruit/Adafruit_Sensor 
 
 
 #include "modules/Buttons/Buttons.h"
@@ -18,8 +19,8 @@
 #include "modules/IMU/IMU.h"
 #include "modules/NeoAnimation/NeoAnimation.h"
 #include "modules/ServoAnimation/ServoAnimation.h"
+#include "modules/Sensors/Sensors.h"
 //#include "modules/Proximity.h"
-//#include "modules/Sensors.h"
 //#include "modules/StateMachine.h"
 
 #define ROBOT_BUTTERFLY_LIBRARY_VERSION "0.0.1"
@@ -58,6 +59,18 @@ public:
     // -- servoanimation callbacks --
     static void servoAnimDoneCallback(struct ServoAnimation *a);
     static void servoAnimLoopCallback(struct ServoAnimation *a);
+    // TODO: add user callbacks
+    // --
+
+    // -- sensors callbacks --
+    static void sensorLightChangeCallback(struct Sensor *s, bool trigger_dir);
+    static void sensorLightAmbientChangeCallback(struct Sensor *s, int change);
+    static void sensorSoundChangeCallback(struct Sensor *s, bool trigger_dir);
+    static void sensorSoundAmbientChangeCallback(struct Sensor *s, int change);
+    static void sensorTemperatureChangeCallback(struct Sensor *s, bool trigger_dir);
+    static void sensorTemperatureAmbientChangeCallback(struct Sensor *s, int change);
+    static void sensorHumidityChangeCallback(struct Sensor *s, bool trigger_dir);
+    static void sensorHumidityAmbientChangeCallback(struct Sensor *s, int change);
     // TODO: add user callbacks
     // --
 

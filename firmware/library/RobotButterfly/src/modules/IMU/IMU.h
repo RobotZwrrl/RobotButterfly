@@ -114,8 +114,9 @@ static bool IMU_PRINT_DELTA_TIME_AVG;
 static bool IMU_PRINT_STATS; // usually true during testing
 // ------------------------------------
 
-
+// ------------ functions -------------
 void initIMU();
 void updateIMU();
+// ------------------------------------
 
 #endif
