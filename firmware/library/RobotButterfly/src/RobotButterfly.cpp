@@ -12,13 +12,22 @@ RobotButterfly::RobotButterfly() {
   onOrientationChangeCallback = NULL;
   onPoseChangeCallback = NULL;
   onEventDetectedCallback = NULL;
+
+  onNeoAnimDoneCallback = NULL;
+  onNeoAnimLoopCallback = NULL;
 }
 
 void RobotButterfly::init() {
   initButtons();
   initSound();
   initIMU();
-  
+  initNeopixels();
+  initNeoAnimations();
+
+  // setNeoAnim(&neo_animation_home, NEO_ANIM_POLKADOT, NEO_ANIM_HOME);
+  // setNeoAnimColours(&neo_animation_home, NEO_MAGENTA, NEO_CYAN);
+  // startNeoAnim(&neo_animation_home);
+
   // -- button callbacks --
   onHoldNotificationCallback = buttonHoldNotificationCallback;
   onHoldReleasedCallback = buttonHoldReleasedCallback;
@@ -37,12 +46,18 @@ void RobotButterfly::init() {
   onEventDetectedCallback = imuEventDetectedCallback;
   // --
 
+  // -- neoanim callbacks --
+  onNeoAnimDoneCallback = neoAnimDoneCallback;
+  onNeoAnimLoopCallback = neoAnimLoopCallback;
+  // --
+
 }
 
 void RobotButterfly::update() {
     
     updateButtons();
-    updateIMU();
+    //updateIMU();
+    updateNeoAnimation();
 
 }
 
@@ -184,4 +199,27 @@ void RobotButterfly::imuEventDetectedCallback(uint8_t e) {
 }
 
 // ------------------------------------
+
+
+// ----------------------------------
+// -------- neoanim callbacks -------
+// ----------------------------------
+
+// the neo animation is done entirely
+void RobotButterfly::neoAnimDoneCallback(struct NeoAnimation *a) {
+  // TODO: remember to get rid of the line below
+  if(a->type == NEO_ANIM_HOME) return;
+  Serial << "Callback: Neo animation (" << a->id << ") done" << endl;
+  // TODO: call user callback
+}
+
+// the neo animation is done a loop
+void RobotButterfly::neoAnimLoopCallback(struct NeoAnimation *a) {
+  // TODO: remember to get rid of the line below
+  if(a->type == NEO_ANIM_HOME) return;
+  Serial << "Callback: Neo animation (" << a->id << ") looped" << endl;
+  // TODO: call user callback
+}
+
+// ----------------------------------
 
