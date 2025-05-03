@@ -153,6 +153,7 @@
 
 #define DEBUG_STATEMACHINE       true
 #define MAX_STATE                4
+#define NUM_STATES 8
 
 //#define TRANSITION_FRAME_TIME    100000    // 10 seconds
 //#define TRANSITION_FRAME_TIME    50000     // 5 seconds

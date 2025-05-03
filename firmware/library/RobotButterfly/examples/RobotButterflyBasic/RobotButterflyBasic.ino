@@ -2,10 +2,18 @@
 
 RobotButterfly robotbutterfly;
 
+// -- function prototypes --
+void setupState1();
+void loopState1();
+// --
+
 void setup() {
   Serial.begin(9600);
   robotbutterfly = RobotButterfly();
   robotbutterfly.init();
+
+  robotbutterfly.addState(RobotButterfly::STATE1, setupState1, loopState1);
+  //robotbutterfly.changeState(RobotButterfly::STATE1);
 
   // setNeoAnim(&neo_animation_home, NEO_ANIM_POLKADOT, NEO_ANIM_HOME);
   // setNeoAnimColours(&neo_animation_home, NEO_GREEN, NEO_CYAN);
