@@ -1,37 +1,6 @@
 #include "RobotButterfly.h"
 
 RobotButterfly::RobotButterfly() {
-  onHoldNotificationCallback = NULL;
-  onHoldReleasedCallback = NULL;
-  onClickCallback = NULL;
-  onReleaseCallback = NULL;
-  
-  onSoundDoneCallback = NULL;
-
-  onStateChangeCallback = NULL;
-  onOrientationChangeCallback = NULL;
-  onPoseChangeCallback = NULL;
-  onEventDetectedCallback = NULL;
-
-  onNeoAnimDoneCallback = NULL;
-  onNeoAnimLoopCallback = NULL;
-
-  onServoAnimDoneCallback = NULL;
-  onServoAnimLoopCallback = NULL;
-
-  // -- sensor callbacks --
-  // all_sensors[SENSOR_ID_HUMIDITY]->onSensorChangeCallback = NULL;
-  // all_sensors[SENSOR_ID_HUMIDITY]->onSensorAmbientChangeCallback = NULL;
-
-  // all_sensors[SENSOR_ID_LIGHT]->onSensorChangeCallback = NULL;
-  // all_sensors[SENSOR_ID_LIGHT]->onSensorAmbientChangeCallback = NULL;
-
-  // all_sensors[SENSOR_ID_SOUND]->onSensorChangeCallback = NULL;
-  // all_sensors[SENSOR_ID_SOUND]->onSensorAmbientChangeCallback = NULL;
-
-  // all_sensors[SENSOR_ID_TEMPERATURE]->onSensorChangeCallback = NULL;
-  // all_sensors[SENSOR_ID_TEMPERATURE]->onSensorAmbientChangeCallback = NULL;
-  // --
 }
 
 void RobotButterfly::init() {
@@ -42,14 +11,9 @@ void RobotButterfly::init() {
   // initNeoAnimations();
   // initServos(SERVO_MODE_INIT_BOTH);
   // initServoAnimations();
-  initSensors();
+  // initSensors();
+  initProximity();
 
-  // setNeoAnim(&neo_animation_home, NEO_ANIM_POLKADOT, NEO_ANIM_HOME);
-  // setNeoAnimColours(&neo_animation_home, NEO_MAGENTA, NEO_CYAN);
-  // startNeoAnim(&neo_animation_home);
-
-  // setServoAnim(&servo_animation_alert, SERVO_ANIM_SWAY, SERVO_ANIM_ALERT);
-  // startServoAnim(&servo_animation_alert);
 
   // -- button callbacks --
   onHoldNotificationCallback = buttonHoldNotificationCallback;
@@ -88,20 +52,35 @@ void RobotButterfly::init() {
   all_sensors[SENSOR_ID_TEMPERATURE]->onSensorAmbientChangeCallback = sensorTemperatureAmbientChangeCallback;
   // --
 
-  // -- sensor testing
+  // -- proximity callbacks --
+  ultrasonic.onProximityTriggerCallback = proximityTriggerCallback;
+  // --
+
+  // neoanim testing
+  // setNeoAnim(&neo_animation_home, NEO_ANIM_POLKADOT, NEO_ANIM_HOME);
+  // setNeoAnimColours(&neo_animation_home, NEO_MAGENTA, NEO_CYAN);
+  // startNeoAnim(&neo_animation_home);
+
+  // servoanim testing
+  // setServoAnim(&servo_animation_alert, SERVO_ANIM_SWAY, SERVO_ANIM_ALERT);
+  // startServoAnim(&servo_animation_alert);
+
+  // sensor testing
   for(uint8_t i=0; i<NUM_SENSORS; i++) {
-    all_sensors[i]->print = true;
+    if(all_sensors[i]) all_sensors[i]->print = true;
   }
 
 }
 
+
 void RobotButterfly::update() {
 
     updateButtons();
-    //updateIMU();
+    // updateIMU();
     // updateNeoAnimation();
     // updateServoAnimation();
-    updateSensors();
+    // updateSensors();
+    updateProximity();
 
 }
 
@@ -437,3 +416,24 @@ void RobotButterfly::sensorHumidityAmbientChangeCallback(struct Sensor *s, int c
 }
 
 // ----------------------------------
+
+
+// ----------------------------------
+// ----- proximity callbacks --------
+// ----------------------------------
+
+// uses the raw value to trigger the close proximity
+// this is called at intervals defined by PROXIMITY_TRIGGER_FREQ
+void RobotButterfly::proximityTriggerCallback(struct Proximity *p) {
+  
+  // TODO: remember to get rid of the lines below
+  
+  Serial << "----> Close proximity detected!" << endl;
+  
+  // TODO: call user callback
+
+}
+
+// ----------------------------------
+
+

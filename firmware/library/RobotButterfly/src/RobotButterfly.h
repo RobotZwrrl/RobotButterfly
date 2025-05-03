@@ -12,6 +12,7 @@
 // ESP32Servo - v3.0.6 https://github.com/madhephaestus/ESP32Servo 
 // ServoEasing - v3.4.0 https://github.com/ArminJo/ServoEasing
 // DHT.h - v1.4.6 https://github.com/adafruit/DHT-sensor-library & 1.1.15 https://github.com/adafruit/Adafruit_Sensor 
+// HCSR04.h - v1.1.3 https://github.com/d03n3rfr1tz3/HC-SR04 
 
 
 #include "modules/Buttons/Buttons.h"
@@ -20,7 +21,7 @@
 #include "modules/NeoAnimation/NeoAnimation.h"
 #include "modules/ServoAnimation/ServoAnimation.h"
 #include "modules/Sensors/Sensors.h"
-//#include "modules/Proximity.h"
+#include "modules/Proximity/Proximity.h"
 //#include "modules/StateMachine.h"
 
 #define ROBOT_BUTTERFLY_LIBRARY_VERSION "0.0.1"
@@ -71,6 +72,11 @@ public:
     static void sensorTemperatureAmbientChangeCallback(struct Sensor *s, int change);
     static void sensorHumidityChangeCallback(struct Sensor *s, bool trigger_dir);
     static void sensorHumidityAmbientChangeCallback(struct Sensor *s, int change);
+    // TODO: add user callbacks
+    // --
+
+    // -- proximity callbacks --
+    static void proximityTriggerCallback(struct Proximity *p);
     // TODO: add user callbacks
     // --
 
