@@ -61,7 +61,7 @@ static struct Proximity ultrasonic;
 hw_timer_t *timer_10Hz_config = NULL;
 // ------------------------------------
 
-// ------------ sensor isr ------------
+// ---------- proximity isr ----------
 void IRAM_ATTR Timer_10Hz_ISR() { // every 0.1 seconds
 
   // refresh ultrasonic every 0.5 seconds

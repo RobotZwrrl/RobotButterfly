@@ -55,9 +55,9 @@ void initProximity() {
   ultrasonic.reload_raw = 1*5;        // every 0.5 seconds
   ultrasonic.val_avg.begin();
 
-  // set up timer 2 for every 0.1 second
-  // params: timer #2, prescaler amount, count up (true)
-  timer_10Hz_config = timerBegin(1, 16000, true);
+  // set up timer 3 for every 0.1 second
+  // params: timer #3, prescaler amount, count up (true)
+  timer_10Hz_config = timerBegin(3, 16000, true);
   timerAttachInterrupt(timer_10Hz_config, &Timer_10Hz_ISR, true);
   // params: timer, tick count, auto-reload (true)
   timerAlarmWrite(timer_10Hz_config, 500, true);
