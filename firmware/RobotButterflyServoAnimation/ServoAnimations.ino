@@ -71,6 +71,7 @@ bool servoAnimationChecks(struct ServoAnimation *a) {
       a->last_repeat = millis();
       if(onServoAnimLoopCallback) onServoAnimLoopCallback(a);
     }
+    if(DEBUG_SERVO_ANIM) Serial << "frame (" << a->frame_index << ") " << endl;
   } else {
     return false;
   }
@@ -136,18 +137,16 @@ void runServoAnim_gentle(struct ServoAnimation *a) {
 
   switch(a->frame_index) {
     case 0: {
-      Serial << "frame (" << a->frame_index << ") " << endl;
-      wing_left.motor.setEaseTo( servoSafeValLeft(SERVO_LEFT_HOME+flap_offset), velocity);
-      wing_right.motor.setEaseTo( servoSafeValRight(SERVO_RIGHT_HOME-flap_offset), velocity);
+      wing_left.motor.setEaseTo( getServoSafeValLeft(SERVO_LEFT_HOME+flap_offset), velocity);
+      wing_right.motor.setEaseTo( getServoSafeValRight(SERVO_RIGHT_HOME-flap_offset), velocity);
       synchronizeAllServosAndStartInterrupt(false);
       a->frame_delay = 100+wing_left.motor.mMillisForCompleteMove;
       a->last_frame = millis();
     }
     break;
     case 1: {
-      Serial << "frame (" << a->frame_index << ") " << endl;
-      wing_left.motor.setEaseTo( servoSafeValLeft(SERVO_LEFT_UP), velocity);
-      wing_right.motor.setEaseTo( servoSafeValRight(SERVO_RIGHT_UP), velocity);
+      wing_left.motor.setEaseTo( getServoSafeValLeft(SERVO_LEFT_UP), velocity);
+      wing_right.motor.setEaseTo( getServoSafeValRight(SERVO_RIGHT_UP), velocity);
       synchronizeAllServosAndStartInterrupt(false);
       a->frame_delay = 250+wing_left.motor.mMillisForCompleteMove;
       a->last_frame = millis();
@@ -167,18 +166,16 @@ void runServoAnim_sway(struct ServoAnimation *a) {
 
   switch(a->frame_index) {
     case 0: {
-      Serial << "frame (" << a->frame_index << ") " << endl;
-      wing_left.motor.setEaseTo( servoSafeValLeft(SERVO_LEFT_UP), velocity);
-      wing_right.motor.setEaseTo( servoSafeValRight(SERVO_RIGHT_HOME-sway_offset), velocity);
+      wing_left.motor.setEaseTo( getServoSafeValLeft(SERVO_LEFT_UP), velocity);
+      wing_right.motor.setEaseTo( getServoSafeValRight(SERVO_RIGHT_HOME-sway_offset), velocity);
       synchronizeAllServosAndStartInterrupt(false);
       a->frame_delay = 80+wing_left.motor.mMillisForCompleteMove;
       a->last_frame = millis();
     }
     break;
     case 1: {
-      Serial << "frame (" << a->frame_index << ") " << endl;
-      wing_left.motor.setEaseTo( servoSafeValLeft(SERVO_LEFT_HOME+sway_offset), velocity);
-      wing_right.motor.setEaseTo( servoSafeValRight(SERVO_RIGHT_UP), velocity);
+      wing_left.motor.setEaseTo( getServoSafeValLeft(SERVO_LEFT_HOME+sway_offset), velocity);
+      wing_right.motor.setEaseTo( getServoSafeValRight(SERVO_RIGHT_UP), velocity);
       synchronizeAllServosAndStartInterrupt(false);
       a->frame_delay = 80+wing_left.motor.mMillisForCompleteMove;
       a->last_frame = millis();
@@ -198,18 +195,16 @@ void runServoAnim_soaring(struct ServoAnimation *a) {
 
   switch(a->frame_index) {
     case 0: {
-      Serial << "frame (" << a->frame_index << ") " << endl;
-      wing_left.motor.setEaseTo( servoSafeValLeft(SERVO_LEFT_UP), velocity);
-      wing_right.motor.setEaseTo( servoSafeValRight(SERVO_RIGHT_DOWN-soaring_offset), velocity);
+      wing_left.motor.setEaseTo( getServoSafeValLeft(SERVO_LEFT_UP), velocity);
+      wing_right.motor.setEaseTo( getServoSafeValRight(SERVO_RIGHT_DOWN-soaring_offset), velocity);
       synchronizeAllServosAndStartInterrupt(false);
       a->frame_delay = 40+wing_left.motor.mMillisForCompleteMove;
       a->last_frame = millis();
     }
     break;
     case 1: {
-      Serial << "frame (" << a->frame_index << ") " << endl;
-      wing_left.motor.setEaseTo( servoSafeValLeft(SERVO_LEFT_DOWN+soaring_offset), velocity);
-      wing_right.motor.setEaseTo( servoSafeValRight(SERVO_RIGHT_UP), velocity);
+      wing_left.motor.setEaseTo( getServoSafeValLeft(SERVO_LEFT_DOWN+soaring_offset), velocity);
+      wing_right.motor.setEaseTo( getServoSafeValRight(SERVO_RIGHT_UP), velocity);
       synchronizeAllServosAndStartInterrupt(false);
       a->frame_delay = 40+wing_left.motor.mMillisForCompleteMove;
       a->last_frame = millis();
@@ -230,18 +225,16 @@ void runServoAnim_touchgrass(struct ServoAnimation *a) {
 
   switch(a->frame_index) {
     case 0: {
-      Serial << "frame (" << a->frame_index << ") " << endl;
-      wing_left.motor.setEaseTo( servoSafeValLeft(SERVO_LEFT_DOWN+down_offset), velocity);
-      wing_right.motor.setEaseTo( servoSafeValRight(SERVO_RIGHT_DOWN-down_offset), velocity);
+      wing_left.motor.setEaseTo( getServoSafeValLeft(SERVO_LEFT_DOWN+down_offset), velocity);
+      wing_right.motor.setEaseTo( getServoSafeValRight(SERVO_RIGHT_DOWN-down_offset), velocity);
       synchronizeAllServosAndStartInterrupt(false);
       a->frame_delay = 100+wing_left.motor.mMillisForCompleteMove;
       a->last_frame = millis();
     }
     break;
     case 1: {
-      Serial << "frame (" << a->frame_index << ") " << endl;
-      wing_left.motor.setEaseTo( servoSafeValLeft(SERVO_LEFT_DOWN+down2_offset), velocity);
-      wing_right.motor.setEaseTo( servoSafeValRight(SERVO_RIGHT_DOWN-down2_offset), velocity);
+      wing_left.motor.setEaseTo( getServoSafeValLeft(SERVO_LEFT_DOWN+down2_offset), velocity);
+      wing_right.motor.setEaseTo( getServoSafeValRight(SERVO_RIGHT_DOWN-down2_offset), velocity);
       synchronizeAllServosAndStartInterrupt(false);
       a->frame_delay = 80+wing_left.motor.mMillisForCompleteMove;
       a->last_frame = millis();
@@ -262,18 +255,16 @@ void runServoAnim_swoosh(struct ServoAnimation *a) {
 
   switch(a->frame_index) {
     case 0: {
-      Serial << "frame (" << a->frame_index << ") " << endl;
-      wing_left.motor.setEaseTo( servoSafeValLeft(SERVO_LEFT_UP-flap_offset), velocity);
-      wing_right.motor.setEaseTo( servoSafeValRight(SERVO_RIGHT_UP+flap_offset), velocity);
+      wing_left.motor.setEaseTo( getServoSafeValLeft(SERVO_LEFT_UP-flap_offset), velocity);
+      wing_right.motor.setEaseTo( getServoSafeValRight(SERVO_RIGHT_UP+flap_offset), velocity);
       synchronizeAllServosAndStartInterrupt(false);
       a->frame_delay = 250+wing_left.motor.mMillisForCompleteMove;
       a->last_frame = millis();
     }
     break;
     case 1: {
-      Serial << "frame (" << a->frame_index << ") " << endl;
-      wing_left.motor.setEaseTo( servoSafeValLeft(SERVO_LEFT_DOWN+down_offset), velocity);
-      wing_right.motor.setEaseTo( servoSafeValRight(SERVO_RIGHT_DOWN-down_offset), velocity);
+      wing_left.motor.setEaseTo( getServoSafeValLeft(SERVO_LEFT_DOWN+down_offset), velocity);
+      wing_right.motor.setEaseTo( getServoSafeValRight(SERVO_RIGHT_DOWN-down_offset), velocity);
       synchronizeAllServosAndStartInterrupt(false);
       a->frame_delay = 100+wing_left.motor.mMillisForCompleteMove;
       a->last_frame = millis();
@@ -295,90 +286,80 @@ void runServoAnim_party(struct ServoAnimation *a) {
 
   switch(a->frame_index) {
     case 0: {
-      Serial << "frame (" << a->frame_index << ") " << endl;
-      wing_left.motor.setEaseTo( servoSafeValLeft(SERVO_LEFT_HOME), velocity);
-      wing_right.motor.setEaseTo( servoSafeValRight(SERVO_RIGHT_HOME), velocity);
+      wing_left.motor.setEaseTo( getServoSafeValLeft(SERVO_LEFT_HOME), velocity);
+      wing_right.motor.setEaseTo( getServoSafeValRight(SERVO_RIGHT_HOME), velocity);
       synchronizeAllServosAndStartInterrupt(false);
       a->frame_delay = 0+wing_left.motor.mMillisForCompleteMove;
       a->last_frame = millis();
     }
     break;
     case 1: {
-      Serial << "frame (" << a->frame_index << ") " << endl;
-      wing_left.motor.setEaseTo( servoSafeValLeft(SERVO_LEFT_UP-step1_offset), velocity);
-      wing_right.motor.setEaseTo( servoSafeValRight(SERVO_RIGHT_DOWN-step1_offset), velocity);
+      wing_left.motor.setEaseTo( getServoSafeValLeft(SERVO_LEFT_UP-step1_offset), velocity);
+      wing_right.motor.setEaseTo( getServoSafeValRight(SERVO_RIGHT_DOWN-step1_offset), velocity);
       synchronizeAllServosAndStartInterrupt(false);
       a->frame_delay = 0+wing_left.motor.mMillisForCompleteMove;
       a->last_frame = millis();
     }
     break;
     case 2: {
-      Serial << "frame (" << a->frame_index << ") " << endl;
-      wing_left.motor.setEaseTo( servoSafeValLeft(SERVO_LEFT_UP-step2_offset), velocity);
-      wing_right.motor.setEaseTo( servoSafeValRight(SERVO_RIGHT_DOWN-step2_offset), velocity);
+      wing_left.motor.setEaseTo( getServoSafeValLeft(SERVO_LEFT_UP-step2_offset), velocity);
+      wing_right.motor.setEaseTo( getServoSafeValRight(SERVO_RIGHT_DOWN-step2_offset), velocity);
       synchronizeAllServosAndStartInterrupt(false);
       a->frame_delay = 0+wing_left.motor.mMillisForCompleteMove;
       a->last_frame = millis();
     }
     break;
     case 3: {
-      Serial << "frame (" << a->frame_index << ") " << endl;
-      wing_left.motor.setEaseTo( servoSafeValLeft(SERVO_LEFT_UP-step3_offset), velocity);
-      wing_right.motor.setEaseTo( servoSafeValRight(SERVO_RIGHT_DOWN-step3_offset), velocity);
+      wing_left.motor.setEaseTo( getServoSafeValLeft(SERVO_LEFT_UP-step3_offset), velocity);
+      wing_right.motor.setEaseTo( getServoSafeValRight(SERVO_RIGHT_DOWN-step3_offset), velocity);
       synchronizeAllServosAndStartInterrupt(false);
       a->frame_delay = 0+wing_left.motor.mMillisForCompleteMove;
       a->last_frame = millis();
     }
     break;
     case 4: {
-      Serial << "frame (" << a->frame_index << ") " << endl;
-      wing_left.motor.setEaseTo( servoSafeValLeft(SERVO_LEFT_UP-step1_offset), velocity);
-      wing_right.motor.setEaseTo( servoSafeValRight(SERVO_RIGHT_DOWN-step1_offset), velocity);
+      wing_left.motor.setEaseTo( getServoSafeValLeft(SERVO_LEFT_UP-step1_offset), velocity);
+      wing_right.motor.setEaseTo( getServoSafeValRight(SERVO_RIGHT_DOWN-step1_offset), velocity);
       synchronizeAllServosAndStartInterrupt(false);
       a->frame_delay = 0+wing_left.motor.mMillisForCompleteMove;
       a->last_frame = millis();
     }
     break;
     case 5: {
-      Serial << "frame (" << a->frame_index << ") " << endl;
-      wing_left.motor.setEaseTo( servoSafeValLeft(SERVO_LEFT_HOME), velocity);
-      wing_right.motor.setEaseTo( servoSafeValRight(SERVO_RIGHT_HOME), velocity);
+      wing_left.motor.setEaseTo( getServoSafeValLeft(SERVO_LEFT_HOME), velocity);
+      wing_right.motor.setEaseTo( getServoSafeValRight(SERVO_RIGHT_HOME), velocity);
       synchronizeAllServosAndStartInterrupt(false);
       a->frame_delay = 0+wing_left.motor.mMillisForCompleteMove;
       a->last_frame = millis();
     }
     break;
     case 6: {
-      Serial << "frame (" << a->frame_index << ") " << endl;
-      wing_left.motor.setEaseTo( servoSafeValLeft(SERVO_LEFT_DOWN+step1_offset), velocity);
-      wing_right.motor.setEaseTo( servoSafeValRight(SERVO_RIGHT_UP+step1_offset), velocity);
+      wing_left.motor.setEaseTo( getServoSafeValLeft(SERVO_LEFT_DOWN+step1_offset), velocity);
+      wing_right.motor.setEaseTo( getServoSafeValRight(SERVO_RIGHT_UP+step1_offset), velocity);
       synchronizeAllServosAndStartInterrupt(false);
       a->frame_delay = 0+wing_left.motor.mMillisForCompleteMove;
       a->last_frame = millis();
     }
     break;
     case 7: {
-      Serial << "frame (" << a->frame_index << ") " << endl;
-      wing_left.motor.setEaseTo( servoSafeValLeft(SERVO_LEFT_DOWN+step2_offset), velocity);
-      wing_right.motor.setEaseTo( servoSafeValRight(SERVO_RIGHT_UP+step2_offset), velocity);
+      wing_left.motor.setEaseTo( getServoSafeValLeft(SERVO_LEFT_DOWN+step2_offset), velocity);
+      wing_right.motor.setEaseTo( getServoSafeValRight(SERVO_RIGHT_UP+step2_offset), velocity);
       synchronizeAllServosAndStartInterrupt(false);
       a->frame_delay = 0+wing_left.motor.mMillisForCompleteMove;
       a->last_frame = millis();
     }
     break;
     case 8: {
-      Serial << "frame (" << a->frame_index << ") " << endl;
-      wing_left.motor.setEaseTo( servoSafeValLeft(SERVO_LEFT_DOWN+step3_offset), velocity);
-      wing_right.motor.setEaseTo( servoSafeValRight(SERVO_RIGHT_UP+step3_offset), velocity);
+      wing_left.motor.setEaseTo( getServoSafeValLeft(SERVO_LEFT_DOWN+step3_offset), velocity);
+      wing_right.motor.setEaseTo( getServoSafeValRight(SERVO_RIGHT_UP+step3_offset), velocity);
       synchronizeAllServosAndStartInterrupt(false);
       a->frame_delay = 0+wing_left.motor.mMillisForCompleteMove;
       a->last_frame = millis();
     }
     break;
     case 9: {
-      Serial << "frame (" << a->frame_index << ") " << endl;
-      wing_left.motor.setEaseTo( servoSafeValLeft(SERVO_LEFT_DOWN+step1_offset), velocity);
-      wing_right.motor.setEaseTo( servoSafeValRight(SERVO_RIGHT_UP+step1_offset), velocity);
+      wing_left.motor.setEaseTo( getServoSafeValLeft(SERVO_LEFT_DOWN+step1_offset), velocity);
+      wing_right.motor.setEaseTo( getServoSafeValRight(SERVO_RIGHT_UP+step1_offset), velocity);
       synchronizeAllServosAndStartInterrupt(false);
       a->frame_delay = 0+wing_left.motor.mMillisForCompleteMove;
       a->last_frame = millis();
@@ -495,10 +476,8 @@ void runServoAnim_flutter(struct ServoAnimation *a) {
 
   // -- same for both frames --
 
-  Serial << "frame (" << a->frame_index << ") " << endl;
-
-  if(left_val != -99) wing_left.motor.setEaseTo( servoSafeValLeft(left_val), velocity);
-  if(right_val != -99) wing_right.motor.setEaseTo( servoSafeValRight(right_val), velocity);
+  if(left_val != -99) wing_left.motor.setEaseTo( getServoSafeValLeft(left_val), velocity);
+  if(right_val != -99) wing_right.motor.setEaseTo( getServoSafeValRight(right_val), velocity);
 
   synchronizeAllServosAndStartInterrupt(false);
   if(left_val != -99) a->frame_delay = 0+wing_left.motor.mMillisForCompleteMove;
@@ -541,10 +520,8 @@ void runServoAnim_range(struct ServoAnimation *a) {
 
   // -- only one frame --
 
-  Serial << "frame (" << a->frame_index << ") " << endl;
-
-  if(left_val != -99) wing_left.motor.setEaseTo( servoSafeValLeft(left_val), velocity);
-  if(right_val != -99) wing_right.motor.setEaseTo( servoSafeValRight(right_val), velocity);
+  if(left_val != -99) wing_left.motor.setEaseTo( getServoSafeValLeft(left_val), velocity);
+  if(right_val != -99) wing_right.motor.setEaseTo( getServoSafeValRight(right_val), velocity);
 
   synchronizeAllServosAndStartInterrupt(false);
   if(left_val != -99) a->frame_delay = 0+wing_left.motor.mMillisForCompleteMove;
@@ -580,10 +557,8 @@ void runServoAnim_position(struct ServoAnimation *a) {
 
   // -- only one frame --
 
-  Serial << "frame (" << a->frame_index << ") " << endl;
-
-  if(left_val != -99) wing_left.motor.setEaseTo( servoSafeValLeft(left_val), velocity);
-  if(right_val != -99) wing_right.motor.setEaseTo( servoSafeValRight(right_val), velocity);
+  if(left_val != -99) wing_left.motor.setEaseTo( getServoSafeValLeft(left_val), velocity);
+  if(right_val != -99) wing_right.motor.setEaseTo( getServoSafeValRight(right_val), velocity);
 
   synchronizeAllServosAndStartInterrupt(false);
   if(left_val != -99) del_L = 0+wing_left.motor.mMillisForCompleteMove;

@@ -133,7 +133,7 @@ void setServoAnimPositionRight(struct ServoAnimation *a, int n) {
 // ------------ getters -------------
 // ----------------------------------
 
-int servoSafeValLeft(int n) {
+int getServoSafeValLeft(int n) {
   int val = n;
 
   if(n < SERVO_LEFT_DOWN) val = SERVO_LEFT_DOWN;
@@ -142,7 +142,7 @@ int servoSafeValLeft(int n) {
   return val;
 }
 
-int servoSafeValRight(int n) {
+int getServoSafeValRight(int n) {
   int val = n;
 
   if(n > SERVO_RIGHT_DOWN) val = SERVO_RIGHT_DOWN;
