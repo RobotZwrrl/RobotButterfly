@@ -9,7 +9,7 @@ void updateStateMachine() {
     if(!BATTERY_AA_MODE) {
 
       switch(CURRENT_STATE) {
-        case STATE1: {
+        case STATE1:
           setupState1();
         break;
         case STATE2:
@@ -135,8 +135,8 @@ void transitionState() {
   t_transition = millis();
   update_state = false;
 
-  // timer transition - timer 3
-  timer_state_cfg = timerBegin(3, 8000, true);
+  // timer transition - timer 4
+  timer_state_cfg = timerBegin(4, 8000, true);
   timerAttachInterrupt(timer_state_cfg, &Timer_State_ISR, true);
   // params: timer, tick count, auto-reload (false to run once)
   timerAlarmWrite(timer_state_cfg, TRANSITION_FRAME_TIME, false);
@@ -151,8 +151,8 @@ void transitionState() {
 
 void initStateMachine() {
 
-  // timer transition - timer 3
-  timer_state_cfg = timerBegin(3, 8000, true);
+  // timer transition - timer 4
+  timer_state_cfg = timerBegin(4, 8000, true);
   timerAttachInterrupt(timer_state_cfg, &Timer_State_ISR, true);
 
 }

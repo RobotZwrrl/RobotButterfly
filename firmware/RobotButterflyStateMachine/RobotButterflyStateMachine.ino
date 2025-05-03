@@ -23,8 +23,6 @@
 
 
 // ------------ states -----------
-// this is where you can order the behaviours
-// @globals_start
 enum StatesMachine {
   STATE1,
   STATE2,
@@ -51,16 +49,13 @@ long t_enter = 0;
 long t_delta = 0;
 
 hw_timer_t *timer_state_cfg = NULL;
-// @globals_end
 
-// @isr_start
 void IRAM_ATTR Timer_State_ISR() {
   enter_state = false;
   update_state = true;
   new_print = true;
   new_update = true;
 }
-// @isr_end
 // -------------------------------
 
 // ------------ other ------------
