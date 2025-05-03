@@ -9,16 +9,17 @@
 // movingAvg - v2.3.2 https://github.com/JChristensen/movingAvg
 // MPU6050.h - v1.4.1 https://github.com/ElectronicCats/mpu6050
 // Adafruit Neopixel - v.1.12.4 https://github.com/adafruit/Adafruit_NeoPixel
+// ESP32Servo - v3.0.6 https://github.com/madhephaestus/ESP32Servo 
+// ServoEasing - v3.4.0 https://github.com/ArminJo/ServoEasing
+
 
 #include "modules/Buttons/Buttons.h"
 #include "modules/Sound/Sound.h"
 #include "modules/IMU/IMU.h"
 #include "modules/NeoAnimation/NeoAnimation.h"
-//#include "modules/NeoColours.h"
+#include "modules/ServoAnimation/ServoAnimation.h"
 //#include "modules/Proximity.h"
 //#include "modules/Sensors.h"
-//#include "modules/ServoAnimation.h"
-//#include "modules/Sound.h"
 //#include "modules/StateMachine.h"
 
 #define ROBOT_BUTTERFLY_LIBRARY_VERSION "0.0.1"
@@ -52,7 +53,13 @@ public:
     static void neoAnimDoneCallback(struct NeoAnimation *a);
     static void neoAnimLoopCallback(struct NeoAnimation *a);
     // TODO: add user callbacks
-    // --   
+    // --
+
+    // -- servoanimation callbacks --
+    static void servoAnimDoneCallback(struct ServoAnimation *a);
+    static void servoAnimLoopCallback(struct ServoAnimation *a);
+    // TODO: add user callbacks
+    // --
 
     void init();
     void update();

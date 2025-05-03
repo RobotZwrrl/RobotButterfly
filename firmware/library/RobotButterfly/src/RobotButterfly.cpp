@@ -15,6 +15,9 @@ RobotButterfly::RobotButterfly() {
 
   onNeoAnimDoneCallback = NULL;
   onNeoAnimLoopCallback = NULL;
+
+  onServoAnimDoneCallback = NULL;
+  onServoAnimLoopCallback = NULL;
 }
 
 void RobotButterfly::init() {
@@ -23,10 +26,15 @@ void RobotButterfly::init() {
   initIMU();
   initNeopixels();
   initNeoAnimations();
+  initServos(SERVO_MODE_INIT_BOTH);
+  initServoAnimations();
 
   // setNeoAnim(&neo_animation_home, NEO_ANIM_POLKADOT, NEO_ANIM_HOME);
   // setNeoAnimColours(&neo_animation_home, NEO_MAGENTA, NEO_CYAN);
   // startNeoAnim(&neo_animation_home);
+
+  // setServoAnim(&servo_animation_alert, SERVO_ANIM_SWAY, SERVO_ANIM_ALERT);
+  // startServoAnim(&servo_animation_alert);
 
   // -- button callbacks --
   onHoldNotificationCallback = buttonHoldNotificationCallback;
@@ -58,14 +66,15 @@ void RobotButterfly::update() {
     updateButtons();
     //updateIMU();
     updateNeoAnimation();
+    updateServoAnimation();
 
 }
 
 
 
-// ------------------------------------
-// --------- Button Callbacks ---------
-// ------------------------------------
+// ----------------------------------
+// --------- button callbacks -------
+// ----------------------------------
 
 // give user feedback that they have held the
 // button and its time to to release the button
@@ -120,24 +129,24 @@ void RobotButterfly::buttonReleaseCallback(uint8_t n) {
   // TODO: call user callback
 }
 
-// ----------------------
+// ----------------------------------
 
 
-// ------------------------------------
-// --------- Sound Callbacks ----------
-// ------------------------------------
+// ----------------------------------
+// --------- sound callbacks --------
+// ----------------------------------
 
 void RobotButterfly::soundDoneCallback(uint8_t id) {
   if(DEBUG_SOUND) Serial << "done sound (" << id << ")" << endl;
   // TODO: call user callback
 }
 
-// ----------------------
+// ----------------------------------
 
 
-// ------------------------------------
-// ---------- IMU Callbacks -----------
-// ------------------------------------
+// ----------------------------------
+// ---------- imu callbacks ---------
+// ----------------------------------
 
 void RobotButterfly::imuStateChangeCallback(uint8_t s) {
   if(DEBUG_IMU_NEWS) Serial << millis() << " imu state changed" << endl;
@@ -198,7 +207,7 @@ void RobotButterfly::imuEventDetectedCallback(uint8_t e) {
   // TODO: call user callback
 }
 
-// ------------------------------------
+// ----------------------------------
 
 
 // ----------------------------------
@@ -222,4 +231,29 @@ void RobotButterfly::neoAnimLoopCallback(struct NeoAnimation *a) {
 }
 
 // ----------------------------------
+
+
+// ----------------------------------
+// ------ servoanim callbacks -------
+// ----------------------------------
+
+// the servo animation is done
+void RobotButterfly::servoAnimDoneCallback(struct ServoAnimation *a) {
+  // TODO: remember to get rid of the line below
+  if(a->type == SERVO_ANIM_HOME) return;
+  Serial << "Callback: Servo animation (" << a->id << ") done" << endl;
+  // TODO: call user callback
+}
+
+// the servo animation has looped
+void RobotButterfly::servoAnimLoopCallback(struct ServoAnimation *a) {
+  // TODO: remember to get rid of the line below
+  if(a->type == SERVO_ANIM_HOME) return;
+  if(a->num_frames <= 1) return; // skip the one frame animations
+  Serial << "Callback: Servo animation (" << a->id << ") looped" << endl;
+  // TODO: call user callback
+}
+
+// ----------------------------------
+
 
