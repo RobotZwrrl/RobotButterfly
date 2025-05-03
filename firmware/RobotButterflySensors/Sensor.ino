@@ -124,6 +124,8 @@ void updateSensors() {
     printSensor(s);
   }
 
+  // here are some snippets good for debugging
+
   // processSensors( all_sensors[SENSOR_ID_LIGHT] );
   // all_sensors[SENSOR_ID_LIGHT]->updateSensor( all_sensors[SENSOR_ID_LIGHT] );
 
@@ -135,6 +137,9 @@ void updateSensors() {
 
   // processSensors( all_sensors[SENSOR_ID_TEMPERATURE] );
   // all_sensors[SENSOR_ID_TEMPERATURE]->updateSensor( all_sensors[SENSOR_ID_TEMPERATURE] );
+
+  // processSensors( all_sensors[SENSOR_ID_HUMIDITY] );
+  // all_sensors[SENSOR_ID_HUMIDITY]->updateSensor( all_sensors[SENSOR_ID_HUMIDITY] );
 
 }
 

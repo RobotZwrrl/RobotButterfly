@@ -17,7 +17,7 @@ void initSensor_Battery(struct Sensor *s) {
 
   s->id = SENSOR_ID_BATTERY;
   s->name = "Battery";
-  s->print = false;
+  s->print = true;
   s->print_frequency = 1000;
   
   s->reload_raw = 1;          // every 0.1 seconds

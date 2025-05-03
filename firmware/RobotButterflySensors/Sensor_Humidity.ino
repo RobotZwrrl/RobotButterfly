@@ -67,7 +67,7 @@ void initSensor_Humidity(struct Sensor *s) {
 
   s->id = SENSOR_ID_HUMIDITY;
   s->name = "Humidity";
-  s->print = false;
+  s->print = true;
   s->print_frequency = 3000;
   
   s->reload_raw = 1*10*3;          // every 3 seconds

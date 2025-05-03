@@ -67,7 +67,7 @@ void initSensor_Temperature(struct Sensor *s) {
 
   s->id = SENSOR_ID_TEMPERATURE;
   s->name = "Temperature";
-  s->print = false;
+  s->print = true;
   s->print_frequency = 3000;
   
   s->reload_raw = 1*10*3;          // every 3 seconds
