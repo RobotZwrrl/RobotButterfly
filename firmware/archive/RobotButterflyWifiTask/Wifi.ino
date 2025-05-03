@@ -27,7 +27,7 @@ void Task_WIFI_code(void * pvParameters) {
     wifiTaskMon.task_priority = uxTaskPriorityGet(Task_WIFI);
 
     // take mutex prior to critical section
-    if(xSemaphoreTake(Mutex_WIFI, (TickType_t)10) != pdTRUE) {
+    if(xSemaphoreTake(Mutex_WIFI, (TickType_t)10) == pdTRUE) {
       
       updateWifi();
 
