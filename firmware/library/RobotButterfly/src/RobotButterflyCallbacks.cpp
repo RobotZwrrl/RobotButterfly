@@ -33,14 +33,6 @@ void RobotButterfly::buttonHoldNotificationCallback(uint8_t n) {
 
 // do an action here
 void RobotButterfly::buttonHoldReleasedCallback(uint8_t n) {
-  switch(n) {
-    case BUTTON_BOTH:
-    break;
-    case BUTTON_LEFT:
-    break;
-    case BUTTON_RIGHT:
-    break;
-  }
   
   if(onHoldReleasedCallback_client != NULL) onHoldReleasedCallback_client(n);
 }
@@ -51,12 +43,12 @@ void RobotButterfly::buttonClickCallback(uint8_t n) {
     case BUTTON_LEFT:
       playSimpleTone(NOTE_A5, 100);
       playNoTone();
-      incrementState();
+      if(CHANGE_STATES_CONTROL) incrementState();
     break;
     case BUTTON_RIGHT:
       playSimpleTone(NOTE_A7, 100);
       playNoTone();
-      decrementState();
+      if(CHANGE_STATES_CONTROL) decrementState();
     break;
   }
   
@@ -78,6 +70,7 @@ void RobotButterfly::buttonReleaseCallback(uint8_t n) {
 SoundCallback RobotButterfly::onSoundDoneCallback_client = NULL;
 
 void RobotButterfly::soundDoneCallback(uint8_t id) {
+  
   if(DEBUG_SOUND) Serial << "done sound (" << id << ")" << endl;
   
   if(onSoundDoneCallback_client != NULL) onSoundDoneCallback_client(id);
@@ -96,64 +89,29 @@ IMUCallback RobotButterfly::onPoseChangeCallback_client = NULL;
 IMUCallback RobotButterfly::onEventDetectedCallback_client = NULL;
 
 void RobotButterfly::imuStateChangeCallback(uint8_t s) {
+  
   if(DEBUG_IMU_NEWS) Serial << millis() << " imu state changed" << endl;
-  // do actions here
-  switch(s) {
-    case IMU_SETTLE:
-    break;
-    case IMU_CALIBRATE_HOME:
-    break;
-    case IMU_ACTIVE:
-    break;
-    case IMU_INACTIVE:
-    break;
-  }
   
   if(onStateChangeCallback_client != NULL) onStateChangeCallback_client(s);
 }
 
 void RobotButterfly::imuOrientationChangeCallback(uint8_t o) {
+  
   if(DEBUG_IMU_NEWS) Serial << millis() << " imu orientation changed" << endl;
-  // do actions here
-  switch(o) {
-    case IMU_TABLETOP:
-    break;
-    case IMU_HANG:
-    break;
-    case IMU_UNKNOWN:
-    break;
-  }
   
   if(onOrientationChangeCallback_client != NULL) onOrientationChangeCallback_client(o);
 }
 
 void RobotButterfly::imuPoseChangeCallback(uint8_t p) {
+  
   if(DEBUG_IMU_NEWS) Serial << millis() << " imu pose changed" << endl;
-  // do actions here
-  switch(p) {
-    case IMU_Pose_Tilt_L:
-    break;
-    case IMU_Pose_Tilt_R:
-    break;
-    case IMU_Pose_Tilt_Fwd:
-    break;
-    case IMU_Pose_Tilt_Bwd:
-    break;
-    case IMU_Pose_Home:
-    break;
-    case IMU_Pose_NA:
-    break;
-  }
   
   if(onPoseChangeCallback_client != NULL) onPoseChangeCallback_client(p);
 }
 
 void RobotButterfly::imuEventDetectedCallback(uint8_t e) {
+  
   if(DEBUG_IMU_NEWS) Serial << millis() << " imu event detected" << endl;
-  // do actions here
-  if(e) {
-    // event detected
-  }
   
   if(onEventDetectedCallback_client != NULL) onEventDetectedCallback_client(e);
 }
@@ -170,7 +128,7 @@ NeoCallback RobotButterfly::onNeoAnimLoopCallback_client;
 
 // the neo animation is done entirely
 void RobotButterfly::neoAnimDoneCallback(struct NeoAnimation *a) {
-  //if(a->type == NEO_ANIM_HOME) return; // sometimes the home animations can be annoying lol
+  
   if(DEBUG_NEOANIM_NEWS) Serial << "Callback: Neo animation (" << a->id << ") done" << endl;
   
   if(onNeoAnimDoneCallback_client != NULL) onNeoAnimDoneCallback_client(a);
@@ -179,7 +137,6 @@ void RobotButterfly::neoAnimDoneCallback(struct NeoAnimation *a) {
 // the neo animation is done a loop
 void RobotButterfly::neoAnimLoopCallback(struct NeoAnimation *a) {
   
-  //if(a->type == NEO_ANIM_HOME) return; // sometimes the home animations can be annoying lol
   if(DEBUG_NEOANIM_NEWS) Serial << "Callback: Neo animation (" << a->id << ") looped" << endl;
   
   if(onNeoAnimDoneCallback_client != NULL) onNeoAnimDoneCallback_client(a);
@@ -192,21 +149,23 @@ void RobotButterfly::neoAnimLoopCallback(struct NeoAnimation *a) {
 // ------ servoanim callbacks -------
 // ----------------------------------
 
-// the servo animation is done
+ServoAnimCallback RobotButterfly::onServoAnimDoneCallback_client;
+ServoAnimCallback RobotButterfly::onServoAnimLoopCallback_client;
+
+// the servo animation is done entirely
 void RobotButterfly::servoAnimDoneCallback(struct ServoAnimation *a) {
-  // TODO: remember to get rid of the line below
-  if(a->type == SERVO_ANIM_HOME) return;
-  Serial << "Callback: Servo animation (" << a->id << ") done" << endl;
-  // TODO: call user callback
+  
+  if(DEBUG_SERVOANIM_NEWS) Serial << "Callback: Servo animation (" << a->id << ") done" << endl;
+  
+  if(onServoAnimDoneCallback_client != NULL) onServoAnimDoneCallback_client(a);
 }
 
-// the servo animation has looped
+// the servo animation is done a loop
 void RobotButterfly::servoAnimLoopCallback(struct ServoAnimation *a) {
-  // TODO: remember to get rid of the line below
-  if(a->type == SERVO_ANIM_HOME) return;
-  if(a->num_frames <= 1) return; // skip the one frame animations
-  Serial << "Callback: Servo animation (" << a->id << ") looped" << endl;
-  // TODO: call user callback
+  
+  if(DEBUG_SERVOANIM_NEWS) Serial << "Callback: Servo animation (" << a->id << ") looped" << endl;
+
+  if(onServoAnimLoopCallback_client != NULL) onServoAnimLoopCallback_client(a);
 }
 
 // ----------------------------------
@@ -216,144 +175,53 @@ void RobotButterfly::servoAnimLoopCallback(struct ServoAnimation *a) {
 // ------- sensor callbacks ---------
 // ----------------------------------
 
+SensorTriggerCallback RobotButterfly::onSensorLightChangeCallback_client;
+SensorAmbientCallback RobotButterfly::onSensorLightAmbientChangeCallback_client;
+SensorTriggerCallback RobotButterfly::onSensorSoundChangeCallback_client;
+SensorAmbientCallback RobotButterfly::onSensorSoundAmbientChangeCallback_client;
+SensorTriggerCallback RobotButterfly::onSensorTemperatureChangeCallback_client;
+SensorAmbientCallback RobotButterfly::onSensorTemperatureAmbientChangeCallback_client;
+SensorTriggerCallback RobotButterfly::onSensorHumidityChangeCallback_client;
+SensorAmbientCallback RobotButterfly::onSensorHumidityAmbientChangeCallback_client;
+
 void RobotButterfly::sensorLightChangeCallback(struct Sensor *s, bool trigger_dir) {
 
-  // TODO: remember to get rid of the lines below
-
-  if(trigger_dir == false) {
-    Serial << "---> Light on!";
-  } else {
-    Serial << "---> Light off!";
-  }
-  Serial << " (" << s->trig_count << ")" << endl;
-
-  // TODO: call user callback
-
+  if(onSensorLightChangeCallback_client != NULL) onSensorLightChangeCallback_client(s, trigger_dir);
 }
 
 void RobotButterfly::sensorLightAmbientChangeCallback(struct Sensor *s, int change) {
   
-  // TODO: remember to get rid of the lines below
-
-  Serial << "\r\n\r\n" << endl;
-  
-  Serial << "-------- Ambient change detected! -------- " << change << endl;
-
-  if(change < 0) {
-    Serial << "---> Light ambient brighter!" << endl;
-  } else {
-    Serial << "---> Light ambient darker!" << endl;
-  }
-
-  Serial << "\r\n\r\n" << endl;
-
-  // TODO: call user callback
-
+	if(onSensorLightAmbientChangeCallback_client != NULL) onSensorLightAmbientChangeCallback_client(s, change);
 }
 
 void RobotButterfly::sensorSoundChangeCallback(struct Sensor *s, bool trigger_dir) {
 
-  // TODO: remember to get rid of the lines below
-
-  if(trigger_dir == false) {
-    Serial << "---> Sound louder!";
-  } else {
-    Serial << "---> Sound quieter!";
-  }
-  Serial << " (" << s->trig_count << ")" << endl;
-
-  // TODO: call user callback
-
+  if(onSensorSoundChangeCallback_client != NULL) onSensorSoundChangeCallback_client(s, trigger_dir);
 }
 
 void RobotButterfly::sensorSoundAmbientChangeCallback(struct Sensor *s, int change) {
   
-  // TODO: remember to get rid of the lines below
-
-  Serial << "\r\n\r\n" << endl;
-  
-  Serial << "-------- Ambient change detected! -------- " << change << endl;
-
-  if(change < 0) {
-    Serial << "---> Sound ambient louder!" << endl;
-  } else {
-    Serial << "---> Sound ambient quieter!" << endl;
-  }
-
-  Serial << "\r\n\r\n" << endl;
-
-  // TODO: call user callback
-
+  if(onSensorSoundAmbientChangeCallback_client != NULL) onSensorSoundAmbientChangeCallback_client(s, change);
 }
 
 void RobotButterfly::sensorTemperatureChangeCallback(struct Sensor *s, bool trigger_dir) {
 
-  // TODO: remember to get rid of the lines below
-
-  if(trigger_dir == false) {
-    Serial << "---> Temperature warmer!";
-  } else {
-    Serial << "---> Temperature colder!";
-  }
-  Serial << " (" << s->trig_count << ")" << endl;
-
-  // TODO: call user callback
-
+  if(onSensorTemperatureChangeCallback_client != NULL) onSensorTemperatureChangeCallback_client(s, trigger_dir);
 }
 
 void RobotButterfly::sensorTemperatureAmbientChangeCallback(struct Sensor *s, int change) {
   
-  // TODO: remember to get rid of the lines below
-
-  Serial << "\r\n\r\n" << endl;
-  
-  Serial << "-------- Ambient change detected! -------- " << change << endl;
-
-  if(change < 0) {
-    Serial << "---> Temperature ambient warmer" << endl;
-  } else {
-    Serial << "---> Temperature ambient colder" << endl;
-  }
-
-  Serial << "\r\n\r\n" << endl;
-
-  // TODO: call user callback
-
+  if(onSensorTemperatureAmbientChangeCallback_client != NULL) onSensorTemperatureAmbientChangeCallback_client(s, change);
 }
 
 void RobotButterfly::sensorHumidityChangeCallback(struct Sensor *s, bool trigger_dir) {
 
-  // TODO: remember to get rid of the lines below
-
-  if(trigger_dir == true) {
-    Serial << "---> Humidity decrease!";
-  } else {
-    Serial << "---> Humidity increase!";
-  }
-  Serial << " (" << s->trig_count << ")" << endl;
-
-  // TODO: call user callback
-
+  if(onSensorHumidityChangeCallback_client != NULL) onSensorHumidityChangeCallback_client(s, trigger_dir);
 }
 
 void RobotButterfly::sensorHumidityAmbientChangeCallback(struct Sensor *s, int change) {
   
-  // TODO: remember to get rid of the lines below
-
-  Serial << "\r\n\r\n" << endl;
-  
-  Serial << "-------- Ambient change detected! -------- " << change << endl;
-
-  if(change > 0) {
-    Serial << "---> Humidity ambient decrease" << endl;
-  } else {
-    Serial << "---> Humidity ambient increase" << endl;
-  }
-
-  Serial << "\r\n\r\n" << endl;
-
-  // TODO: call user callback
-
+  if(onSensorHumidityAmbientChangeCallback_client != NULL) onSensorHumidityAmbientChangeCallback_client(s, change);
 }
 
 // ----------------------------------
@@ -363,15 +231,13 @@ void RobotButterfly::sensorHumidityAmbientChangeCallback(struct Sensor *s, int c
 // ----- proximity callbacks --------
 // ----------------------------------
 
+ProximityCallback RobotButterfly::onProximityTriggerCallback_client;
+
 // uses the raw value to trigger the close proximity
 // this is called at intervals defined by PROXIMITY_TRIGGER_FREQ
 void RobotButterfly::proximityTriggerCallback(struct Proximity *p) {
   
-  // TODO: remember to get rid of the lines below
-  
-  Serial << "----> Close proximity detected!" << endl;
-  
-  // TODO: call user callback
+  if(onProximityTriggerCallback_client != NULL) onProximityTriggerCallback_client(p);
 
 }
 

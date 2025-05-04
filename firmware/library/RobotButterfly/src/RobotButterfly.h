@@ -24,11 +24,41 @@
 
 #define ROBOT_BUTTERFLY_LIBRARY_VERSION "0.0.1"
 
+
+// -- updates --
+enum UpdateOptions {
+    UPDATE_STATEMACHINE_ON,
+    UPDATE_STATEMACHINE_OFF,
+    UPDATE_BUTTONS_ON,
+    UPDATE_BUTTONS_OFF,
+    UPDATE_SOUND_ON,
+    UPDATE_SOUND_OFF,
+    UPDATE_IMU_ON,
+    UPDATE_IMU_OFF,
+    UPDATE_NEOANIM_ON,
+    UPDATE_NEOANIM_OFF,
+    UPDATE_SERVOANIM_ON,
+    UPDATE_SERVOANIM_OFF,
+    UPDATE_SENSORS_ON,
+    UPDATE_SENSORS_OFF,
+    UPDATE_PROXIMITY_ON,
+    UPDATE_PROXIMITY_OFF
+};
+// --
+
+
 class RobotButterfly {
 public:
     RobotButterfly();
-    void init();
-    void update();
+    void init(bool init_servos, bool state_machine);
+    void update(uint8_t update_statemachine, 
+                uint8_t update_buttons, 
+                uint8_t update_sound, 
+                uint8_t update_imu, 
+                uint8_t update_neoanim, 
+                uint8_t update_servoanim, 
+                uint8_t update_sensors, 
+                uint8_t update_proximity);
 
     // -- state machine --
     typedef void (*StateSetup)();
@@ -69,6 +99,7 @@ public:
     static uint8_t CURRENT_STATE;
     static uint8_t PREV_STATE;
     static struct State *all_states[NUM_STATES];
+    static bool CHANGE_STATES_CONTROL;
 
     static struct State state1;
     static struct State state2;
@@ -122,7 +153,9 @@ public:
     // -- servoanimation callbacks --
     static void servoAnimDoneCallback(struct ServoAnimation *a);
     static void servoAnimLoopCallback(struct ServoAnimation *a);
-    // TODO: add user callbacks
+    
+    static ServoAnimCallback onServoAnimDoneCallback_client;
+    static ServoAnimCallback onServoAnimLoopCallback_client;
     // --
 
     // -- sensors callbacks --
@@ -134,17 +167,26 @@ public:
     static void sensorTemperatureAmbientChangeCallback(struct Sensor *s, int change);
     static void sensorHumidityChangeCallback(struct Sensor *s, bool trigger_dir);
     static void sensorHumidityAmbientChangeCallback(struct Sensor *s, int change);
-    // TODO: add user callbacks
+    
+    static SensorTriggerCallback onSensorLightChangeCallback_client;
+    static SensorAmbientCallback onSensorLightAmbientChangeCallback_client;
+    static SensorTriggerCallback onSensorSoundChangeCallback_client;
+    static SensorAmbientCallback onSensorSoundAmbientChangeCallback_client;
+    static SensorTriggerCallback onSensorTemperatureChangeCallback_client;
+    static SensorAmbientCallback onSensorTemperatureAmbientChangeCallback_client;
+    static SensorTriggerCallback onSensorHumidityChangeCallback_client;
+    static SensorAmbientCallback onSensorHumidityAmbientChangeCallback_client;
     // --
 
     // -- proximity callbacks --
     static void proximityTriggerCallback(struct Proximity *p);
-    // TODO: add user callbacks
+    
+    static ProximityCallback onProximityTriggerCallback_client;
     // --
 
 
 private:
-    
+
     static void initStateMachine();
     static void updateStateMachine();
     static void transitionState();

@@ -6,10 +6,12 @@ volatile bool enter_state = false;
 volatile bool update_state = false;
 volatile bool new_print = false;
 
+hw_timer_t* RobotButterfly::timer_state_cfg = NULL;
+
 uint8_t RobotButterfly::CURRENT_STATE = 0;
 uint8_t RobotButterfly::PREV_STATE = 0;
 RobotButterfly::State* RobotButterfly::all_states[NUM_STATES] = { NULL };
-hw_timer_t* RobotButterfly::timer_state_cfg = NULL;
+bool RobotButterfly::CHANGE_STATES_CONTROL = true;
 
 RobotButterfly::State RobotButterfly::state1;
 RobotButterfly::State RobotButterfly::state2;
@@ -31,20 +33,29 @@ void IRAM_ATTR Timer_State_ISR() {
 RobotButterfly::RobotButterfly() {
 }
 
-void RobotButterfly::init() {
+
+// init_servos refers to if initServos is called in this function
+// this is useful in cases where checking for low power mode (eg, 
+// on AA batts)
+// state_machine refers to automatically using the buttons to
+// increment / decrement the state. for simple sketches this might
+// not be desired
+void RobotButterfly::init(bool init_servos, bool state_machine) {
   
   initStateMachine();
-
   initButtons();
   initSound();
-  // initIMU();
-  // initNeopixels();
-  // initNeoAnimations();
-  // initServos(SERVO_MODE_INIT_BOTH);
-  // initServoAnimations();
-  // initSensors();
+  initIMU();
+  initNeopixels();
+  initNeoAnimations();
+  if(init_servos) initServos(SERVO_MODE_INIT_BOTH);
+  initServoAnimations();
+  initSensors();
   initProximity();
 
+  playSound(SOUND_ALERT_STARTUP);
+
+  CHANGE_STATES_CONTROL = state_machine;
 
   // -- button callbacks --
   onHoldNotificationCallback = buttonHoldNotificationCallback;
@@ -60,6 +71,8 @@ void RobotButterfly::init() {
 
   // -- sound callbacks --
   onSoundDoneCallback = soundDoneCallback;
+
+  onSoundDoneCallback_client = NULL;
   // --
 
   // -- imu callbacks --
@@ -67,11 +80,27 @@ void RobotButterfly::init() {
   onOrientationChangeCallback = imuOrientationChangeCallback;
   onPoseChangeCallback = imuPoseChangeCallback;
   onEventDetectedCallback = imuEventDetectedCallback;
+
+  onStateChangeCallback_client = NULL;
+  onOrientationChangeCallback_client = NULL;
+  onPoseChangeCallback_client = NULL;
+  onEventDetectedCallback_client = NULL;
   // --
 
   // -- neoanim callbacks --
   onNeoAnimDoneCallback = neoAnimDoneCallback;
   onNeoAnimLoopCallback = neoAnimLoopCallback;
+
+  onNeoAnimDoneCallback_client = NULL;
+  onNeoAnimLoopCallback_client = NULL;
+  // --
+
+  // -- servoanim callbacks --
+  onServoAnimDoneCallback = servoAnimDoneCallback;
+  onServoAnimLoopCallback = servoAnimLoopCallback;
+    
+  onServoAnimDoneCallback_client = NULL;
+  onServoAnimLoopCallback_client = NULL;
   // --
 
   // -- sensor callbacks --
@@ -86,41 +115,47 @@ void RobotButterfly::init() {
 
   all_sensors[SENSOR_ID_TEMPERATURE]->onSensorChangeCallback = sensorTemperatureChangeCallback;
   all_sensors[SENSOR_ID_TEMPERATURE]->onSensorAmbientChangeCallback = sensorTemperatureAmbientChangeCallback;
+  
+  onSensorLightChangeCallback_client = NULL;
+  onSensorLightAmbientChangeCallback_client = NULL;
+  onSensorSoundChangeCallback_client = NULL;
+  onSensorSoundAmbientChangeCallback_client = NULL;
+  onSensorTemperatureChangeCallback_client = NULL;
+  onSensorTemperatureAmbientChangeCallback_client = NULL;
+  onSensorHumidityChangeCallback_client = NULL;
+  onSensorHumidityAmbientChangeCallback_client = NULL;
   // --
 
   // -- proximity callbacks --
   ultrasonic.onProximityTriggerCallback = proximityTriggerCallback;
+  
+  onProximityTriggerCallback_client = NULL;
   // --
-
-  // neoanim testing
-  // setNeoAnim(&neo_animation_home, NEO_ANIM_POLKADOT, NEO_ANIM_HOME);
-  // setNeoAnimColours(&neo_animation_home, NEO_MAGENTA, NEO_CYAN);
-  // startNeoAnim(&neo_animation_home);
-
-  // servoanim testing
-  // setServoAnim(&servo_animation_alert, SERVO_ANIM_SWAY, SERVO_ANIM_ALERT);
-  // startServoAnim(&servo_animation_alert);
-
-  // sensor testing
-  // for(uint8_t i=0; i<NUM_SENSORS; i++) {
-  //   if(all_sensors[i]) all_sensors[i]->print = true;
-  // }
 
 }
 
 
-void RobotButterfly::update() {
+// update_all is used to automatically update all the
+// peripherals. if not, the user can do this manually
+// in their sketch with a bit more granularity
+void RobotButterfly::update(uint8_t update_statemachine, 
+                            uint8_t update_buttons, 
+                            uint8_t update_sound, 
+                            uint8_t update_imu, 
+                            uint8_t update_neoanim, 
+                            uint8_t update_servoanim, 
+                            uint8_t update_sensors, 
+                            uint8_t update_proximity) {
 
-  updateStateMachine();
-
-  updateButtons();
-  updateSound();
-  // updateIMU();
-  // updateNeoAnimation();
-  // updateServoAnimation();
-  // updateSensors();
-  updateProximity();
-
+  if(update_statemachine == UPDATE_STATEMACHINE_ON) updateStateMachine();
+  if(update_buttons == UPDATE_BUTTONS_ON) updateButtons();
+  if(update_sound == UPDATE_SOUND_ON) updateSound();
+  if(update_imu == UPDATE_IMU_ON) updateIMU();
+  if(update_neoanim == UPDATE_NEOANIM_ON) updateNeoAnimation();
+  if(update_servoanim == UPDATE_SERVOANIM_ON) updateServoAnimation();
+  if(update_sensors == UPDATE_SENSORS_ON) updateSensors();
+  if(update_proximity == UPDATE_PROXIMITY_ON) updateProximity();
+  
 }
 
 
@@ -148,8 +183,8 @@ void RobotButterfly::initStateMachine() {
   // --
 
   // timer transition - timer 0
-  //timer_state_cfg = timerBegin(0, 8000, true);
-  //timerAttachInterrupt(timer_state_cfg, &Timer_State_ISR, true);
+  timer_state_cfg = timerBegin(0, 8000, true);
+  timerAttachInterrupt(timer_state_cfg, &Timer_State_ISR, true);
 
 }
 
@@ -222,6 +257,7 @@ void RobotButterfly::transitionState() {
 
 
 void RobotButterfly::addState(uint8_t id, StateSetup setup_fn, StateLoop loop_fn) {
+  if(id > NUM_STATES-1) return;
   all_states[id]->id = id;
   all_states[id]->setup_fn = setup_fn;
   all_states[id]->loop_fn = loop_fn;

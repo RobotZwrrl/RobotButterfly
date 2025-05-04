@@ -93,7 +93,7 @@
 #define DEBUG_NEO_ANIMATION             false   // debug print statements
 #define PREFS_NEO_BRIGHTNESS              20    // brightness 0-255. default: 20. this will be a preference
 #define NUM_PALETTE_COLOURS               15    // number of palette colours
-#define DEBUG_NEOANIM_NEWS              true    // printouts from the callbacks
+#define DEBUG_NEOANIM_NEWS              false    // printouts from the callbacks
 
 // ----------------------------
 
@@ -140,7 +140,8 @@
 // ------- servo anim ---------
 
 #define DEBUG_SERVO               false   // debug print statements
-#define DEBUG_SERVO_ANIM             false   // debug print statements
+#define DEBUG_SERVO_ANIM          false   // debug print statements
+#define DEBUG_SERVOANIM_NEWS      false    // debug prints in callbacks
 
 // ----------------------------
 
