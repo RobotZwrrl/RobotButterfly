@@ -14,7 +14,6 @@
 // DHT.h - v1.4.6 https://github.com/adafruit/DHT-sensor-library & 1.1.15 https://github.com/adafruit/Adafruit_Sensor 
 // HCSR04.h - v1.1.3 https://github.com/d03n3rfr1tz3/HC-SR04 
 
-
 #include "modules/Buttons/Buttons.h"
 #include "modules/Sound/Sound.h"
 #include "modules/IMU/IMU.h"
@@ -22,7 +21,6 @@
 #include "modules/ServoAnimation/ServoAnimation.h"
 #include "modules/Sensors/Sensors.h"
 #include "modules/Proximity/Proximity.h"
-//#include "modules/StateMachine.h"
 
 #define ROBOT_BUTTERFLY_LIBRARY_VERSION "0.0.1"
 
@@ -32,6 +30,7 @@ public:
     void init();
     void update();
 
+    // -- state machine --
     typedef void (*StateSetup)();
     typedef void (*StateLoop)();
     
@@ -40,6 +39,8 @@ public:
     static void incrementState();
     static void decrementState();
     static void printStateHeartbeat(uint8_t id);
+
+    static hw_timer_t *timer_state_cfg;
 
     enum StatesMachine {
       STATE1,
@@ -77,20 +78,25 @@ public:
     static struct State state6;
     static struct State state7;
     static struct State state8;
-
-    static hw_timer_t *timer_state_cfg;
+    // --
+    
 
     // -- button callbacks --
     static void buttonHoldNotificationCallback(uint8_t n);
     static void buttonHoldReleasedCallback(uint8_t n);
     static void buttonClickCallback(uint8_t n);
     static void buttonReleaseCallback(uint8_t n);
-    // TODO: add user callbacks
+    
+    static ButtonCallback onHoldNotificationCallback_client;
+    static ButtonCallback onHoldReleasedCallback_client;
+    static ButtonCallback onClickCallback_client;
+    static ButtonCallback onReleaseCallback_client;
     // --
 
     // -- sound callbacks --
     static void soundDoneCallback(uint8_t id);
-    // TODO: add user callbacks
+
+    static SoundCallback onSoundDoneCallback_client;
     // --
 
     // -- imu callbacks --
@@ -98,13 +104,19 @@ public:
     static void imuOrientationChangeCallback(uint8_t o);
     static void imuPoseChangeCallback(uint8_t p);
     static void imuEventDetectedCallback(uint8_t e);
-    // TODO: add user callbacks
+    
+    static IMUCallback onStateChangeCallback_client;
+    static IMUCallback onOrientationChangeCallback_client;
+    static IMUCallback onPoseChangeCallback_client;
+    static IMUCallback onEventDetectedCallback_client;
     // --
 
     // -- neoanimation callbacks --
     static void neoAnimDoneCallback(struct NeoAnimation *a);
     static void neoAnimLoopCallback(struct NeoAnimation *a);
-    // TODO: add user callbacks
+    
+    static NeoCallback onNeoAnimDoneCallback_client;
+    static NeoCallback onNeoAnimLoopCallback_client;
     // --
 
     // -- servoanimation callbacks --

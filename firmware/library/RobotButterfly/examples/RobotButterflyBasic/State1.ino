@@ -5,7 +5,7 @@
 void setupState1() {
   if(new_enter) {
     // add your one-time init code here for state 1!
-    Serial << "STATE 1 entrance" << endl;
+    Serial << "STATE " << RobotButterfly::STATE1 << " entrance" << endl;
     new_enter = false;
   }
   // add your looping init code here for state 1!
