@@ -299,6 +299,20 @@ void initIMU() {
   imu_avg_home_gz.begin();
 
   IMU_STATE = IMU_SETTLE;
+
+  Mutex_IMU = xSemaphoreCreateMutex();
+
+  // core 0 has task watchdog enabled to protect wifi service etc
+  // core 1 does not have watchdog enabled
+  // can do this if wdt gives trouble: disableCore0WDT();
+  xTaskCreatePinnedToCore(
+                    Task_IMU_code,     // task function
+                    "Task_IMU",        // name of task
+                    STACK_IMU,         // stack size of task
+                    NULL,                  // parameter of the task
+                    PRIORITY_IMU_MID,  // priority of the task (low number = low priority)
+                    &Task_IMU,         // task handle to keep track of created task
+                    TASK_CORE_IMU);    // pin task to core
 }
 
 
@@ -724,3 +738,33 @@ void imuUpdateAvgValues() {
 }
 
 // ------------------------------------
+
+
+void Task_IMU_code(void * pvParameters) {
+  while(1) {
+
+    // take mutex prior to critical section
+    if(xSemaphoreTake(Mutex_IMU, (TickType_t)10) == pdTRUE) {
+      
+      updateIMU();
+
+      if(millis()-last_imu_rtos_print >= 1000) {
+        Serial << "imu stack watermark: " << uxTaskGetStackHighWaterMark( NULL );
+        Serial << "\t\tavailable heap: " << xPortGetFreeHeapSize() << endl; //vPortGetHeapStats().xAvailableHeapSpaceInBytes
+        last_imu_rtos_print = millis();
+      }
+
+      // give mutex after critical section
+      xSemaphoreGive(Mutex_IMU);
+    }
+    
+    //vTaskDelay(1);
+    TickType_t xLastWakeTime = xTaskGetTickCount();
+    if(TASK_FREQ_IMU != 0) vTaskDelayUntil( &xLastWakeTime, TASK_FREQ_IMU );
+  }
+  // task destructor prevents the task from doing damage to the other tasks in case a task jumps its stack
+  vTaskDelete(NULL);
+}
+
+
+

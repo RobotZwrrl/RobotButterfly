@@ -523,6 +523,21 @@ void initSound() {
   CURRENT_SOUND = SOUND_NONE;
   onSoundDoneCallback = NULL;
   pinMode(BUZZER_PIN, OUTPUT);
+
+  Mutex_SOUND = xSemaphoreCreateMutex();
+
+  // core 0 has task watchdog enabled to protect wifi service etc
+  // core 1 does not have watchdog enabled
+  // can do this if wdt gives trouble: disableCore0WDT();
+  xTaskCreatePinnedToCore(
+                    Task_SOUND_code,     // task function
+                    "Task_SOUND",        // name of task
+                    STACK_SOUND,         // stack size of task
+                    NULL,                  // parameter of the task
+                    PRIORITY_SOUND_MID,  // priority of the task (low number = low priority)
+                    &Task_SOUND,         // task handle to keep track of created task
+                    TASK_CORE_SOUND);    // pin task to core
+  
 }
 
 
@@ -647,5 +662,31 @@ void updateSound() {
 
 }
 
+
+void Task_SOUND_code(void * pvParameters) {
+  while(1) {
+
+    // take mutex prior to critical section
+    if(xSemaphoreTake(Mutex_SOUND, (TickType_t)10) == pdTRUE) {
+      
+      updateSound();
+
+      if(DEBUG_SOUND_RTOS == true && millis()-last_sound_rtos_print >= 1000) {
+        Serial << "sound stack watermark: " << uxTaskGetStackHighWaterMark( NULL );
+        Serial << "\t\tavailable heap: " << xPortGetFreeHeapSize() << endl; //vPortGetHeapStats().xAvailableHeapSpaceInBytes
+        last_sound_rtos_print = millis();
+      }
+
+      // give mutex after critical section
+      xSemaphoreGive(Mutex_SOUND);
+    }
+    
+    //vTaskDelay(1);
+    TickType_t xLastWakeTime = xTaskGetTickCount();
+    if(TASK_FREQ_SOUND != 0) vTaskDelayUntil( &xLastWakeTime, TASK_FREQ_SOUND );
+  }
+  // task destructor prevents the task from doing damage to the other tasks in case a task jumps its stack
+  vTaskDelete(NULL);
+}
 
 

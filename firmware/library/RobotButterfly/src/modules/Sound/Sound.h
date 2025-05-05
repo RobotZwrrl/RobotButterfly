@@ -5,10 +5,12 @@
 #include <Streaming.h>
 #include "Board.h"
 #include "Params.h"
+#include "ParamsRTOS.h"
 #include "pitches.h"
 
 void initSound();
 void updateSound();
+void Task_SOUND_code(void * pvParameters);
 
 void playSimpleTone(int freq, int duration);
 void playNoTone();
@@ -50,5 +52,11 @@ enum soundID {
   SOUND_FLUTTER_SLEEPY,
   SOUND_FLUTTER_GRATEFUL
 };
+
+// ---------- rtos ------------
+static TaskHandle_t Task_SOUND;
+static SemaphoreHandle_t Mutex_SOUND;
+static long last_sound_rtos_print;
+// -------------------------------
 
 #endif

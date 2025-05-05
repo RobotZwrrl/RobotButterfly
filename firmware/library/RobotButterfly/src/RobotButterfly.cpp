@@ -53,8 +53,6 @@ void RobotButterfly::init(bool init_servos, bool state_machine) {
   initSensors();
   initProximity();
 
-  playSound(SOUND_ALERT_STARTUP);
-
   CHANGE_STATES_CONTROL = state_machine;
 
   // -- button callbacks --
@@ -131,6 +129,8 @@ void RobotButterfly::init(bool init_servos, bool state_machine) {
   
   onProximityTriggerCallback_client = NULL;
   // --
+
+  playSound(SOUND_ALERT_STARTUP);
 
 }
 

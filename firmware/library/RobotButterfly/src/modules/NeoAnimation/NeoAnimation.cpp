@@ -1094,6 +1094,20 @@ void initNeoAnimations() {
   neo_animation_home.type = NEO_ANIM_HOME;
   initNeoAnim_none(&neo_animation_alert);
   neo_animation_alert.type = NEO_ANIM_ALERT;
+
+  Mutex_NEOANIM = xSemaphoreCreateMutex();
+
+  // core 0 has task watchdog enabled to protect wifi service etc
+  // core 1 does not have watchdog enabled
+  // can do this if wdt gives trouble: disableCore0WDT();
+  xTaskCreatePinnedToCore(
+                    Task_NEOANIM_code,     // task function
+                    "Task_NEOANIM",        // name of task
+                    STACK_NEOANIM,         // stack size of task
+                    NULL,                  // parameter of the task
+                    PRIORITY_NEOANIM_MID,  // priority of the task (low number = low priority)
+                    &Task_NEOANIM,         // task handle to keep track of created task
+                    TASK_CORE_NEOANIM);    // pin task to core
 }
 
 // ----------------------------------
@@ -1255,5 +1269,32 @@ uint32_t colourFromHSV(uint16_t hue, uint16_t sat, uint16_t val) {
   return pixels.gamma32( pixels.ColorHSV(hue, sat, val) );
 }
 // ----------------------------------
+
+
+void Task_NEOANIM_code(void * pvParameters) {
+  while(1) {
+
+    // take mutex prior to critical section
+    if(xSemaphoreTake(Mutex_NEOANIM, (TickType_t)10) == pdTRUE) {
+      
+      updateNeoAnimation();
+
+      if(DEBUG_NEOANIM_RTOS == true && millis()-last_neoanim_rtos_print >= 1000) {
+        Serial << "neoanim stack watermark: " << uxTaskGetStackHighWaterMark( NULL );
+        Serial << "\t\tavailable heap: " << xPortGetFreeHeapSize() << endl; //vPortGetHeapStats().xAvailableHeapSpaceInBytes
+        last_neoanim_rtos_print = millis();
+      }
+
+      // give mutex after critical section
+      xSemaphoreGive(Mutex_NEOANIM);
+    }
+    
+    //vTaskDelay(1);
+    TickType_t xLastWakeTime = xTaskGetTickCount();
+    if(TASK_FREQ_NEOANIM != 0) vTaskDelayUntil( &xLastWakeTime, TASK_FREQ_NEOANIM );
+  }
+  // task destructor prevents the task from doing damage to the other tasks in case a task jumps its stack
+  vTaskDelete(NULL);
+}
 
 

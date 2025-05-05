@@ -268,6 +268,22 @@ void initSensors() {
   // params: timer, tick count, auto-reload (true)
   timerAlarmWrite(timer_10Hz_config, 500, true);
   timerAlarmEnable(timer_10Hz_config);
+
+
+  Mutex_SENSORS = xSemaphoreCreateMutex();
+
+  // core 0 has task watchdog enabled to protect wifi service etc
+  // core 1 does not have watchdog enabled
+  // can do this if wdt gives trouble: disableCore0WDT();
+  xTaskCreatePinnedToCore(
+                    Task_SENSORS_code,     // task function
+                    "Task_SENSORS",        // name of task
+                    STACK_SENSORS,         // stack size of task
+                    NULL,                  // parameter of the task
+                    PRIORITY_SENSORS_MID,  // priority of the task (low number = low priority)
+                    &Task_SENSORS,         // task handle to keep track of created task
+                    TASK_CORE_SENSORS);    // pin task to core
+
 }
 
 
@@ -703,6 +719,28 @@ void initSensor_Temperature(struct Sensor *s) {
 // ----------------------------------
 
 
+void Task_SENSORS_code(void * pvParameters) {
+  while(1) {
 
+    // take mutex prior to critical section
+    if(xSemaphoreTake(Mutex_SENSORS, (TickType_t)10) == pdTRUE) {
+      
+      updateSensors();
 
+      if(millis()-last_sensors_rtos_print >= 1000) {
+        Serial << "sensors stack watermark: " << uxTaskGetStackHighWaterMark( NULL );
+        Serial << "\t\tavailable heap: " << xPortGetFreeHeapSize() << endl; //vPortGetHeapStats().xAvailableHeapSpaceInBytes
+        last_sensors_rtos_print = millis();
+      }
 
+      // give mutex after critical section
+      xSemaphoreGive(Mutex_SENSORS);
+    }
+    
+    //vTaskDelay(1);
+    TickType_t xLastWakeTime = xTaskGetTickCount();
+    if(TASK_FREQ_SENSORS != 0) vTaskDelayUntil( &xLastWakeTime, TASK_FREQ_SENSORS );
+  }
+  // task destructor prevents the task from doing damage to the other tasks in case a task jumps its stack
+  vTaskDelete(NULL);
+}

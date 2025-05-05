@@ -5,6 +5,7 @@
 #include <Streaming.h>
 #include "Board.h"
 #include "Params.h"
+#include "ParamsRTOS.h"
 #include <movingAvg.h>  // https://github.com/JChristensen/movingAvg
 #include "MPU6050.h"    // https://github.com/ElectronicCats/mpu6050/ 
 
@@ -117,6 +118,13 @@ static bool IMU_PRINT_STATS; // usually true during testing
 // ------------ functions -------------
 void initIMU();
 void updateIMU();
+void Task_IMU_code(void * pvParameters);
 // ------------------------------------
+
+// ---------- rtos ------------
+static TaskHandle_t Task_IMU;
+static SemaphoreHandle_t Mutex_IMU;
+static long last_imu_rtos_print;
+// -------------------------------
 
 #endif

@@ -897,6 +897,21 @@ void initServoAnimations() {
   servo_animation_home.type = SERVO_ANIM_HOME;
   initServoAnim_gentle(&servo_animation_alert);
   servo_animation_alert.type = SERVO_ANIM_ALERT;
+
+  Mutex_SERVOANIM = xSemaphoreCreateMutex();
+
+  // core 0 has task watchdog enabled to protect wifi service etc
+  // core 1 does not have watchdog enabled
+  // can do this if wdt gives trouble: disableCore0WDT();
+  xTaskCreatePinnedToCore(
+                    Task_SERVOANIM_code,     // task function
+                    "Task_SERVOANIM",        // name of task
+                    STACK_SERVOANIM,         // stack size of task
+                    NULL,                    // parameter of the task
+                    PRIORITY_SERVOANIM_MID,  // priority of the task (low number = low priority)
+                    &Task_SERVOANIM,         // task handle to keep track of created task
+                    TASK_CORE_SERVOANIM);    // pin task to core
+  
 }
 
 // ----------------------------------
@@ -1089,5 +1104,32 @@ void initServos(uint8_t mode) {
 
   if(mode == SERVO_MODE_INIT_BOTH) initialised_servos = true;
 
+}
+
+
+void Task_SERVOANIM_code(void * pvParameters) {
+  while(1) {
+
+    // take mutex prior to critical section
+    if(xSemaphoreTake(Mutex_SERVOANIM, (TickType_t)10) == pdTRUE) {
+      
+      updateServoAnimation();
+
+      if(DEBUG_SERVOANIM_RTOS == true && millis()-last_servoanim_rtos_print >= 1000) {
+        Serial << "servoanim stack watermark: " << uxTaskGetStackHighWaterMark( NULL );
+        Serial << "\t\tavailable heap: " << xPortGetFreeHeapSize() << endl; //vPortGetHeapStats().xAvailableHeapSpaceInBytes
+        last_servoanim_rtos_print = millis();
+      }
+
+      // give mutex after critical section
+      xSemaphoreGive(Mutex_SERVOANIM);
+    }
+    
+    //vTaskDelay(1);
+    TickType_t xLastWakeTime = xTaskGetTickCount();
+    if(TASK_FREQ_SERVOANIM != 0) vTaskDelayUntil( &xLastWakeTime, TASK_FREQ_SERVOANIM );
+  }
+  // task destructor prevents the task from doing damage to the other tasks in case a task jumps its stack
+  vTaskDelete(NULL);
 }
 

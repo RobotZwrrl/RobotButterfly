@@ -3,6 +3,9 @@
 
 #include <Arduino.h>
 #include <Streaming.h>
+#include "Board.h"
+#include "Params.h"
+#include "ParamsRTOS.h"
 
 // library dependencies:
 // Streaming - v5 https://github.com/janelia-arduino/Streaming

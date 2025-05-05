@@ -5,6 +5,7 @@
 #include <Streaming.h>
 #include "Board.h"
 #include "Params.h"
+#include "ParamsRTOS.h"
 #include <movingAvg.h>
 #include <HCSR04.h>
 
@@ -51,9 +52,16 @@ static hw_timer_t *timer_10Hz_proximity_config;
 // ----------- functions -------------
 void initProximity();
 void updateProximity();
+void Task_PROXIMITY_code(void * pvParameters);
 
 uint8_t getProximity8(struct Proximity *p);
 uint8_t getProximity10(struct Proximity *p);
 // ------------------------------------
+
+// ---------- rtos ------------
+static TaskHandle_t Task_PROXIMITY;
+static SemaphoreHandle_t Mutex_PROXIMITY;
+static long last_proximity_rtos_print;
+// -------------------------------
 
 #endif

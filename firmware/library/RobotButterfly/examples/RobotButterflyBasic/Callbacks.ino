@@ -53,6 +53,8 @@ void buttonClickCallback(uint8_t n) {
   switch(n) {
     case BUTTON_LEFT: {
       
+      if(!SERVO_CAL_MODE) return;
+
       if(left_cal_dir) {
         left_cal_mode++;
       } else {
@@ -68,6 +70,8 @@ void buttonClickCallback(uint8_t n) {
     }
     break;
     case BUTTON_RIGHT: {
+
+      if(!SERVO_CAL_MODE) return;
 
       if(right_cal_dir) {
         right_cal_mode++;

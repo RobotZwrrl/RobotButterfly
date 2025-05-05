@@ -39,12 +39,23 @@ void setup() {
 
 void loop() {
 
+  /*
   robotbutterfly.update(UPDATE_STATEMACHINE_ON, 
                         UPDATE_BUTTONS_ON, 
                         UPDATE_SOUND_OFF, 
                         UPDATE_IMU_OFF, 
                         UPDATE_NEOANIM_ON,
                         UPDATE_SERVOANIM_ON,
+                        UPDATE_SENSORS_OFF,
+                        UPDATE_PROXIMITY_OFF);
+  */
+
+  robotbutterfly.update(UPDATE_STATEMACHINE_ON, 
+                        UPDATE_BUTTONS_OFF, 
+                        UPDATE_SOUND_OFF, 
+                        UPDATE_IMU_OFF, 
+                        UPDATE_NEOANIM_OFF,
+                        UPDATE_SERVOANIM_OFF,
                         UPDATE_SENSORS_OFF,
                         UPDATE_PROXIMITY_OFF);
 

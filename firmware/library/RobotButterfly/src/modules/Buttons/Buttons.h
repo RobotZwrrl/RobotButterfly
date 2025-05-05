@@ -5,6 +5,7 @@
 #include <Streaming.h>
 #include "Board.h"
 #include "Params.h"
+#include "ParamsRTOS.h"
 
 // hi!
 struct Button;
@@ -20,6 +21,7 @@ extern ButtonCallback onReleaseCallback;
 
 void initButtons();
 void updateButtons();
+void Task_BUTTONS_code(void * pvParameters);
 
 enum ButtonNames {
 	BUTTON_LEFT,
@@ -56,5 +58,11 @@ static struct Button Button_R;
 
 static volatile bool button_L_changed;
 static volatile bool button_R_changed;
+
+// ---------- rtos ------------
+static TaskHandle_t Task_BUTTONS;
+static SemaphoreHandle_t Mutex_BUTTONS;
+static long last_buttons_rtos_print;
+// -------------------------------
 
 #endif

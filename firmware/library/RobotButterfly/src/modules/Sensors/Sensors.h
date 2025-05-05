@@ -5,6 +5,7 @@
 #include <Streaming.h>
 #include "Board.h"
 #include "Params.h"
+#include "ParamsRTOS.h"
 #include <movingAvg.h>
 #include "DHT.h"
 
@@ -122,6 +123,7 @@ static long last_dht_processed;
 void initSensors();
 void updateSensors();
 void printSensor(struct Sensor *s);
+void Task_SENSORS_code(void * pvParameters);
 
 uint16_t getSensor_Battery(struct Sensor *s);
 void updateSensor_Battery(struct Sensor *s);
@@ -143,5 +145,11 @@ uint16_t getSensor_Temperature(struct Sensor *s);
 void updateSensor_Temperature(struct Sensor *s);
 void initSensor_Temperature(struct Sensor *s);
 // ------------------------------------
+
+// ---------- rtos ------------
+static TaskHandle_t Task_SENSORS;
+static SemaphoreHandle_t Mutex_SENSORS;
+static long last_sensors_rtos_print;
+// -------------------------------
 
 #endif

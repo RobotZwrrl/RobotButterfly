@@ -5,6 +5,7 @@
 #include <Streaming.h>
 #include "Board.h"
 #include "Params.h"
+#include "ParamsRTOS.h"
 #include <ESP32Servo.h>
 //#include "ServoEasing.hpp" // this is included in the .cpp file
 
@@ -131,6 +132,7 @@ extern ServoAnimation servo_animation_alert;
 void initServos(uint8_t mode);
 void initServoAnimations();
 void updateServoAnimation();
+void Task_SERVOANIM_code(void * pvParameters);
 
 void setServoAnim(struct ServoAnimation *a, uint8_t n, uint8_t t);
 void setServoAnimDuration(struct ServoAnimation *a, long duration);
@@ -149,5 +151,11 @@ void setServoAnimPositionRight(struct ServoAnimation *a, int n);
 int getServoSafeValLeft(int n);
 int getServoSafeValRight(int n);
 // -----------------------------------
+
+// ---------- rtos ------------
+static TaskHandle_t Task_SERVOANIM;
+static SemaphoreHandle_t Mutex_SERVOANIM;
+static long last_servoanim_rtos_print;
+// -------------------------------
 
 #endif

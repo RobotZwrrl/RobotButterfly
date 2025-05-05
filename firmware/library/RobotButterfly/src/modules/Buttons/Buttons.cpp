@@ -317,6 +317,46 @@ void initButtons() {
   pinMode(BUTTON2_PIN, INPUT);
   attachInterrupt(BUTTON1_PIN, button_R_isr, CHANGE);
   attachInterrupt(BUTTON2_PIN, button_L_isr, CHANGE);
+
+  Mutex_BUTTONS = xSemaphoreCreateMutex();
+
+  // core 0 has task watchdog enabled to protect wifi service etc
+  // core 1 does not have watchdog enabled
+  // can do this if wdt gives trouble: disableCore0WDT();
+  xTaskCreatePinnedToCore(
+                    Task_BUTTONS_code,     // task function
+                    "Task_BUTTONS",        // name of task
+                    STACK_BUTTONS,         // stack size of task
+                    NULL,                  // parameter of the task
+                    PRIORITY_BUTTONS_MID,  // priority of the task (low number = low priority)
+                    &Task_BUTTONS,         // task handle to keep track of created task
+                    TASK_CORE_BUTTONS);    // pin task to core
 }
 
+
+void Task_BUTTONS_code(void * pvParameters) {
+  while(1) {
+
+    // take mutex prior to critical section
+    if(xSemaphoreTake(Mutex_BUTTONS, (TickType_t)10) == pdTRUE) {
+      
+      updateButtons();
+
+      if(DEBUG_BUTTONS_RTOS == true && millis()-last_buttons_rtos_print >= 1000) {
+        Serial << "buttons stack watermark: " << uxTaskGetStackHighWaterMark( NULL );
+        Serial << "\t\tavailable heap: " << xPortGetFreeHeapSize() << endl; //vPortGetHeapStats().xAvailableHeapSpaceInBytes
+        last_buttons_rtos_print = millis();
+      }
+
+      // give mutex after critical section
+      xSemaphoreGive(Mutex_BUTTONS);
+    }
+    
+    //vTaskDelay(1);
+    TickType_t xLastWakeTime = xTaskGetTickCount();
+    if(TASK_FREQ_BUTTONS != 0) vTaskDelayUntil( &xLastWakeTime, TASK_FREQ_BUTTONS );
+  }
+  // task destructor prevents the task from doing damage to the other tasks in case a task jumps its stack
+  vTaskDelete(NULL);
+}
 
