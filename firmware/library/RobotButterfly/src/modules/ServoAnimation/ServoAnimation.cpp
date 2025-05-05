@@ -898,19 +898,23 @@ void initServoAnimations() {
   initServoAnim_gentle(&servo_animation_alert);
   servo_animation_alert.type = SERVO_ANIM_ALERT;
 
-  Mutex_SERVOANIM = xSemaphoreCreateMutex();
+  if(RTOS_ENABLED) {
 
-  // core 0 has task watchdog enabled to protect wifi service etc
-  // core 1 does not have watchdog enabled
-  // can do this if wdt gives trouble: disableCore0WDT();
-  xTaskCreatePinnedToCore(
-                    Task_SERVOANIM_code,     // task function
-                    "Task_SERVOANIM",        // name of task
-                    STACK_SERVOANIM,         // stack size of task
-                    NULL,                    // parameter of the task
-                    PRIORITY_SERVOANIM_MID,  // priority of the task (low number = low priority)
-                    &Task_SERVOANIM,         // task handle to keep track of created task
-                    TASK_CORE_SERVOANIM);    // pin task to core
+    Mutex_SERVOANIM = xSemaphoreCreateMutex();
+
+    // core 0 has task watchdog enabled to protect wifi service etc
+    // core 1 does not have watchdog enabled
+    // can do this if wdt gives trouble: disableCore0WDT();
+    xTaskCreatePinnedToCore(
+                      Task_SERVOANIM_code,     // task function
+                      "Task_SERVOANIM",        // name of task
+                      STACK_SERVOANIM,         // stack size of task
+                      NULL,                    // parameter of the task
+                      PRIORITY_SERVOANIM_MID,  // priority of the task (low number = low priority)
+                      &Task_SERVOANIM,         // task handle to keep track of created task
+                      TASK_CORE_SERVOANIM);    // pin task to core
+
+  }
   
 }
 
@@ -1131,5 +1135,16 @@ void Task_SERVOANIM_code(void * pvParameters) {
   }
   // task destructor prevents the task from doing damage to the other tasks in case a task jumps its stack
   vTaskDelete(NULL);
+}
+
+
+void setServoAnimationTaskPriority(uint8_t p) {
+  
+  if(!RTOS_ENABLED) return;
+
+  uint8_t prev_priority = uxTaskPriorityGet(Task_SERVOANIM);
+  vTaskPrioritySet(Task_SERVOANIM, p);
+  if (DEBUG_SERVOANIM_RTOS) Serial << "changed SERVOANIM task priority - new: " << p << " prev: " << prev_priority << endl;
+
 }
 

@@ -133,6 +133,7 @@ void initServos(uint8_t mode);
 void initServoAnimations();
 void updateServoAnimation();
 void Task_SERVOANIM_code(void * pvParameters);
+void setServoAnimationTaskPriority(uint8_t p);
 
 void setServoAnim(struct ServoAnimation *a, uint8_t n, uint8_t t);
 void setServoAnimDuration(struct ServoAnimation *a, long duration);

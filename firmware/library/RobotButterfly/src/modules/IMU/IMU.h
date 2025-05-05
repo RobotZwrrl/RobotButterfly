@@ -119,6 +119,7 @@ static bool IMU_PRINT_STATS; // usually true during testing
 void initIMU();
 void updateIMU();
 void Task_IMU_code(void * pvParameters);
+void setIMUTaskPriority(uint8_t p);
 // ------------------------------------
 
 // ---------- rtos ------------

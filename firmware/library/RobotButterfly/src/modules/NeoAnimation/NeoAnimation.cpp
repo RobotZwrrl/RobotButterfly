@@ -1095,19 +1095,24 @@ void initNeoAnimations() {
   initNeoAnim_none(&neo_animation_alert);
   neo_animation_alert.type = NEO_ANIM_ALERT;
 
-  Mutex_NEOANIM = xSemaphoreCreateMutex();
+  if(RTOS_ENABLED) {
 
-  // core 0 has task watchdog enabled to protect wifi service etc
-  // core 1 does not have watchdog enabled
-  // can do this if wdt gives trouble: disableCore0WDT();
-  xTaskCreatePinnedToCore(
-                    Task_NEOANIM_code,     // task function
-                    "Task_NEOANIM",        // name of task
-                    STACK_NEOANIM,         // stack size of task
-                    NULL,                  // parameter of the task
-                    PRIORITY_NEOANIM_MID,  // priority of the task (low number = low priority)
-                    &Task_NEOANIM,         // task handle to keep track of created task
-                    TASK_CORE_NEOANIM);    // pin task to core
+    Mutex_NEOANIM = xSemaphoreCreateMutex();
+
+    // core 0 has task watchdog enabled to protect wifi service etc
+    // core 1 does not have watchdog enabled
+    // can do this if wdt gives trouble: disableCore0WDT();
+    xTaskCreatePinnedToCore(
+                      Task_NEOANIM_code,     // task function
+                      "Task_NEOANIM",        // name of task
+                      STACK_NEOANIM,         // stack size of task
+                      NULL,                  // parameter of the task
+                      PRIORITY_NEOANIM_MID,  // priority of the task (low number = low priority)
+                      &Task_NEOANIM,         // task handle to keep track of created task
+                      TASK_CORE_NEOANIM);    // pin task to core
+    
+  }
+
 }
 
 // ----------------------------------
@@ -1297,4 +1302,14 @@ void Task_NEOANIM_code(void * pvParameters) {
   vTaskDelete(NULL);
 }
 
+
+void setNeoAnimationTaskPriority(uint8_t p) {
+  
+  if(!RTOS_ENABLED) return;
+
+  uint8_t prev_priority = uxTaskPriorityGet(Task_NEOANIM);
+  vTaskPrioritySet(Task_NEOANIM, p);
+  if (DEBUG_NEOANIM_RTOS) Serial << "changed NEOANIM task priority - new: " << p << " prev: " << prev_priority << endl;
+
+}
 

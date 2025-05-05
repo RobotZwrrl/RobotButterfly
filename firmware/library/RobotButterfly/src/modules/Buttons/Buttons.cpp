@@ -318,19 +318,24 @@ void initButtons() {
   attachInterrupt(BUTTON1_PIN, button_R_isr, CHANGE);
   attachInterrupt(BUTTON2_PIN, button_L_isr, CHANGE);
 
-  Mutex_BUTTONS = xSemaphoreCreateMutex();
+  if(RTOS_ENABLED) {
 
-  // core 0 has task watchdog enabled to protect wifi service etc
-  // core 1 does not have watchdog enabled
-  // can do this if wdt gives trouble: disableCore0WDT();
-  xTaskCreatePinnedToCore(
-                    Task_BUTTONS_code,     // task function
-                    "Task_BUTTONS",        // name of task
-                    STACK_BUTTONS,         // stack size of task
-                    NULL,                  // parameter of the task
-                    PRIORITY_BUTTONS_MID,  // priority of the task (low number = low priority)
-                    &Task_BUTTONS,         // task handle to keep track of created task
-                    TASK_CORE_BUTTONS);    // pin task to core
+    Mutex_BUTTONS = xSemaphoreCreateMutex();
+
+    // core 0 has task watchdog enabled to protect wifi service etc
+    // core 1 does not have watchdog enabled
+    // can do this if wdt gives trouble: disableCore0WDT();
+    xTaskCreatePinnedToCore(
+                      Task_BUTTONS_code,     // task function
+                      "Task_BUTTONS",        // name of task
+                      STACK_BUTTONS,         // stack size of task
+                      NULL,                  // parameter of the task
+                      PRIORITY_BUTTONS_MID,  // priority of the task (low number = low priority)
+                      &Task_BUTTONS,         // task handle to keep track of created task
+                      TASK_CORE_BUTTONS);    // pin task to core
+
+  }
+
 }
 
 
@@ -358,5 +363,16 @@ void Task_BUTTONS_code(void * pvParameters) {
   }
   // task destructor prevents the task from doing damage to the other tasks in case a task jumps its stack
   vTaskDelete(NULL);
+}
+
+
+void setButtonsTaskPriority(uint8_t p) {
+
+  if(!RTOS_ENABLED) return;
+
+  uint8_t prev_priority = uxTaskPriorityGet(Task_BUTTONS);
+  vTaskPrioritySet(Task_BUTTONS, p);
+  if(DEBUG_BUTTONS_RTOS) Serial << "changed buttons task priority - new: " << p << " prev: " << prev_priority << endl;
+
 }
 

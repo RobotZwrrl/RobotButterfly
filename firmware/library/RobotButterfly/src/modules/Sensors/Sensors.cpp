@@ -269,20 +269,23 @@ void initSensors() {
   timerAlarmWrite(timer_10Hz_config, 500, true);
   timerAlarmEnable(timer_10Hz_config);
 
+  if(RTOS_ENABLED) {
 
-  Mutex_SENSORS = xSemaphoreCreateMutex();
+    Mutex_SENSORS = xSemaphoreCreateMutex();
 
-  // core 0 has task watchdog enabled to protect wifi service etc
-  // core 1 does not have watchdog enabled
-  // can do this if wdt gives trouble: disableCore0WDT();
-  xTaskCreatePinnedToCore(
-                    Task_SENSORS_code,     // task function
-                    "Task_SENSORS",        // name of task
-                    STACK_SENSORS,         // stack size of task
-                    NULL,                  // parameter of the task
-                    PRIORITY_SENSORS_MID,  // priority of the task (low number = low priority)
-                    &Task_SENSORS,         // task handle to keep track of created task
-                    TASK_CORE_SENSORS);    // pin task to core
+    // core 0 has task watchdog enabled to protect wifi service etc
+    // core 1 does not have watchdog enabled
+    // can do this if wdt gives trouble: disableCore0WDT();
+    xTaskCreatePinnedToCore(
+                      Task_SENSORS_code,     // task function
+                      "Task_SENSORS",        // name of task
+                      STACK_SENSORS,         // stack size of task
+                      NULL,                  // parameter of the task
+                      PRIORITY_SENSORS_MID,  // priority of the task (low number = low priority)
+                      &Task_SENSORS,         // task handle to keep track of created task
+                      TASK_CORE_SENSORS);    // pin task to core
+
+  }
 
 }
 
@@ -727,7 +730,7 @@ void Task_SENSORS_code(void * pvParameters) {
       
       updateSensors();
 
-      if(millis()-last_sensors_rtos_print >= 1000) {
+      if(DEBUG_SENSORS_RTOS == true && millis()-last_sensors_rtos_print >= 1000) {
         Serial << "sensors stack watermark: " << uxTaskGetStackHighWaterMark( NULL );
         Serial << "\t\tavailable heap: " << xPortGetFreeHeapSize() << endl; //vPortGetHeapStats().xAvailableHeapSpaceInBytes
         last_sensors_rtos_print = millis();
@@ -744,3 +747,15 @@ void Task_SENSORS_code(void * pvParameters) {
   // task destructor prevents the task from doing damage to the other tasks in case a task jumps its stack
   vTaskDelete(NULL);
 }
+
+
+void setSensorsTaskPriority(uint8_t p) {
+  
+  if(!RTOS_ENABLED) return;
+
+  uint8_t prev_priority = uxTaskPriorityGet(Task_SENSORS);
+  vTaskPrioritySet(Task_SENSORS, p);
+  if (DEBUG_SENSORS_RTOS) Serial << "changed SENSORS task priority - new: " << p << " prev: " << prev_priority << endl;
+
+}
+

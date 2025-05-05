@@ -124,6 +124,7 @@ void initSensors();
 void updateSensors();
 void printSensor(struct Sensor *s);
 void Task_SENSORS_code(void * pvParameters);
+void setSensorsTaskPriority(uint8_t p);
 
 uint16_t getSensor_Battery(struct Sensor *s);
 void updateSensor_Battery(struct Sensor *s);

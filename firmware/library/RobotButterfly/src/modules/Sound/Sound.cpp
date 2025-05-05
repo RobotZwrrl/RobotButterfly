@@ -46,7 +46,7 @@ void playStartup() {
   for (int i = 0; i < length; i++) {
     int noteDuration = 1000 / noteDurations[i];
     playSimpleTone(melody[i], noteDuration);
-    delay(noteDuration * 1.2);
+    delay(noteDuration * 1.0);
     playNoTone();
   }
 }
@@ -509,9 +509,9 @@ void playSimpleTone(int freq, int duration) {
   unsigned long startTime = millis();
   while (millis() - startTime < duration) {
     digitalWrite(BUZZER_PIN, HIGH);
-    delayMicroseconds(delayMicros);
+    esp_rom_delay_us(delayMicros); // previously delayMicroseconds
     digitalWrite(BUZZER_PIN, LOW);
-    delayMicroseconds(delayMicros);
+    esp_rom_delay_us(delayMicros); // previously delayMicroseconds
   }
 }
 
@@ -524,19 +524,23 @@ void initSound() {
   onSoundDoneCallback = NULL;
   pinMode(BUZZER_PIN, OUTPUT);
 
-  Mutex_SOUND = xSemaphoreCreateMutex();
+  if(RTOS_ENABLED) {
 
-  // core 0 has task watchdog enabled to protect wifi service etc
-  // core 1 does not have watchdog enabled
-  // can do this if wdt gives trouble: disableCore0WDT();
-  xTaskCreatePinnedToCore(
-                    Task_SOUND_code,     // task function
-                    "Task_SOUND",        // name of task
-                    STACK_SOUND,         // stack size of task
-                    NULL,                  // parameter of the task
-                    PRIORITY_SOUND_MID,  // priority of the task (low number = low priority)
-                    &Task_SOUND,         // task handle to keep track of created task
-                    TASK_CORE_SOUND);    // pin task to core
+    Mutex_SOUND = xSemaphoreCreateMutex();
+
+    // core 0 has task watchdog enabled to protect wifi service etc
+    // core 1 does not have watchdog enabled
+    // can do this if wdt gives trouble: disableCore0WDT();
+    xTaskCreatePinnedToCore(
+                      Task_SOUND_code,     // task function
+                      "Task_SOUND",        // name of task
+                      STACK_SOUND,         // stack size of task
+                      NULL,                  // parameter of the task
+                      PRIORITY_SOUND_MID,  // priority of the task (low number = low priority)
+                      &Task_SOUND,         // task handle to keep track of created task
+                      TASK_CORE_SOUND);    // pin task to core
+
+  }
   
 }
 
@@ -689,4 +693,14 @@ void Task_SOUND_code(void * pvParameters) {
   vTaskDelete(NULL);
 }
 
+
+void setSoundTaskPriority(uint8_t p) {
+  
+  if(!RTOS_ENABLED) return;
+
+  uint8_t prev_priority = uxTaskPriorityGet(Task_SOUND);
+  vTaskPrioritySet(Task_SOUND, p);
+  if (DEBUG_SOUND_RTOS) Serial << "changed SOUND task priority - new: " << p << " prev: " << prev_priority << endl;
+  
+}
 

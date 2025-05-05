@@ -300,19 +300,23 @@ void initIMU() {
 
   IMU_STATE = IMU_SETTLE;
 
-  Mutex_IMU = xSemaphoreCreateMutex();
+  if(RTOS_ENABLED) { 
 
-  // core 0 has task watchdog enabled to protect wifi service etc
-  // core 1 does not have watchdog enabled
-  // can do this if wdt gives trouble: disableCore0WDT();
-  xTaskCreatePinnedToCore(
-                    Task_IMU_code,     // task function
-                    "Task_IMU",        // name of task
-                    STACK_IMU,         // stack size of task
-                    NULL,                  // parameter of the task
-                    PRIORITY_IMU_MID,  // priority of the task (low number = low priority)
-                    &Task_IMU,         // task handle to keep track of created task
-                    TASK_CORE_IMU);    // pin task to core
+    Mutex_IMU = xSemaphoreCreateMutex();
+
+    // core 0 has task watchdog enabled to protect wifi service etc
+    // core 1 does not have watchdog enabled
+    // can do this if wdt gives trouble: disableCore0WDT();
+    xTaskCreatePinnedToCore(
+                      Task_IMU_code,     // task function
+                      "Task_IMU",        // name of task
+                      STACK_IMU,         // stack size of task
+                      NULL,                  // parameter of the task
+                      PRIORITY_IMU_MID,  // priority of the task (low number = low priority)
+                      &Task_IMU,         // task handle to keep track of created task
+                      TASK_CORE_IMU);    // pin task to core
+  }
+
 }
 
 
@@ -748,7 +752,7 @@ void Task_IMU_code(void * pvParameters) {
       
       updateIMU();
 
-      if(millis()-last_imu_rtos_print >= 1000) {
+      if(DEBUG_IMU_RTOS == true && millis()-last_imu_rtos_print >= 1000) {
         Serial << "imu stack watermark: " << uxTaskGetStackHighWaterMark( NULL );
         Serial << "\t\tavailable heap: " << xPortGetFreeHeapSize() << endl; //vPortGetHeapStats().xAvailableHeapSpaceInBytes
         last_imu_rtos_print = millis();
@@ -767,4 +771,13 @@ void Task_IMU_code(void * pvParameters) {
 }
 
 
+void setIMUTaskPriority(uint8_t p) {
+
+  if(!RTOS_ENABLED) return;
+
+  uint8_t prev_priority = uxTaskPriorityGet(Task_IMU);
+  vTaskPrioritySet(Task_IMU, p);
+  if(DEBUG_IMU_RTOS) Serial << "changed IMU task priority - new: " << p << " prev: " << prev_priority << endl;
+
+}
 

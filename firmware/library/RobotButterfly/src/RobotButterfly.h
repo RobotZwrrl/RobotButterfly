@@ -54,6 +54,7 @@ class RobotButterfly {
 public:
     RobotButterfly();
     void init(bool init_servos, bool state_machine);
+    void update();
     void update(uint8_t update_statemachine, 
                 uint8_t update_buttons, 
                 uint8_t update_sound, 

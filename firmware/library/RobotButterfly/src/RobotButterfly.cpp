@@ -135,9 +135,17 @@ void RobotButterfly::init(bool init_servos, bool state_machine) {
 }
 
 
-// update_all is used to automatically update all the
-// peripherals. if not, the user can do this manually
-// in their sketch with a bit more granularity
+// only updates the state machine
+// - good for when rtos mode is enabled
+void RobotButterfly::update() {
+
+  updateStateMachine();
+  
+}
+
+
+// parameters use an enum (UpdateOptions) to choose 
+// what updates with more granularity
 void RobotButterfly::update(uint8_t update_statemachine, 
                             uint8_t update_buttons, 
                             uint8_t update_sound, 

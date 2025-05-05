@@ -11,6 +11,7 @@
 void initSound();
 void updateSound();
 void Task_SOUND_code(void * pvParameters);
+void setSoundTaskPriority(uint8_t p);
 
 void playSimpleTone(int freq, int duration);
 void playNoTone();

@@ -155,6 +155,7 @@ void initNeoAnimations();
 void initNeoColours();
 void updateNeoAnimation();
 void Task_NEOANIM_code(void * pvParameters);
+void setNeoAnimationTaskPriority(uint8_t p);
 
 void setNeoAnim(struct NeoAnimation *a, uint8_t n, uint8_t t);
 void setNeoAnimColours(struct NeoAnimation *a, uint8_t c1, uint8_t c2);

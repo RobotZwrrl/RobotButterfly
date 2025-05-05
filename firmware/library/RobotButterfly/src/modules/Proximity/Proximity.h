@@ -53,6 +53,7 @@ static hw_timer_t *timer_10Hz_proximity_config;
 void initProximity();
 void updateProximity();
 void Task_PROXIMITY_code(void * pvParameters);
+void setProximityTaskPriority(uint8_t p);
 
 uint8_t getProximity8(struct Proximity *p);
 uint8_t getProximity10(struct Proximity *p);

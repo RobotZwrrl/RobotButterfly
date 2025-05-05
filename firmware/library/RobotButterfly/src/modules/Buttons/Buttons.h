@@ -22,6 +22,7 @@ extern ButtonCallback onReleaseCallback;
 void initButtons();
 void updateButtons();
 void Task_BUTTONS_code(void * pvParameters);
+void setButtonsTaskPriority(uint8_t p);
 
 enum ButtonNames {
 	BUTTON_LEFT,
