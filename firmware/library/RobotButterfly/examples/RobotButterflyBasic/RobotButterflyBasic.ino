@@ -1,3 +1,9 @@
+/* Robot Butterfly Basic
+ * ----------------------
+ * Here's a basic example to get started with
+ * tinkering the code for Robot Butterfly!
+ */
+
 #include <RobotButterfly.h>
 
 RobotButterfly robotbutterfly;
@@ -34,73 +40,19 @@ void setup() {
   robotbutterfly.onHoldReleasedCallback_client = buttonHoldReleasedCallback;
   robotbutterfly.onClickCallback_client = buttonClickCallback;
 
-  demoTaskSet3();
+  taskPrioritySet();
 
+  Serial << "Welcome to Robot Butterfly!" << endl;
   playSound(SOUND_ALERT_STARTUP);
 }
 
 void loop() {
 
-  if(RTOS_ENABLED) {
-    robotbutterfly.update();
-  } else {
-    robotbutterfly.update(UPDATE_STATEMACHINE_ON, 
-                        UPDATE_BUTTONS_ON, 
-                        UPDATE_SOUND_ON, 
-                        UPDATE_IMU_OFF, 
-                        UPDATE_NEOANIM_ON,
-                        UPDATE_SERVOANIM_ON,
-                        UPDATE_SENSORS_OFF,
-                        UPDATE_PROXIMITY_OFF);
-  }
-
-  console();
+  robotbutterfly.update();
 
 }
 
-void console() {
-
-  if(Serial.available()) {
-    char c = Serial.read();
-    switch(c) {
-      case 'q':
-        demoTaskSet1();
-      break;
-      case 'w': 
-        demoTaskSet2();
-      break;
-      case 'e':
-        demoTaskSet3();
-      break;
-    }
-  }
-
-}
-
-void demoTaskSet1() {
-  Serial << "demo task set 1" << endl;
-  setButtonsTaskPriority(PRIORITY_BUTTONS_MID);
-  setIMUTaskPriority(PRIORITY_IMU_LOW);
-  setNeoAnimationTaskPriority(PRIORITY_NEOANIM_HIGH);
-  setProximityTaskPriority(PRIORITY_PROXIMITY_LOW);
-  setSensorsTaskPriority(PRIORITY_SENSORS_LOW);
-  setServoAnimationTaskPriority(PRIORITY_SERVOANIM_HIGH);
-  setSoundTaskPriority(PRIORITY_SOUND_MID);
-}
-
-void demoTaskSet2() {
-  Serial << "demo task set 2" << endl;
-  setButtonsTaskPriority(PRIORITY_BUTTONS_LOW);
-  setIMUTaskPriority(PRIORITY_IMU_HIGH);
-  setNeoAnimationTaskPriority(PRIORITY_NEOANIM_LOW);
-  setProximityTaskPriority(PRIORITY_PROXIMITY_HIGH);
-  setSensorsTaskPriority(PRIORITY_SENSORS_HIGH);
-  setServoAnimationTaskPriority(PRIORITY_SERVOANIM_LOW);
-  setSoundTaskPriority(PRIORITY_SOUND_HIGH);
-}
-
-void demoTaskSet3() {
-  Serial << "demo task set 3" << endl;
+void taskPrioritySet() {
   setButtonsTaskPriority(PRIORITY_BUTTONS_MID);
   setIMUTaskPriority(tskIDLE_PRIORITY);
   setNeoAnimationTaskPriority(PRIORITY_NEOANIM_MID);

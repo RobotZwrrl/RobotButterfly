@@ -99,7 +99,7 @@
 
 // -------- proximity ---------
 
-#define DEBUG_PROXIMITY     true
+#define DEBUG_PROXIMITY     false
 #define PROXIMITY_MIN          5   // cm
 #define PROXIMITY_MAX         25   // cm
 #define PROXIMITY_THRESHOLD   10   // cm
@@ -147,7 +147,7 @@
 
 // ---------- sound -----------
 
-#define DEBUG_SOUND              true   // debug print statements
+#define DEBUG_SOUND              false   // debug print statements
 
 // ----------------------------
 
