@@ -104,6 +104,7 @@ public:
     static uint8_t PREV_STATE;
     static struct State *all_states[NUM_STATES];
     static bool CHANGE_STATES_CONTROL;
+    static uint8_t MAX_STATES_COUNT;
 
     static struct State state1;
     static struct State state2;

@@ -12,6 +12,7 @@ uint8_t RobotButterfly::CURRENT_STATE = 0;
 uint8_t RobotButterfly::PREV_STATE = 0;
 RobotButterfly::State* RobotButterfly::all_states[NUM_STATES] = { NULL };
 bool RobotButterfly::CHANGE_STATES_CONTROL = true;
+uint8_t RobotButterfly::MAX_STATES_COUNT = 0;
 
 RobotButterfly::State RobotButterfly::state1;
 RobotButterfly::State RobotButterfly::state2;
@@ -54,6 +55,7 @@ void RobotButterfly::init(bool init_servos, bool state_machine) {
   initProximity();
 
   CHANGE_STATES_CONTROL = state_machine;
+  MAX_STATES_COUNT = 0;
 
   // -- button callbacks --
   onHoldNotificationCallback = buttonHoldNotificationCallback;
@@ -270,13 +272,14 @@ void RobotButterfly::addState(uint8_t id, StateSetup setup_fn, StateLoop loop_fn
   all_states[id]->setup_fn = setup_fn;
   all_states[id]->loop_fn = loop_fn;
   all_states[id]->enabled = true;
+  MAX_STATES_COUNT++;
 }
 
 
 void RobotButterfly::changeState(uint8_t id) {
   PREV_STATE = CURRENT_STATE;
   CURRENT_STATE = id;
-  if(CURRENT_STATE >= MAX_STATE) CURRENT_STATE = MAX_STATE-1;
+  if(CURRENT_STATE >= MAX_STATES_COUNT) CURRENT_STATE = MAX_STATES_COUNT-1;
   transitionState();
 }
 
@@ -284,7 +287,7 @@ void RobotButterfly::changeState(uint8_t id) {
 void RobotButterfly::incrementState() {
   PREV_STATE = CURRENT_STATE;
   CURRENT_STATE++;
-  if(CURRENT_STATE >= MAX_STATE) {
+  if(CURRENT_STATE >= MAX_STATES_COUNT) {
     CURRENT_STATE = 0; // loop around
   }
   transitionState();
@@ -294,7 +297,7 @@ void RobotButterfly::incrementState() {
 void RobotButterfly::decrementState() {
   PREV_STATE = CURRENT_STATE;
   if(CURRENT_STATE == 0) {
-    CURRENT_STATE = MAX_STATE-1; // loop around
+    CURRENT_STATE = MAX_STATES_COUNT-1; // loop around
   } else {
     CURRENT_STATE--;
   }
