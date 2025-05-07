@@ -1,6 +1,6 @@
 # Robot Butterfly
 
-[Robot Butterfly](http://robotzwrrl.xyz/robot-butterfly/) invites you to experience nature's elegance alongside it, while interacting with the surrounding wilderness! Available now as a kit to build yourself. 
+[Robot Butterfly](http://robotzwrrl.xyz/robot-butterfly/) invites you to experience nature's elegance alongside it, while interacting with the surrounding wilderness! [Available now as a kit](https://robotmissions.org/store/) to build yourself. 
 
 For more information, check out: [robotzwrrl.xyz/robot-butterfly](http://robotzwrrl.xyz/robot-butterfly/). As well, see the [instructions](https://robotzwrrl.xyz/robot-butterfly/instructions/chapter01.php) to build your own!
 
@@ -36,9 +36,8 @@ The spacer back piece has been updated to have clearance for the chamfer around 
 
 The Butterfly Chonky board connects with [Keystone](https://github.com/RobotGrrl/Keystone) and [Boostlet!](https://github.com/RobotGrrl/boostlet). Those two boards are also open source, and can be found in these repositories:
 
-https://github.com/RobotGrrl/boostlet
-
-https://github.com/RobotGrrl/Keystone
+- https://github.com/RobotGrrl/boostlet
+- https://github.com/RobotGrrl/Keystone
 
 
 ### What do the LEDs mean?
@@ -83,13 +82,13 @@ In the Arduino IDE library manager, please install the following libraries:
 
 - [Streaming](https://github.com/janelia-arduino/Streaming) - v5
 - [movingAvg](https://github.com/JChristensen/movingAvg) - v2.3.2
-- [MPU6050.h](https://github.com/ElectronicCats/mpu6050) - v1.4.1
+- [MPU6050](https://github.com/ElectronicCats/mpu6050) - v1.4.1
 - [Adafruit Neopixel](https://github.com/adafruit/Adafruit_NeoPixel) - v.1.12.4
 - [ESP32Servo](https://github.com/madhephaestus/ESP32Servo) - v3.0.6 
 - [ServoEasing](https://github.com/ArminJo/ServoEasing) - v3.4.0
-- [DHT.h](https://github.com/adafruit/DHT-sensor-library) - v1.4.6
+- [DHT](https://github.com/adafruit/DHT-sensor-library) - v1.4.6
 - [Adafruit Sensor](https://github.com/adafruit/Adafruit_Sensor) - v1.1.15 
-- [HCSR04.h](https://github.com/d03n3rfr1tz3/HC-SR04) - v1.1.3 
+- [HCSR04](https://github.com/d03n3rfr1tz3/HC-SR04) - v1.1.3 
 
 
 ### Upload Code
