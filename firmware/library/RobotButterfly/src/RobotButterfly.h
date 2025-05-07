@@ -25,7 +25,7 @@
 #include "modules/Sensors/Sensors.h"
 #include "modules/Proximity/Proximity.h"
 
-#define ROBOT_BUTTERFLY_LIBRARY_VERSION "0.0.1"
+#define ROBOT_BUTTERFLY_LIBRARY_VERSION "1.0.0"
 
 
 // -- updates --
