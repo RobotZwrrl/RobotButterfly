@@ -20,9 +20,6 @@
  * http://robotmissions.org
  */
 
-// @module: IMU
-// @version: 0.1.0
-
 #include "Board.h"
 #include "Params.h"
 #include <Streaming.h>

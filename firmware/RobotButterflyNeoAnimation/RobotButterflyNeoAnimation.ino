@@ -13,9 +13,6 @@
  * http://robotmissions.org
  */
 
-// @module: NeoAnimation
-// @version: 0.1.0
-
 #include "Board.h"
 #include "Params.h"
 #include <Streaming.h>
