@@ -1,10 +1,10 @@
 # Robot Butterfly
 
-[Robot Butterfly](http://robotzwrrl.xyz/robot-butterfly/) is a companion robot to appreciate the elegance of nature with, while observing all the details — no matter how tiny or inconspicuous!
+[Robot Butterfly](http://robotzwrrl.xyz/robot-butterfly/) invites you to experience nature's elegance alongside it, while interacting with the surrounding wilderness! Available now as a kit to build yourself. 
 
 For more information, check out: [robotzwrrl.xyz/robot-butterfly](http://robotzwrrl.xyz/robot-butterfly/). As well, see the [instructions](https://robotzwrrl.xyz/robot-butterfly/instructions/chapter01.php) to build your own!
 
-Robot Butterfly's design files are released as open source hardware, provided under these unique terms: If you replicate it, please take a photo of it in nature and email it to me with the city and its nickname!
+Robot Butterfly's design files are released as open source hardware, provided under these unique terms: If you replicate it, please take a photo of it in nature and email it to me with the city and its nickname! ☺️
 
 ![Robot Butterfly](https://github.com/RobotGrrl/RobotButterfly/blob/main/robot_butterfly.jpg?raw=true)
 
@@ -79,14 +79,22 @@ In the inaugural version, all the LEDs are yellow, which can sometimes make it t
 
 ### Library Dependencies
 
-TODO
+In the Arduino IDE library manager, please install the following libraries:
 
-In the Arduino IDE library manager, search for the following and download the library by the following authours:
+- [Streaming](https://github.com/janelia-arduino/Streaming) - v5
+- [movingAvg](https://github.com/JChristensen/movingAvg) - v2.3.2
+- [MPU6050.h](https://github.com/ElectronicCats/mpu6050) - v1.4.1
+- [Adafruit Neopixel](https://github.com/adafruit/Adafruit_NeoPixel) - v.1.12.4
+- [ESP32Servo](https://github.com/madhephaestus/ESP32Servo) - v3.0.6 
+- [ServoEasing](https://github.com/ArminJo/ServoEasing) - v3.4.0
+- [DHT.h](https://github.com/adafruit/DHT-sensor-library) - v1.4.6
+- [Adafruit Sensor](https://github.com/adafruit/Adafruit_Sensor) - v1.1.15 
+- [HCSR04.h](https://github.com/d03n3rfr1tz3/HC-SR04) - v1.1.3 
 
 
 ### Upload Code
 
-Here’s how you can upload code to your Robot Butterfly!
+Here's how you to upload code to Robot Butterfly!
 
 1. Download Arduino IDE
 
@@ -105,21 +113,20 @@ Here’s how you can upload code to your Robot Butterfly!
 8. Tools -> Manage Libraries
 There are library dependencies that will need to be downloaded, see list above
 
-9. Download this sketch and open it:
-https://github.com/RobotGrrl/RobotButterfly/tree/main/firmware/RobotButterflyBasic 
+9. Open a Robot Butterfly example sketch
 
-10. Plug in your Robot Butterfly
+10. Plug in Robot Butterfly
 
 11. Tools -> Port -> Select the port
 
 12. Upload
 
-13. Congrats! You have uploaded code to your Robot Butterfly!
+13. Congrats! You have uploaded code to Robot Butterfly!
 
 
 ### Animations
 
-How to make your own animation (servo and neopixel):
+For developers - here's how to make your own animation (servo and neopixel):
 
 1. Add identifier to enum servoAnimName
 
@@ -150,6 +157,14 @@ startServoAnim(&servo_animation_alert);`
 
 
 ---
+
+## Debugging
+
+Please see [this page for debugging FAQ](https://robotzwrrl.xyz/robot-butterfly/instructions/debugging.php).
+
+
+---
+
 
 ## License
 
