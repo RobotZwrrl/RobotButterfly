@@ -7,15 +7,20 @@
 #include "Params.h"
 #include "ParamsRTOS.h"
 
+// board:
+// esp32 dev module
+// esp32 v2.0.4
+
 // library dependencies:
-// Streaming - v5 https://github.com/janelia-arduino/Streaming
+// Streaming - v5.0.0 https://github.com/janelia-arduino/Streaming
 // movingAvg - v2.3.2 https://github.com/JChristensen/movingAvg
-// MPU6050.h - v1.4.1 https://github.com/ElectronicCats/mpu6050
+// MPU6050 - v1.4.3 https://github.com/ElectronicCats/mpu6050
 // Adafruit Neopixel - v.1.12.4 https://github.com/adafruit/Adafruit_NeoPixel
 // ESP32Servo - v3.0.6 https://github.com/madhephaestus/ESP32Servo 
 // ServoEasing - v3.4.0 https://github.com/ArminJo/ServoEasing
-// DHT.h - v1.4.6 https://github.com/adafruit/DHT-sensor-library & 1.1.15 https://github.com/adafruit/Adafruit_Sensor 
-// HCSR04.h - v1.1.3 https://github.com/d03n3rfr1tz3/HC-SR04 
+// DHT - v1.4.6 https://github.com/adafruit/DHT-sensor-library
+// Adafruit Unified Sensor - v1.1.15 https://github.com/adafruit/Adafruit_Sensor 
+// HC-SR04 - v1.1.3 https://github.com/d03n3rfr1tz3/HC-SR04 
 
 #include "modules/Buttons/Buttons.h"
 #include "modules/Sound/Sound.h"
@@ -24,8 +29,6 @@
 #include "modules/ServoAnimation/ServoAnimation.h"
 #include "modules/Sensors/Sensors.h"
 #include "modules/Proximity/Proximity.h"
-
-#define ROBOT_BUTTERFLY_LIBRARY_VERSION "1.0.0"
 
 
 // -- updates --
