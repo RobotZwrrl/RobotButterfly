@@ -87,47 +87,41 @@ In the Arduino IDE boards manager (Tools > Board > Board Manager), search for **
 
 In the Arduino IDE library manager (Tools > Manage Libraries), please install the following libraries with the designated versions:
 
-- [Streaming](https://github.com/janelia-arduino/Streaming) - v5
+- [Streaming](https://github.com/janelia-arduino/Streaming) - v5.0.0
 - [movingAvg](https://github.com/JChristensen/movingAvg) - v2.3.2
-- [MPU6050](https://github.com/ElectronicCats/mpu6050) - v1.4.1
+- [MPU6050](https://github.com/ElectronicCats/mpu6050) - v1.4.3
 - [Adafruit Neopixel](https://github.com/adafruit/Adafruit_NeoPixel) - v.1.12.4
 - [ESP32Servo](https://github.com/madhephaestus/ESP32Servo) - v3.0.6 
 - [ServoEasing](https://github.com/ArminJo/ServoEasing) - v3.4.0
 - [DHT](https://github.com/adafruit/DHT-sensor-library) - v1.4.6
-- [Adafruit Sensor](https://github.com/adafruit/Adafruit_Sensor) - v1.1.15 
-- [HCSR04](https://github.com/d03n3rfr1tz3/HC-SR04) - v1.1.3 
+- [Adafruit Unified Sensor](https://github.com/adafruit/Adafruit_Sensor) - v1.1.15 
+- [HC-SR04](https://github.com/d03n3rfr1tz3/HC-SR04) - v1.1.3 
 
 
 ### Upload Code
 
-Here's how you to upload code to Robot Butterfly!
+Here's how to upload code to Robot Butterfly!
 
-1. Download Arduino IDE
+_Please see steps above to ensure all dependencies are installed properly_
 
-2. Tools -> Board -> Board Manager
+1. Tools > Board > esp32 > Set board to **ESP32 Dev Module**
 
-3. Search for **esp32**
+2. Tools > Set upload speed to **115200 baud** (at the bottom of the menu)
 
-4. Install esp32 by Espressif Systems
+3. Tools > Set CPU speed to **80 MHz** (first setting after a divider in the menu)
 
-5. Tools -> Board -> esp32 -> Set board to **ESP32 Dev Module**
-
-6. Tools -> Set upload speed to **115200 baud** (it’s down at the bottom of the menu)
-
-7. Tools -> Set CPU speed to **80 MHz** (it’s the first setting after a divider in the menu)
-
-8. Tools -> Manage Libraries
+4. Tools > Manage Libraries
 There are library dependencies that will need to be downloaded, see list above
 
-9. Open a Robot Butterfly example sketch
+5. Open a Robot Butterfly example sketch
 
-10. Plug in Robot Butterfly
+6. Plug in Robot Butterfly
 
-11. Tools -> Port -> Select the port
+7. Tools > Port > Select the port
 
-12. Upload
+8. Upload
 
-13. Congrats! You have uploaded code to Robot Butterfly!
+9. Congrats! You have uploaded code to Robot Butterfly!
 
 
 ### Animations
