@@ -75,10 +75,17 @@ In the inaugural version, all the LEDs are yellow, which can sometimes make it t
 
 **Firmware is in active development**
 
+Download the [Robot Butterfly library](https://github.com/RobotZwrrl/RobotButterfly/tree/main/firmware/library/RobotButterfly) and install it into your Arduino library folder _(for example: ~/Documents/Arduino/libraries)_.
+
+
+### Boards Manager
+
+In the Arduino IDE boards manager (Tools > Board > Board Manager), search for **esp32**. Under **esp32 by Espressif Systems**, choose **2.0.4**, and install it.
+
 
 ### Library Dependencies
 
-In the Arduino IDE library manager, please install the following libraries:
+In the Arduino IDE library manager (Tools > Manage Libraries), please install the following libraries with the designated versions:
 
 - [Streaming](https://github.com/janelia-arduino/Streaming) - v5
 - [movingAvg](https://github.com/JChristensen/movingAvg) - v2.3.2
