@@ -330,8 +330,8 @@ void initButtons() {
                       "Task_BUTTONS",        // name of task
                       STACK_BUTTONS,         // stack size of task
                       NULL,                  // parameter of the task
-                      PRIORITY_BUTTONS_MID,  // priority of the task (low number = low priority)
-                      &Task_BUTTONS,         // task handle to keep track of created task
+                      PRIORITY_BUTTONS_MID,  // priority of the task
+                      &Task_BUTTONS,         // task handle to keep track of task
                       TASK_CORE_BUTTONS);    // pin task to core
 
   }
@@ -347,9 +347,12 @@ void Task_BUTTONS_code(void * pvParameters) {
       
       updateButtons();
 
-      if(DEBUG_BUTTONS_RTOS == true && millis()-last_buttons_rtos_print >= 1000) {
-        Serial << "buttons stack watermark: " << uxTaskGetStackHighWaterMark( NULL );
-        Serial << "\t\tavailable heap: " << xPortGetFreeHeapSize() << endl; //vPortGetHeapStats().xAvailableHeapSpaceInBytes
+      if(DEBUG_BUTTONS_RTOS == true && millis() -
+         last_buttons_rtos_print >= 1000) {
+        Serial << "buttons stack watermark: " 
+               << uxTaskGetStackHighWaterMark( NULL );
+        Serial << "\t\tavailable heap: " 
+               << xPortGetFreeHeapSize() << endl;
         last_buttons_rtos_print = millis();
       }
 
@@ -357,11 +360,11 @@ void Task_BUTTONS_code(void * pvParameters) {
       xSemaphoreGive(Mutex_BUTTONS);
     }
     
-    //vTaskDelay(1);
     TickType_t xLastWakeTime = xTaskGetTickCount();
-    if(TASK_FREQ_BUTTONS != 0) vTaskDelayUntil( &xLastWakeTime, TASK_FREQ_BUTTONS );
+    if(TASK_FREQ_BUTTONS != 0) vTaskDelayUntil(&xLastWakeTime, TASK_FREQ_BUTTONS);
   }
-  // task destructor prevents the task from doing damage to the other tasks in case a task jumps its stack
+  // task destructor prevents the task from doing damage 
+  // to the other tasks in case a task jumps its stack
   vTaskDelete(NULL);
 }
 
@@ -372,7 +375,11 @@ void setButtonsTaskPriority(uint8_t p) {
 
   uint8_t prev_priority = uxTaskPriorityGet(Task_BUTTONS);
   vTaskPrioritySet(Task_BUTTONS, p);
-  if(DEBUG_BUTTONS_RTOS) Serial << "changed buttons task priority - new: " << p << " prev: " << prev_priority << endl;
+  if(DEBUG_BUTTONS_RTOS) Serial << "changed buttons task priority - new: " 
+                                << p << " prev: " << prev_priority << endl;
 
 }
+
+
+
 

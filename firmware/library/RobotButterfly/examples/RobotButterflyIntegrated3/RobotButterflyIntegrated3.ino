@@ -50,22 +50,36 @@ void setup() {
   // 2nd param false = we will increment statemachine
   robotbutterfly.init(false, false);
 
-  // turn some of unused tasks to idle while
-  // the robot is starting up
-  setInitialPriorities();
-
   // this playing multiple times on startup is an
   // indicator that the robot is being powered by
-  // AA batteries. a few brownouts will occur as
-  // the robot stabilises on startup. having this
-  // sound helps for debugging and also gives a
-  // cheeky characteristic
+  // AA batteries because a few brownouts will
+  // occur as the robot stabilises on startup when
+  // moving its wings to the initial position.
+  // having this sound helps for debugging and also
+  // gives a cheeky characteristic (sounds like a 
+  // robot giggling haha).
   playSound(SOUND_FLUTTER_JOY);
+
+  setNeoAnim(&neo_animation_home, NEO_ANIM_FUNKY, NEO_ANIM_ALERT);
+  setNeoAnimColours(&neo_animation_home, NEO_LAVENDER, NEO_SKY_BLUE);
+  setNeoAnimSpeed(&neo_animation_home, 300);
+  startNeoAnim(&neo_animation_home);
+
+  start_del = millis();
+  while(millis()-start_del < 300) {
+    updateNeoAnimation();
+    updateSound();
+    delay(1);
+  }
 
   // initialise the servos depending on if the AA
   // batteries are in use or not. if they are,
   // take some time to initialise each side
   batteryCheck(); 
+
+  // turn some of unused tasks to idle while
+  // the robot is starting up
+  setInitialPriorities();
 
   // there are 4 routines in this sketch
   robotbutterfly.addState(RobotButterfly::STATE1, setupState1, loopState1);  // state 1: low power periodic flutter
@@ -158,28 +172,38 @@ void batteryCheck() {
   if(BATTERY_AA_MODE == true) {
 
     initServos(SERVO_MODE_INIT_LEFT);
-
+    
     // battery catch up
+    // update can be called here from setup() as the
+    // rtos scheduler has not started yet - interesting!
     setNeoAnimColours(&neo_animation_home, NEO_ORANGE, NEO_SKY_BLUE);
+    startNeoAnim(&neo_animation_home);
     start_del = millis();
-    while(millis()-start_del < 1000) {
+    while(millis()-start_del < 1200) {
       updateNeoAnimation();
+      delay(1);
     }
 
     initServos(SERVO_MODE_INIT_RIGHT);
 
     // battery catch up
+    // update can be called here from setup() as the
+    // rtos scheduler has not started yet - interesting!
     setNeoAnimColours(&neo_animation_home, NEO_CANARY_YELLOW, NEO_GREEN);
+    startNeoAnim(&neo_animation_home);
     start_del = millis();
-    while(millis()-start_del < 1000) {
+    while(millis()-start_del < 1200) {
       updateNeoAnimation();
+      delay(1);
     }
 
     initialised_servos = true; // remember to set the flag when initialising motors separately
+    initServoAnimations();
 
   } else {
 
     initServos(SERVO_MODE_INIT_BOTH);
+    initServoAnimations();
 
   }
 

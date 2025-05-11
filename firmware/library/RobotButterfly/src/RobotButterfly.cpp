@@ -49,8 +49,10 @@ void RobotButterfly::init(bool init_servos, bool state_machine) {
   initIMU();
   initNeopixels();
   initNeoAnimations();
-  if(init_servos) initServos(SERVO_MODE_INIT_BOTH);
-  initServoAnimations();
+  if(init_servos) {
+    initServos(SERVO_MODE_INIT_BOTH);
+    initServoAnimations();
+  }
   initSensors();
   initProximity();
 

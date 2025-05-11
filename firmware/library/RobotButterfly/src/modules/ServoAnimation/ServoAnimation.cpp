@@ -35,7 +35,6 @@ void updateServoAnimation() {
     if(servo_animation_alert.function) {
       servo_animation_alert.function(&servo_animation_alert);
       updateAllServos();
-      //Serial << "left mMillisForCompleteMove: " << wing_left.motor->mMillisForCompleteMove << endl;
     }
 
   } else {
@@ -889,8 +888,6 @@ void initServoAnimations() {
     
   onServoAnimDoneCallback = NULL;
   onServoAnimLoopCallback = NULL;
-
-  initialised_servos = false;
 
   // all servo animations are initialised when setServoAnim() is called
   initServoAnim_none(&servo_animation_home);

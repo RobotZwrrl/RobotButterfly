@@ -45,7 +45,7 @@ enum ServoModeInit {
 static struct ServoMotor wing_left;
 static struct ServoMotor wing_right;
 
-static bool initialised_servos;
+static volatile bool initialised_servos;
 // -----------------------------------
 
 // ----------- servo animation -----------

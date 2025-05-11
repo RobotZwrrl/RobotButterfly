@@ -41,7 +41,7 @@ void setup() {
   robotbutterfly.onHoldReleasedCallback_client = buttonHoldReleasedCallback;
   robotbutterfly.onClickCallback_client = buttonClickCallback;
 
-  demoTaskSet3();
+  demoTaskSet1();
 
   playSound(SOUND_ALERT_STARTUP);
 }
@@ -70,14 +70,17 @@ void console() {
   if(Serial.available()) {
     char c = Serial.read();
     switch(c) {
-      case 'q':
+      case '1':
         demoTaskSet1();
       break;
-      case 'w': 
+      case '2': 
         demoTaskSet2();
       break;
-      case 'e':
+      case '3':
         demoTaskSet3();
+      break;
+      case '4':
+        demoTaskSet4();
       break;
     }
   }
@@ -87,6 +90,28 @@ void console() {
 void demoTaskSet1() {
   Serial << "demo task set 1" << endl;
   setButtonsTaskPriority(PRIORITY_BUTTONS_MID);
+  setIMUTaskPriority(tskIDLE_PRIORITY);
+  setNeoAnimationTaskPriority(PRIORITY_NEOANIM_HIGH);
+  setProximityTaskPriority(tskIDLE_PRIORITY);
+  setSensorsTaskPriority(tskIDLE_PRIORITY);
+  setServoAnimationTaskPriority(PRIORITY_SERVOANIM_HIGH);
+  setSoundTaskPriority(PRIORITY_SOUND_MID);
+}
+
+void demoTaskSet2() {
+  Serial << "demo task set 2" << endl;
+  setButtonsTaskPriority(PRIORITY_BUTTONS_HIGH);
+  setIMUTaskPriority(PRIORITY_IMU_HIGH);
+  setNeoAnimationTaskPriority(PRIORITY_NEOANIM_HIGH);
+  setProximityTaskPriority(PRIORITY_PROXIMITY_HIGH);
+  setSensorsTaskPriority(PRIORITY_SENSORS_HIGH);
+  setServoAnimationTaskPriority(PRIORITY_SERVOANIM_HIGH);
+  setSoundTaskPriority(PRIORITY_SOUND_HIGH);
+}
+
+void demoTaskSet3() {
+  Serial << "demo task set 3" << endl;
+  setButtonsTaskPriority(PRIORITY_BUTTONS_MID);
   setIMUTaskPriority(PRIORITY_IMU_LOW);
   setNeoAnimationTaskPriority(PRIORITY_NEOANIM_HIGH);
   setProximityTaskPriority(PRIORITY_PROXIMITY_LOW);
@@ -95,25 +120,14 @@ void demoTaskSet1() {
   setSoundTaskPriority(PRIORITY_SOUND_MID);
 }
 
-void demoTaskSet2() {
-  Serial << "demo task set 2" << endl;
-  setButtonsTaskPriority(PRIORITY_BUTTONS_LOW);
-  setIMUTaskPriority(PRIORITY_IMU_HIGH);
-  setNeoAnimationTaskPriority(PRIORITY_NEOANIM_LOW);
-  setProximityTaskPriority(PRIORITY_PROXIMITY_HIGH);
-  setSensorsTaskPriority(PRIORITY_SENSORS_HIGH);
-  setServoAnimationTaskPriority(PRIORITY_SERVOANIM_LOW);
-  setSoundTaskPriority(PRIORITY_SOUND_HIGH);
-}
-
-void demoTaskSet3() {
-  Serial << "demo task set 3" << endl;
+void demoTaskSet4() {
+  Serial << "demo task set 4" << endl;
   setButtonsTaskPriority(PRIORITY_BUTTONS_MID);
-  setIMUTaskPriority(tskIDLE_PRIORITY);
-  setNeoAnimationTaskPriority(PRIORITY_NEOANIM_MID);
-  setProximityTaskPriority(tskIDLE_PRIORITY);
-  setSensorsTaskPriority(tskIDLE_PRIORITY);
-  setServoAnimationTaskPriority(PRIORITY_SERVOANIM_HIGH);
+  setIMUTaskPriority(PRIORITY_IMU_LOW);
+  setNeoAnimationTaskPriority(PRIORITY_NEOANIM_HIGH);
+  setProximityTaskPriority(PRIORITY_PROXIMITY_LOW);
+  setSensorsTaskPriority(PRIORITY_SENSORS_LOW);
+  setServoAnimationTaskPriority(tskIDLE_PRIORITY);
   setSoundTaskPriority(PRIORITY_SOUND_MID);
 }
 
