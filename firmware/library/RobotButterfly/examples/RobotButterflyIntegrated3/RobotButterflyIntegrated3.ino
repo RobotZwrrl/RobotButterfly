@@ -87,8 +87,6 @@ void setup() {
   robotbutterfly.addState(RobotButterfly::STATE3, setupState3, loopState3);  // state 3: rainbow sparkle flutter
   robotbutterfly.addState(RobotButterfly::STATE4, setupState4, loopState4);  // state 4: golden proximity interaction
   
-  robotbutterfly.changeState(RobotButterfly::STATE1);
-
   // here are the callbacks that are implemented
   robotbutterfly.onHoldNotificationCallback_client = buttonHoldNotificationCallback;
   robotbutterfly.onHoldReleasedCallback_client = buttonHoldReleasedCallback;
@@ -96,6 +94,8 @@ void setup() {
 
   Serial << "Welcome to Robot Butterfly!" << endl;
   playSound(SOUND_ALERT_STARTUP);
+
+  robotbutterfly.changeState(RobotButterfly::STATE1);
 }
 
 

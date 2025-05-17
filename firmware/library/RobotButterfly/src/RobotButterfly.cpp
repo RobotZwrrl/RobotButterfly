@@ -134,8 +134,6 @@ void RobotButterfly::init(bool init_servos, bool state_machine) {
   onProximityTriggerCallback_client = NULL;
   // --
 
-  playSound(SOUND_ALERT_STARTUP);
-
 }
 
 
@@ -194,10 +192,6 @@ void RobotButterfly::initStateMachine() {
   all_states[STATE8] = &state8;
   // --
 
-  // timer transition - timer 0
-  timer_state_cfg = timerBegin(0, 8000, true);
-  timerAttachInterrupt(timer_state_cfg, &Timer_State_ISR, true);
-
 }
 
 
@@ -250,6 +244,8 @@ void RobotButterfly::transitionState() {
 
   // clean up old timer
   if (timer_state_cfg) {
+    timerAlarmDisable(timer_state_cfg);
+    timerDetachInterrupt(timer_state_cfg);
     timerEnd(timer_state_cfg);
     timer_state_cfg = NULL;
   }
