@@ -173,19 +173,28 @@ Robot Butterfly (C) Copyright Erin RobotZwrrl, Robot Missions Inc.
 05-30-24 v1.0
 
 [RobotZwrrl.xyz/robot-butterfly](http://RobotZwrrl.xyz/robot-butterfly)
+
 [RobotMissions.org](https://RobotMissions.org)
 
 
 This hardware is released under:
+
 CERN Open Hardware License Version 2.0 - Permissive (CERN-OHL-P)
+
 [https://cern-ohl.web.cern.ch/](https://cern-ohl.web.cern.ch/)
 
+
 The software is released under:
+
 The MIT License
+
 [https://opensource.org/license/mit](https://opensource.org/license/mit)
 
+
 The documentation is released under:
+
 CC-BY-SA-4.0
+
 [https://creativecommons.org/licenses/by-sa/4.0/](https://creativecommons.org/licenses/by-sa/4.0/)
 
 
