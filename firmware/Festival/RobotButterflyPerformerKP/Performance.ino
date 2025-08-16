@@ -21,9 +21,9 @@ void performAction(uint8_t action) {
     break;
     case 11: { // proximity 1
       if(millis()-last_sound_play >= SONG_PLAY_DELAY) {
-        if(CHIRPY_PERFORMER) {
+        if(team == 1) { // red
           playSound(SOUND_ALERT_MOONLIGHT_MODE);
-        } else {
+        } else if(team == 2) { // blue
           playSound(SOUND_SMELL_WILDFLOWER);
         }
         last_sound_play = millis();
@@ -32,9 +32,9 @@ void performAction(uint8_t action) {
     break;
     case 12: { // proximity 2
       if(millis()-last_sound_play >= SONG_PLAY_DELAY) {
-        if(CHIRPY_PERFORMER) {
+        if(team == 1) { // red
           playSound(SOUND_ALERT_SNEEZE);
-        } else {
+        } else if(team == 2) { // blue
           playSound(SOUND_SMELL_DAISY);
         }
         last_sound_play = millis();
@@ -43,9 +43,9 @@ void performAction(uint8_t action) {
     break;
     case 13: { // proximity 3
       if(millis()-last_sound_play >= SONG_PLAY_DELAY) {
-        if(CHIRPY_PERFORMER) {
+        if(team == 1) { // red
           playSound(SOUND_ALERT_MISSION_COMPLETE);
-        } else {
+        } else if(team == 2) { // blue
           playSound(SOUND_SMELL_SUNFLOWER);
         }
         last_sound_play = millis();

@@ -16,7 +16,6 @@ void myiotMessagePublishedCallback(String topic, String payload);
 
 #define MAX_SEGMENTS  7
 #define SONG_PLAY_DELAY 300
-#define CHIRPY_PERFORMER false
 
 String topic_segments[MAX_SEGMENTS];
 long last_sound_play = 0;

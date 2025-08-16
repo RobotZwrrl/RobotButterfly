@@ -1,5 +1,5 @@
-/* Robot Butterfly Conductor
- * --------------------------
+/* Robot Butterfly Conductor A
+ * ----------------------------
  * Respond to the IMU poses with different
  * light patterns and servo animations!
  * When at rest, flap the wings every 20s.
@@ -17,6 +17,7 @@ void myiotMessagePublishedCallback(String topic, String payload);
 void imuPoseChangeCallback(uint8_t p);
 
 long last_movement_rest = 0;
+long last_imu_change = 0;
 uint8_t team = 0;
 bool initial_connection = false;
 
@@ -59,22 +60,15 @@ void loop() {
 
   if(getIMUState() != IMU_ACTIVE) {
     digitalWrite(LED_HEARTBEAT_PIN, LOW);
-    digitalWrite(LED_COMMS_PIN, LOW);
   } else {
     digitalWrite(LED_HEARTBEAT_PIN, HIGH);
-    digitalWrite(LED_COMMS_PIN, HIGH);
   }
 
-  if(getIMUPose() == IMU_Pose_Home && getIMUState() == IMU_ACTIVE) {
-    
-    if(millis()-last_movement_rest >= 20000 && millis() > 10000) {
-      
-      restAction();
-      last_movement_rest = millis();
-
-    }
+  if(millis()-last_movement_rest >= 20000 && millis() > 10000 && millis()-last_imu_change >= 2000) {
+    restAction();
+    last_movement_rest = millis();
   }
-
+  
 }
 
 

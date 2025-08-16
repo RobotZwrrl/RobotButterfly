@@ -24,5 +24,7 @@ void imuPoseChangeCallback(uint8_t p) {
     break;
   }
 
+  last_imu_change = millis();
+
 }
 
