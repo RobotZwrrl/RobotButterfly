@@ -80,7 +80,7 @@ void loop() {
     
     if(millis()-last_movement_rest >= 20000 && 
        millis() > 10000 &&
-       millis()-last_pose_movement >= 2000) {
+       millis()-last_pose_movement >= 1000) {
       
         restAction();
 
