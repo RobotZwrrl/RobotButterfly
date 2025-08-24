@@ -3,7 +3,7 @@ void mqttConnect() {
   MQTT_credentials();
   mqtt_broker_url = "mqtt://" + mqtt_username + ":" + mqtt_password + "@" + mqtt_broker_ip + ":" + mqtt_broker_port;
   
-  while(!mqtt_connected && connection_attempts < 5) {
+  while(!mqtt_connected && connection_attempts < 3) {
     try {
       println("Attempt " + (connection_attempts+1) + " connecting to " + mqtt_broker_url);
       client.connect(mqtt_broker_url, mqtt_client_id);

@@ -6,7 +6,7 @@ class Bot {
   int colour_cycle = 0;
   String topic;
   long last_send = 0;
-  boolean show_text = true;
+  boolean show_text = false;
   boolean particle_dir = false;
   boolean alt_action = false;
   long last_publish = 0;
@@ -24,16 +24,13 @@ class Bot {
     // highlight when mouse is inside
     if(mouse_inside) {
       fill(255, 255, 255);
-      //rect(x, h-70, w, 70);
-      rect(x, h-220, w, 10); // idk
+      rect(x, h-70, w, 70);
+      if(PROJECTOR) rect(x, h-220, w, 10);
     }
 
     if(mouse_inside) {
       if(millis()-last_emit >= 500) {
         emitParticles();
-      }
-      if(millis()-last_send >= 2000) {
-        // TODO: send mqtt
       }
     }
     
@@ -41,9 +38,9 @@ class Bot {
 
   }
 
-  boolean checkMouse() {
-    if(mouseX >= x && mouseX < x + w &&
-       mouseY >= y && mouseY < y + h) {
+  boolean checkMouse(float xpos, float ypos) {
+    if(xpos >= x && xpos < x + w &&
+       ypos >= y && ypos < y + h) {
       mouse_inside = true;     
     } else {
       mouse_inside = false; 
@@ -64,11 +61,9 @@ class Bot {
   }
   
   void displayTopicText() {
-    //hint(DISABLE_DEPTH_TEST);
     textFont(font); 
     fill(255, 255, 255);
     text(topic, x, h-250);
-    //hint(ENABLE_DEPTH_TEST);
   }
   
   

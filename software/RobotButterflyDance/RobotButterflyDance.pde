@@ -7,28 +7,32 @@
 import msafluid.*;
 import javax.media.opengl.GL2;
 import mqtt.*;
+import org.openkinect.*;
+import org.openkinect.processing.*;
 
-MQTTClient client;
+boolean PROJECTOR = false;
+boolean KINECT = true;
 
+
+
+// --------- msa fluid -----------
 final float FLUID_WIDTH = 120;
-
 float invWidth, invHeight;    // inverse of screen dimensions
 float aspectRatio, aspectRatio2;
-
 MSAFluidSolver2D fluidSolver = new MSAFluidSolver2D(40, 30);  // lighter version;
-
 ParticleSystem particleSystem;
-
 PImage imgFluid;
-
 boolean drawFluid = true;
+// -------------------------------
 
+// ------------ bots -------------
 final int NUM_BOTS = 4;
 Bot[] bot = new Bot[NUM_BOTS];
-
 PFont font;
+// -------------------------------
 
 // ------------ mqtt -------------
+MQTTClient client;
 String mqtt_username;
 String mqtt_password;
 String mqtt_broker_ip;
@@ -38,6 +42,20 @@ String mqtt_broker_url;
 int connection_attempts = 0;
 boolean mqtt_connected = false;
 // -------------------------------
+
+// ------------ kinect -----------
+KinectTracker tracker;
+Kinect kinect;
+
+boolean display_tracker = false;
+boolean display_dot = false;
+
+float tracker_x;
+float tracker_y;
+float ptracker_x;
+float ptracker_y;
+// -------------------------------
+
 
 
 void setup() {
@@ -79,9 +97,13 @@ void setup() {
   textFont(font);
   textAlign(LEFT, LEFT);
   
-  
   client = new MQTTClient(this);
   mqttConnect();
+  
+  if(KINECT) {
+    kinect = new Kinect(this);
+    tracker = new KinectTracker(); 
+  }
 
 }
 
@@ -101,32 +123,58 @@ void draw() {
 
   particleSystem.updateAndDraw();
   
+  
   for(int i=0; i<bot.length; i++) {
+  
+    boolean mouse_in = false;
+    if(!KINECT) {
+      mouse_in = bot[i].checkMouse(mouseX, mouseY);
+    } else {
+      mouse_in = bot[i].checkMouse(tracker_x, tracker_y);
+    }
     
-    if(bot[i].checkMouse()) {
+    if(mouse_in) {
+      
       if(!bot[i].lights_on) {
-        client.publish(bot[i].topic, bot[i].generateAction(true));
-        bot[i].last_publish = millis();
+        
+        if(mqtt_connected) {
+          client.publish(bot[i].topic, bot[i].generateAction(true));
+          bot[i].last_publish = millis();  
+        }
+        
       } else {
-        if(millis()-bot[i].last_publish >= 2000) {
+        
+        if(millis()-bot[i].last_publish >= 2000 && mqtt_connected == true) {
           client.publish(bot[i].topic, bot[i].generateAction(true));
           bot[i].last_publish = millis();
         }
+        
       }
+      
     } else {
+      
       if(bot[i].lights_on) {
-        client.publish(bot[i].topic, bot[i].generateAction(false));
-        bot[i].last_publish = millis();
-      } else {
-        if(millis()-bot[i].last_publish >= 2000) {
+        
+        if(mqtt_connected) {
           client.publish(bot[i].topic, bot[i].generateAction(false));
           bot[i].last_publish = millis();
         }
+        
+      } else {
+        
+        if(millis()-bot[i].last_publish >= 2000 && mqtt_connected == true) {
+          client.publish(bot[i].topic, bot[i].generateAction(false));
+          bot[i].last_publish = millis();
+        }
+        
       }
+      
     }
-    
+     
     bot[i].display();
   }
+  
+  if(KINECT) kinectDraw();
   
 }
 
@@ -141,18 +189,24 @@ void mouseMoved() {
 }
 
 
-void mousePressed() {
-    //drawFluid ^= true;
-}
-
 void keyPressed() {
-  switch(key) {
-    case 'r': { 
-      renderUsingVA ^= true; 
-      println("renderUsingVA: " + renderUsingVA);
+  
+  if(KINECT) {
+    int t = tracker.getThreshold();
+    if(key == CODED) {
+      if(keyCode == UP) {
+        t+=5;
+        tracker.setThreshold(t);
+      } 
+      else if(keyCode == DOWN) {
+        t-=5;
+        tracker.setThreshold(t);
+      }
+      println("threshold: " + tracker.getThreshold());
     }
-    break;
-    
+  }
+  
+  switch(key) {
     case 'a':
       println("bot[0] leds action");
       client.publish(bot[0].topic, bot[0].generateAction(true));
@@ -190,7 +244,7 @@ void keyPressed() {
     break;
     
     
-    case 't': {
+    case 'b': {
       for(int i=0; i<bot.length; i++) {
         bot[i].show_text = !bot[i].show_text;
       }
@@ -201,6 +255,16 @@ void keyPressed() {
       }
     }
     break;
+    
+    case 't': {
+      if(KINECT) {
+        int t = tracker.getThreshold();
+        println("threshold: " + t + "    " +  "framerate: " + (int)frameRate + "    " + "UP increase threshold, DOWN decrease threshold");
+        display_tracker = !display_tracker;
+      }
+    }
+    break;
+    
   }
   
   //println(frameRate);
@@ -209,32 +273,31 @@ void keyPressed() {
 }
 
 
-
 // add force and dye to fluid, and create particles
 void addForce(float x, float y, float dx, float dy, color c) {
-    float speed = dx * dx  + dy * dy * aspectRatio2;    // balance the x and y components of speed with the screen aspect ratio
+  float speed = dx * dx  + dy * dy * aspectRatio2;    // balance the x and y components of speed with the screen aspect ratio
 
-    if(speed > 0) {
-        if(x<0) x = 0; 
-        else if(x>1) x = 1;
-        if(y<0) y = 0; 
-        else if(y>1) y = 1;
+  if(speed > 0) {
+    if(x<0) x = 0; 
+    else if(x>1) x = 1;
+    if(y<0) y = 0; 
+    else if(y>1) y = 1;
 
-        float colorMult = 5;
-        float velocityMult = 30.0f;
+    float colorMult = 5;
+    float velocityMult = 30.0f;
 
-        int index = fluidSolver.getIndexForNormalizedPosition(x, y);
+    int index = fluidSolver.getIndexForNormalizedPosition(x, y);
 
-        color drawColor = c;
+    color drawColor = c;
 
-        fluidSolver.rOld[index]  += red(drawColor) * colorMult;
-        fluidSolver.gOld[index]  += green(drawColor) * colorMult;
-        fluidSolver.bOld[index]  += blue(drawColor) * colorMult;
+    fluidSolver.rOld[index]  += red(drawColor) * colorMult;
+    fluidSolver.gOld[index]  += green(drawColor) * colorMult;
+    fluidSolver.bOld[index]  += blue(drawColor) * colorMult;
 
-        particleSystem.addParticles(x * width, y * height, 10);
-        fluidSolver.uOld[index] += dx * velocityMult;
-        fluidSolver.vOld[index] += dy * velocityMult;
-    }
+    particleSystem.addParticles(x * width, y * height, 10);
+    fluidSolver.uOld[index] += dx * velocityMult;
+    fluidSolver.vOld[index] += dy * velocityMult;
+  }
 }
 
 
@@ -245,6 +308,7 @@ color cycleColor(float x, float y) {
   colorMode(RGB, 1);
   return c;
 }
+
 
 color generateColour(float x, float y) {
   colorMode(HSB, 360, 1, 1);
@@ -261,6 +325,42 @@ color generateColour1D(float a) {
   color drawColor = color(hue, 1, 1);
   colorMode(RGB, 1);
   return drawColor;
+}
+
+
+void kinectDraw() {
+ 
+  tracker.track();
+  if(display_tracker) tracker.display();
+
+  // Let's draw the "lerped" location
+  PVector v2 = tracker.getLerpedPos();
+  fill(100,250,50);
+  noStroke();
+  //ellipse(v2.x,v2.y,20,20);
+  
+  ptracker_x = tracker_x;
+  ptracker_y = tracker_y;
+  
+  tracker_x = map(v2.x, 0, 640, 0, displayWidth);
+  tracker_y = map(v2.y, 0, 480, 0, displayHeight);
+  
+  if(display_dot) {
+    colorMode(RGB, 255);
+    fill(100,250,50);
+    ellipse(tracker_x, tracker_y, 20, 20);
+  }
+  
+  float tracker_x_vel = (tracker_x - ptracker_x) * invWidth;
+  float tracker_y_vel = (tracker_y - ptracker_y) * invHeight;
+  
+  addForce(tracker_x*invWidth, tracker_y*invHeight, tracker_x_vel, tracker_y_vel, cycleColor(tracker_x_vel * invWidth, tracker_y_vel * invHeight));
+}
+
+
+void stop() {
+  if(KINECT) tracker.quit();
+  super.stop();
 }
 
 
