@@ -56,6 +56,13 @@ void neoAnimation1() {
   setNeoAnimSpeed(&neo_animation_alert, 100);
   setNeoAnimDuration(&neo_animation_alert, 2200);
   startNeoAnim(&neo_animation_alert);
+
+  setServoAnim(&servo_animation_alert, SERVO_ANIM_FLUTTER, SERVO_ANIM_ALERT);
+  setServoAnimFlutterWings(&servo_animation_alert, SERVO_ANIM_FLUTTER_WINGS_BOTH_HOME);
+  setServoAnimSpeed(&servo_animation_alert, 100);
+  setServoAnimFlutterOffset(&servo_animation_alert, 100);
+  setServoAnimRepeats(&servo_animation_alert, 3);
+  startServoAnim(&servo_animation_alert);
 }
 
 
@@ -73,6 +80,11 @@ void neoAnimation2() {
   setNeoAnimSpeed(&neo_animation_alert, 100);
   setNeoAnimDuration(&neo_animation_alert, 2200);
   startNeoAnim(&neo_animation_alert);
+
+  setServoAnim(&servo_animation_alert, SERVO_ANIM_SWAY, SERVO_ANIM_ALERT);
+  setServoAnimSpeed(&servo_animation_alert, 100);
+  setServoAnimRepeats(&servo_animation_alert, 3);
+  startServoAnim(&servo_animation_alert);
 }
 
 
@@ -82,6 +94,13 @@ void neoAnimationOff() {
   startNeoAnim(&neo_animation_alert);
   setNeoAnim(&neo_animation_home, NEO_ANIM_NONE, NEO_ANIM_HOME);
   startNeoAnim(&neo_animation_home);
+
+  setServoAnim(&servo_animation_alert, SERVO_ANIM_FLUTTER, SERVO_ANIM_ALERT);
+  setServoAnimFlutterWings(&servo_animation_alert, SERVO_ANIM_FLUTTER_WINGS_BOTH_UP);
+  setServoAnimSpeed(&servo_animation_alert, 40);
+  setServoAnimFlutterOffset(&servo_animation_alert, 80);
+  setServoAnimRepeats(&servo_animation_alert, 2);
+  startServoAnim(&servo_animation_alert);
 }
 
 
