@@ -90,10 +90,20 @@ void neoAnimation2() {
 
 void neoAnimationOff() {
   Serial << "neoAnimationOff" << endl;
-  setNeoAnim(&neo_animation_alert, NEO_ANIM_NONE, NEO_ANIM_ALERT);
+  setNeoAnim(&neo_animation_alert, NEO_ANIM_ZWOOP, NEO_ANIM_ALERT);
+  if(team == RED_TEAM) {
+    setNeoAnimColours(&neo_animation_alert, NEO_RED, NEO_OFF);
+  } else if(team == BLUE_TEAM) {
+    setNeoAnimColours(&neo_animation_alert, NEO_BLUE, NEO_OFF);
+  } else if(team == OTHER_TEAM) {
+    setNeoAnimColours(&neo_animation_alert, NEO_GREEN, NEO_OFF);
+  }
   startNeoAnim(&neo_animation_alert);
-  setNeoAnim(&neo_animation_home, NEO_ANIM_NONE, NEO_ANIM_HOME);
-  startNeoAnim(&neo_animation_home);
+
+  // setNeoAnim(&neo_animation_alert, NEO_ANIM_NONE, NEO_ANIM_ALERT);
+  // startNeoAnim(&neo_animation_alert);
+  // setNeoAnim(&neo_animation_home, NEO_ANIM_NONE, NEO_ANIM_HOME);
+  // startNeoAnim(&neo_animation_home);
 
   setServoAnim(&servo_animation_alert, SERVO_ANIM_FLUTTER, SERVO_ANIM_ALERT);
   setServoAnimFlutterWings(&servo_animation_alert, SERVO_ANIM_FLUTTER_WINGS_BOTH_UP);
