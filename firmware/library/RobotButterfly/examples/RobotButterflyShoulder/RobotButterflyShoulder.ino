@@ -1,8 +1,6 @@
-/* Robot Butterfly Integrated
+/* Robot Butterfly Shoulder
  * --------------------------
- * Here's an example that integrates various
- * peripherals on Robot Butterfly to make
- * 4 routines! RTOS mode enabled
+ * Placing a Robot Butterfly on your shoulder
  */
 
 #include <RobotButterfly.h>
@@ -14,10 +12,6 @@ void setupState1();
 void loopState1();
 void setupState2();
 void loopState2();
-void setupState3();
-void loopState3();
-void setupState4();
-void loopState4();
 void buttonHoldNotificationCallback(uint8_t n);
 void buttonHoldReleasedCallback(uint8_t n);
 void buttonClickCallback(uint8_t n);
@@ -38,6 +32,7 @@ int servo_calib_pos_right = 0;
 bool BATTERY_AA_MODE = true;
 long start_del = 0;
 bool hold_notif_action = false;
+bool MUTE_SOUNDS = false;
 // -------------------------------
 
 
@@ -84,8 +79,6 @@ void setup() {
   // there are 4 routines in this sketch
   robotbutterfly.addState(RobotButterfly::STATE1, setupState1, loopState1);  // state 1: low power periodic flutter
   robotbutterfly.addState(RobotButterfly::STATE2, setupState2, loopState2);  // state 2: colourful fluttering
-  robotbutterfly.addState(RobotButterfly::STATE3, setupState3, loopState3);  // state 3: rainbow sparkle flutter
-  robotbutterfly.addState(RobotButterfly::STATE4, setupState4, loopState4);  // state 4: golden proximity interaction
   
   // here are the callbacks that are implemented
   robotbutterfly.onHoldNotificationCallback_client = buttonHoldNotificationCallback;
@@ -221,13 +214,7 @@ void console() {
       case '2':
         robotbutterfly.changeState(RobotButterfly::STATE2);
       break;
-      case '3':
-        robotbutterfly.changeState(RobotButterfly::STATE3);
-      break;
-      case '4':
-        robotbutterfly.changeState(RobotButterfly::STATE4);
-      break;
-
+      
       case 'a':
         robotbutterfly.decrementState();
       break;

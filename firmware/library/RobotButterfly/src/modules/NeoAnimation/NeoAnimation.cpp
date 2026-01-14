@@ -1,5 +1,6 @@
 #include "modules/NeoAnimation/NeoAnimation.h"
 
+NeoCallback onNeoAnimStartCallback = NULL;
 NeoCallback onNeoAnimDoneCallback = NULL;
 NeoCallback onNeoAnimLoopCallback = NULL;
 
@@ -1203,6 +1204,7 @@ void setNeoAnimSpeed(struct NeoAnimation *a, uint16_t del) {
 // params: neo animation
 void startNeoAnim(struct NeoAnimation *a) {
   a->active = true;
+  if(onNeoAnimStartCallback) onNeoAnimStartCallback(a);
 }
 
 // params: neo animation
@@ -1250,6 +1252,37 @@ void setNeoAnimUno(struct NeoAnimation *a, int uno) {
 void setNeoAnimDuo(struct NeoAnimation *a, int duo) {
   a->helper2 = duo;
 }
+
+void copyNeoAnimations(struct NeoAnimation *source, struct NeoAnimation *destination) {
+
+  destination->id = source->id;
+  destination->active = source->active;
+  destination->type = source->type;
+
+  destination->colour_primary = source->colour_primary;
+  destination->colour_secondary = source->colour_secondary;
+
+  destination->num_frames = source->num_frames;
+  destination->frame_delay = source->frame_delay;
+  destination->frame_index = source->frame_index;
+  destination->last_frame = source->last_frame;
+  
+  destination->num_repeats = source->num_repeats;
+  destination->repeat_count = source->repeat_count;
+  destination->repeat_delay = source->repeat_delay;
+  destination->last_repeat = source->last_repeat;
+
+  destination->duration = source->duration;
+  destination->start_time = source->start_time;
+
+  destination->dir = source->dir;
+  destination->helper1 = source->helper1;
+  destination->helper2 = source->helper2;
+  destination->helper3 = source->helper3;
+
+}
+
+
 // ----------------------------------
 
 

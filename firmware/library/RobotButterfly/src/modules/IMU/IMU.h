@@ -19,6 +19,8 @@ extern IMUCallback onPoseChangeCallback;
 extern IMUCallback onEventDetectedCallback;
 // ------------------------------------
 
+#include "RobotButterfly.h"
+
 // --------------- api ---------------
 // returns IMU_STATE which is an enum: IMUStates
 uint8_t getIMUState();
@@ -113,6 +115,10 @@ static bool IMU_PRINT_DATA_AVG;
 static bool IMU_PRINT_DELTA_HOME_AVG; // usually true during dev
 static bool IMU_PRINT_DELTA_TIME_AVG;
 static bool IMU_PRINT_STATS; // usually true during testing
+// ------------------------------------
+
+// ------------ functions -------------
+static volatile uint8_t iot_timer_counter;
 // ------------------------------------
 
 // ------------ functions -------------

@@ -22,6 +22,8 @@ typedef void (*SoundCallback)(uint8_t id);
 extern SoundCallback onSoundDoneCallback;
 
 static uint8_t CURRENT_SOUND;
+static bool MUTE_SOUND;
+void muteSound(bool s);
 
 enum soundID {
   SOUND_NONE,

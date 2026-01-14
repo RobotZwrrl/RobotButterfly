@@ -101,16 +101,37 @@ void initProximity() {
 
 }
 
+
+// collected every 0.1 seconds
+uint16_t getRawProximityData(struct Proximity *p) {
+  return p->raw;
+}
+
+
+// averaged over 1 second (from the raw values)
+uint16_t getAvgProximityData(struct Proximity *p) {
+  return p->val;
+}
+
+
 // from 0-7 inclusive for feeding neopixel strip
 // based on the moving average value
-uint8_t getProximity8(struct Proximity *p) {
-  return map(p->val, PROXIMITY_MIN, PROXIMITY_MAX, 0, 7);
+uint8_t getProximity8(struct Proximity *p, bool raw) {
+  if(raw) {
+    return map(p->raw, PROXIMITY_MIN, PROXIMITY_MAX, 0, 7);
+  } else {
+    return map(p->val, PROXIMITY_MIN, PROXIMITY_MAX, 0, 7);
+  }
 }
 
 // from 0-9 inclusive for feeding servo range animation
 // based on the moving average value
-uint8_t getProximity10(struct Proximity *p) {
-  return map(p->val, PROXIMITY_MIN, PROXIMITY_MAX, 0, 9);
+uint8_t getProximity10(struct Proximity *p, bool raw) {
+  if(raw) {
+    return map(p->raw, PROXIMITY_MIN, PROXIMITY_MAX, 0, 9);
+  } else {
+    return map(p->val, PROXIMITY_MIN, PROXIMITY_MAX, 0, 9);
+  }
 }
 
 

@@ -55,8 +55,11 @@ void updateProximity();
 void Task_PROXIMITY_code(void * pvParameters);
 void setProximityTaskPriority(uint8_t p);
 
-uint8_t getProximity8(struct Proximity *p);
-uint8_t getProximity10(struct Proximity *p);
+uint16_t getRawProximityData(struct Proximity *p);
+uint16_t getAvgProximityData(struct Proximity *p);
+
+uint8_t getProximity8(struct Proximity *p, bool raw);
+uint8_t getProximity10(struct Proximity *p, bool raw);
 // ------------------------------------
 
 // ---------- rtos ------------

@@ -6,9 +6,9 @@ void setupState2() {
   if(new_enter) {
     Serial << "STATE " << RobotButterfly::STATE2 << " entrance" << endl;
     new_enter = false;
+    new_update = true;
 
-    // set up our peripheral priorities for this state
-    state2Priorities();
+    state2Priorities(); // set up our peripheral priorities for this state
 
     setNeoAnim(&neo_animation_home, NEO_ANIM_NONE, NEO_ANIM_HOME);
     startNeoAnim(&neo_animation_home);
@@ -25,15 +25,14 @@ void setupState2() {
     startNeoAnim(&neo_animation_home);
 
   }
-  // add your looping init code here for state 1!
 }
 
 
 void loopState2() {
-  if(SERVO_CAL_MODE) return;
 
   if(new_update) {
     new_update = false;
+    new_enter = true;
 
     setNeoAnim(&neo_animation_home, NEO_ANIM_AMBIANCE, NEO_ANIM_HOME);
     setNeoAnimAmbiance(&neo_animation_home, NEO_ANIM_AMBIANCE_SPRING);

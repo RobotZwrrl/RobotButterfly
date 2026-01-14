@@ -1,6 +1,7 @@
 // --------- buttons ----------
 
 #define DEBUG_BUTTONS                  false   // debug print statements
+#define DEBUG_BUTTON_CALLBACKS          true
 #define DEBOUNCE_TIME                    250   // (isr) time for the signal to settle
 #define ACCIDENTAL_CLICK_TIME            200   // (isr) prevent bouncing double clicks
 #define BUTTON_HOLD_DURATION            1000   // hold for this long for a long press in ms
@@ -8,6 +9,7 @@
 #define MAX_CLICK_TIME                   700   // amount of time between press and release to qualify as a click (in ms)
 #define BUTTON_BOTH_RELEASE_LOCKOUT     1000   // amount of time to wait after both hold has been released to register another button hold
 #define NEXT_INDIVIDUAL_BUTTON_HOLD      200   // amount of time after a both button hold til an individual button hold is registered
+#define SERVO_CAL_ENTER_TIME           30000   // enter servo calibration within the first 30 seconds
 
 // ----------------------------
 
@@ -153,9 +155,8 @@
 
 // ------ state machine -------
 
-#define DEBUG_STATEMACHINE       true
-#define MAX_STATE                4
-#define NUM_STATES 8
+#define DEBUG_STATEMACHINE       false
+#define NUM_STATES                   8
 
 //#define TRANSITION_FRAME_TIME    100000    // 10 seconds
 //#define TRANSITION_FRAME_TIME    50000     // 5 seconds
@@ -169,3 +170,28 @@
 #define STATE_LOOP_PRINT         2000   // how long to print this every iteration of the state loop (in ms)
 
 // ----------------------------
+
+// --------- settings ---------
+
+#define DEBUG_SETTINGS         false
+#define SETTINGS_WIFI_SSID     "wifi_ssid"
+#define SETTINGS_WIFI_PASS     "wifi_pass"
+#define SETTINGS_MQTT_SERVER   "mqtt_server"
+#define SETTINGS_MQTT_PORT     "mqtt_port"
+#define SETTINGS_MQTT_USER     "mqtt_user"
+#define SETTINGS_MQTT_PASS     "mqtt_pass"
+#define SETTINGS_MQTT_ID       "mqtt_name"
+#define SETTINGS_ROBOT_NAME    "robot_name"
+#define SETTINGS_NAMESPACE     "robotinthepark"
+#define SETTINGS_SET           "set-new"
+#define SETTINGS_TEAM          "team-classic"
+#define SETTINGS_IOT_AUTOCONNECT   "iot_autoconnect"
+
+// ----------------------------
+
+// ----------- mqtt -----------
+#define DEBUG_MQTT        true
+#define IOT_TIMER_COUNTER_MAX     5 // this means: 5 * 100 ms = 500 ms, publish sensor data every 0.5 s
+#define MAX_SUBTOPICS     5
+// ----------------------------
+

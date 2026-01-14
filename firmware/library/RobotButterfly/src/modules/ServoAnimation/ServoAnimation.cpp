@@ -430,6 +430,11 @@ void runServoAnim_flutter(struct ServoAnimation *a) {
       right_val = SERVO_RIGHT_UP+(sign*2*flutter_offset);
     }
     break;
+    case SERVO_ANIM_FLUTTER_WINGS_BOTH_DOWN: {  // both down
+      left_val = SERVO_LEFT_DOWN-(sign*2*flutter_offset);
+      right_val = SERVO_RIGHT_DOWN+(sign*2*flutter_offset);
+    }
+    break;
     case SERVO_ANIM_FLUTTER_WINGS_LEFT_HOME: {  // left home
 
       if(sign == 1) {

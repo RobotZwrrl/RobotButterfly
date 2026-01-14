@@ -8,9 +8,9 @@ void setupState4() {
   if(new_enter) {
     Serial << "STATE " << RobotButterfly::STATE4 << " entrance" << endl;
     new_enter = false;
+    new_update = true;
 
-    // set up our peripheral priorities for this state
-    state4Priorities();
+    state4Priorities(); // set up our peripheral priorities for this state
 
     setServoAnim(&servo_animation_home, SERVO_ANIM_NONE, SERVO_ANIM_HOME);
     startServoAnim(&servo_animation_home);
@@ -27,15 +27,14 @@ void setupState4() {
     startNeoAnim(&neo_animation_home);
 
   }
-  // add your looping init code here for state 1!
 }
 
 
 void loopState4() {
-  if(SERVO_CAL_MODE) return;
 
   if(new_update) {
     new_update = false;
+    new_enter = true;
 
     stopServoAnim(&servo_animation_alert);
 
@@ -48,10 +47,10 @@ void loopState4() {
     startServoAnim(&servo_animation_home);
   }
 
-  int proximity8 = getProximity8(&ultrasonic)+1;
+  int proximity8 = getProximity8(&ultrasonic, true)+1; // boolean parameter = if sensor data is raw or averaged val
   setNeoAnimRangeVal(&neo_animation_home, proximity8);
 
-  int proximity10 = getProximity10(&ultrasonic)+1;
+  int proximity10 = getProximity10(&ultrasonic, true)+1; // boolean parameter = if sensor data is raw or averaged val
   setServoAnimRangeVal(&servo_animation_home, proximity10);
 
   if(proximity8 <= 2 && millis()-last_proximity_sound >= 6000) {

@@ -48,6 +48,8 @@ void buttonHoldReleasedCallback(uint8_t n) {
         Serial << "entering servo cal mode" << endl;
         button_calib_changed = true;
         SERVO_CAL_MODE = true;
+      } else {
+        MUTE_SOUNDS = !MUTE_SOUNDS;
       }
     }
     hold_notif_action = false;

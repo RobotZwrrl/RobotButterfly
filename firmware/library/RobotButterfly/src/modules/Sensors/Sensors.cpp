@@ -9,11 +9,11 @@ Sensor sensor_sound;
 Sensor sensor_battery;
 
 Sensor* all_sensors[NUM_SENSORS] = {
-  &sensor_temperature,
-  &sensor_humidity,
   &sensor_light,
+  &sensor_battery,
   &sensor_sound,
-  &sensor_battery
+  &sensor_temperature,
+  &sensor_humidity
 };
 
 
@@ -758,4 +758,23 @@ void setSensorsTaskPriority(uint8_t p) {
   if (DEBUG_SENSORS_RTOS) Serial << "changed SENSORS task priority - new: " << p << " prev: " << prev_priority << endl;
 
 }
+
+
+// collected every 0.1 seconds
+uint16_t getRawSensorData(struct Sensor *s) {
+  return s->raw;
+}
+
+
+// averaged over 1 second (from the raw values)
+uint16_t getAvgSensorData(struct Sensor *s) {
+  return s->val;
+}
+
+
+// averaged over 60 seconds (from the average values)
+uint16_t getAmbientSensorData(struct Sensor *s) {
+  return s->ambient;
+}
+
 

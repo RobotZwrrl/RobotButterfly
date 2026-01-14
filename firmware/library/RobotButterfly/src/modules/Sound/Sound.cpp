@@ -26,6 +26,7 @@ void playFlutterSurprise();
 void playFlutterConfused();
 void playFlutterSleepy();
 void playFlutterGrateful();
+void muteSound(bool s);
 
 
 void playStartup() {
@@ -555,6 +556,8 @@ void playSound(uint8_t id) {
 
 void updateSound() {
 
+  if(MUTE_SOUND) return;
+
   if(CURRENT_SOUND == SOUND_NONE) return;
 
   bool play = false;
@@ -702,5 +705,10 @@ void setSoundTaskPriority(uint8_t p) {
   vTaskPrioritySet(Task_SOUND, p);
   if (DEBUG_SOUND_RTOS) Serial << "changed SOUND task priority - new: " << p << " prev: " << prev_priority << endl;
   
+}
+
+
+void muteSound(bool s) {
+  MUTE_SOUND = s;
 }
 

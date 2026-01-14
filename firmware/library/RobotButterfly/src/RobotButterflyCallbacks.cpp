@@ -1,6 +1,29 @@
 #include "RobotButterfly.h"
 
 // ----------------------------------
+// --------- mqtt callbacks -------
+// ----------------------------------
+
+void RobotButterfly::iotMessageReceivedCallback(String topic, String payload) {
+	if(onIOTMessageReceivedCallback_client != NULL) onIOTMessageReceivedCallback_client(topic, payload);	
+}
+
+void RobotButterfly::iotMessagePublishedCallback(String topic, String payload) {
+	if(onIOTMessagePublishedCallback_client != NULL) onIOTMessagePublishedCallback_client(topic, payload);	
+}
+
+void RobotButterfly::iotConnectedCallback() {
+	if(onIOTConnectedCallback_client != NULL) onIOTConnectedCallback_client();	
+}
+
+void RobotButterfly::iotDisconnectedCallback() {
+	if(onIOTDisconnectedCallback_client != NULL) onIOTDisconnectedCallback_client();	
+}
+
+// ----------------------------------
+
+
+// ----------------------------------
 // --------- button callbacks -------
 // ----------------------------------
 
@@ -8,6 +31,7 @@ ButtonCallback RobotButterfly::onHoldNotificationCallback_client = NULL;
 ButtonCallback RobotButterfly::onHoldReleasedCallback_client = NULL;
 ButtonCallback RobotButterfly::onClickCallback_client = NULL;
 ButtonCallback RobotButterfly::onReleaseCallback_client = NULL;
+
 
 // give user feedback that they have held the
 // button and its time to to release the button
@@ -28,34 +52,117 @@ void RobotButterfly::buttonHoldNotificationCallback(uint8_t n) {
     break;
   }
 
+
+  if(n == BUTTON_BOTH) {
+
+    if(!hold_notif_action) {
+
+      setNeoAnim(&neo_animation_home, NEO_ANIM_NONE, NEO_ANIM_HOME);
+      setServoAnim(&servo_animation_home, SERVO_ANIM_NONE, SERVO_ANIM_HOME);
+
+      setServoAnim(&servo_animation_alert, SERVO_ANIM_POSITION, SERVO_ANIM_ALERT);
+      setServoAnimRepeats(&servo_animation_alert, -99);
+      setServoAnimPositionLeft(&servo_animation_alert, SERVO_ANIM_POSITION_UP);
+      setServoAnimPositionRight(&servo_animation_alert, SERVO_ANIM_POSITION_UP);
+      startServoAnim(&servo_animation_alert);
+
+      setNeoAnim(&neo_animation_alert, NEO_ANIM_ZWOOP, NEO_ANIM_ALERT);
+      
+      if(SERVO_CAL_MODE) {
+        setNeoAnimColours(&neo_animation_alert, NEO_PURPLE, NEO_OFF);
+      } else {
+        setNeoAnimColours(&neo_animation_alert, NEO_GOLDEN_YELLOW, NEO_OFF);
+      }
+      
+      setNeoAnimSpeed(&neo_animation_alert, 500);
+      startNeoAnim(&neo_animation_alert);
+      hold_notif_action = true;
+    }
+
+  }
+
+
   if(onHoldNotificationCallback_client != NULL) onHoldNotificationCallback_client(n);
 }
 
-// do an action here
+
 void RobotButterfly::buttonHoldReleasedCallback(uint8_t n) {
   
+	if(n == BUTTON_BOTH) {
+
+    if(SERVO_CAL_MODE == true) {
+      if(DEBUG_BUTTON_CALLBACKS) Serial << "exiting servo cal mode" << endl;
+      SERVO_CAL_MODE = false;
+      changeState(RobotButterfly::CURRENT_STATE); // re-enter the state
+    } else {
+      if(millis() < SERVO_CAL_ENTER_TIME) {
+        if(DEBUG_BUTTON_CALLBACKS) Serial << "entering servo cal mode" << endl;
+        button_calib_changed = true;
+        SERVO_CAL_MODE = true;
+      }
+    }
+    hold_notif_action = false;
+  }
+
   if(onHoldReleasedCallback_client != NULL) onHoldReleasedCallback_client(n);
 }
 
-// do an action here
+
 void RobotButterfly::buttonClickCallback(uint8_t n) {
   switch(n) {
-    case BUTTON_LEFT:
+    case BUTTON_LEFT: {
       playSimpleTone(NOTE_A5, 100);
       playNoTone();
       if(CHANGE_STATES_CONTROL) incrementState();
+
+      if(SERVO_CAL_MODE) {
+
+      	if(left_cal_dir) {
+	        left_cal_mode++;
+	      } else {
+	        left_cal_mode--;
+	      }
+	      
+	      if(left_cal_mode >= 2) left_cal_dir = !left_cal_dir;
+	      if(left_cal_mode <= 0) left_cal_dir = !left_cal_dir;
+	      button_calib_changed = true;
+
+	      if(DEBUG_BUTTON_CALLBACKS) Serial << "left: " << left_cal_mode << endl;
+
+      }
+
+    }
     break;
     case BUTTON_RIGHT:
       playSimpleTone(NOTE_A7, 100);
       playNoTone();
       if(CHANGE_STATES_CONTROL) decrementState();
+
+      if(SERVO_CAL_MODE) {
+
+      	if(right_cal_dir) {
+	        right_cal_mode++;
+	      } else {
+	        right_cal_mode--;
+	      }
+	      
+	      if(right_cal_mode >= 2) right_cal_dir = !right_cal_dir;
+	      if(right_cal_mode <= 0) right_cal_dir = !right_cal_dir;
+	      button_calib_changed = true;
+
+	      if(DEBUG_BUTTON_CALLBACKS) Serial << "right: " << right_cal_mode << endl;
+
+      }
+
+
+
     break;
   }
   
   if(onClickCallback_client != NULL) onClickCallback_client(n);
 }
 
-// probably not necessary to do anything here
+
 void RobotButterfly::buttonReleaseCallback(uint8_t n) {
   if(onReleaseCallback_client != NULL) onReleaseCallback_client(n);
 }
@@ -123,14 +230,23 @@ void RobotButterfly::imuEventDetectedCallback(uint8_t e) {
 // -------- neoanim callbacks -------
 // ----------------------------------
 
+NeoCallback RobotButterfly::onNeoAnimStartCallback_client;
 NeoCallback RobotButterfly::onNeoAnimDoneCallback_client;
 NeoCallback RobotButterfly::onNeoAnimLoopCallback_client;
+
+// the neo animation has started
+void RobotButterfly::neoAnimStartCallback(struct NeoAnimation *a) {
+  
+  if(DEBUG_NEOANIM_NEWS) Serial << "Callback: Neo animation (" << a->id << ") start" << endl;
+  
+  if(onNeoAnimStartCallback_client != NULL) onNeoAnimStartCallback_client(a);
+}
 
 // the neo animation is done entirely
 void RobotButterfly::neoAnimDoneCallback(struct NeoAnimation *a) {
   
   if(DEBUG_NEOANIM_NEWS) Serial << "Callback: Neo animation (" << a->id << ") done" << endl;
-  
+
   if(onNeoAnimDoneCallback_client != NULL) onNeoAnimDoneCallback_client(a);
 }
 

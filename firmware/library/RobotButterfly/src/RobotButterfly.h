@@ -6,21 +6,25 @@
 #include "Board.h"
 #include "Params.h"
 #include "ParamsRTOS.h"
+#include <Preferences.h>
+#include <WiFi.h>
 
 // board:
-// esp32 dev module
-// esp32 v2.0.4
+// ESP32 dev module
+// ESP32 board support package: v2.0.4
 
 // library dependencies:
 // Streaming - v5.0.0 https://github.com/janelia-arduino/Streaming
 // movingAvg - v2.3.2 https://github.com/JChristensen/movingAvg
-// MPU6050 - v1.4.3 https://github.com/ElectronicCats/mpu6050
+// MPU6050 - v1.4.4 https://github.com/ElectronicCats/mpu6050
 // Adafruit Neopixel - v.1.12.4 https://github.com/adafruit/Adafruit_NeoPixel
 // ESP32Servo - v3.0.6 https://github.com/madhephaestus/ESP32Servo 
 // ServoEasing - v3.4.0 https://github.com/ArminJo/ServoEasing
 // DHT - v1.4.6 https://github.com/adafruit/DHT-sensor-library
 // Adafruit Unified Sensor - v1.1.15 https://github.com/adafruit/Adafruit_Sensor 
 // HC-SR04 - v1.1.3 https://github.com/d03n3rfr1tz3/HC-SR04 
+// MQTT - v2.5.2 https://github.com/256dpi/arduino-mqtt
+// ArduinoJson - v7.4.2 https://github.com/bblanchon/ArduinoJson
 
 #include "modules/Buttons/Buttons.h"
 #include "modules/Sound/Sound.h"
@@ -29,6 +33,7 @@
 #include "modules/ServoAnimation/ServoAnimation.h"
 #include "modules/Sensors/Sensors.h"
 #include "modules/Proximity/Proximity.h"
+#include "modules/DeviceMQTT/DeviceMQTT.h"
 
 
 // -- updates --
@@ -48,7 +53,9 @@ enum UpdateOptions {
     UPDATE_SENSORS_ON,
     UPDATE_SENSORS_OFF,
     UPDATE_PROXIMITY_ON,
-    UPDATE_PROXIMITY_OFF
+    UPDATE_PROXIMITY_OFF,
+    UPDATE_MQTT_ON,
+    UPDATE_MQTT_OFF
 };
 // --
 
@@ -65,12 +72,30 @@ public:
                 uint8_t update_neoanim, 
                 uint8_t update_servoanim, 
                 uint8_t update_sensors, 
-                uint8_t update_proximity);
+                uint8_t update_proximity,
+                uint8_t update_mqtt);
+    static void setAnimations();
+
+    // -- mqtt --
+    static void enableMQTT();
+    static void disableMQTT();
+
+    static void sendMQTTMessage(String topic, String payload);
+    static void conductNamespace(String action);
+    static void conductSet(String action);
+    static void conductTeam(String action);
+    static void conductorSubscribe();
+    static void mqttSubscribe(String topic);
+    static void mqttPublish(String topic, String payload);
+    static void mqttPublishNeoanimation(struct NeoAnimation *a);
+    static void mqttParseNeoanimation(struct NeoAnimation *a, String payload);
+    // --
 
     // -- state machine --
     typedef void (*StateSetup)();
     typedef void (*StateLoop)();
     
+    static void setNumStates(uint8_t n);
     static void addState(uint8_t id, StateSetup setup_fn, StateLoop loop_fn);
     static void changeState(uint8_t n);
     static void incrementState();
@@ -118,7 +143,31 @@ public:
     static struct State state7;
     static struct State state8;
     // --
-    
+
+    // -- startup --
+    static void batteryCheck();
+    static void setStartupPriorities();
+    // --
+
+    // -- settings --
+    static bool processConsole(String str);
+    static void manageSettings(String str);
+    static void eepromMachine(String str);
+    static void displaySettingsMenu();
+    static String getPreference(String key);
+    // --
+
+    // -- mqtt callbacks --
+    static void iotMessageReceivedCallback(String topic, String payload);    
+    static void iotMessagePublishedCallback(String topic, String payload);
+    static void iotConnectedCallback();
+    static void iotDisconnectedCallback();
+
+    static IOTMessageCallback onIOTMessageReceivedCallback_client;
+    static IOTMessageCallback onIOTMessagePublishedCallback_client;
+    static IOTCallback onIOTConnectedCallback_client;
+    static IOTCallback onIOTDisconnectedCallback_client;
+    // --
 
     // -- button callbacks --
     static void buttonHoldNotificationCallback(uint8_t n);
@@ -151,11 +200,19 @@ public:
     // --
 
     // -- neoanimation callbacks --
+    static void neoAnimStartCallback(struct NeoAnimation *a);
     static void neoAnimDoneCallback(struct NeoAnimation *a);
     static void neoAnimLoopCallback(struct NeoAnimation *a);
     
+    static NeoCallback onNeoAnimStartCallback_client;
     static NeoCallback onNeoAnimDoneCallback_client;
     static NeoCallback onNeoAnimLoopCallback_client;
+
+    static void parseNeoanimationMQTT(const String &json);
+    static void startNeoanimationMQTT(int anim_type);
+    static void stopNeoanimationMQTT(int anim_type);
+
+    static NeoAnimation neo_animation_mqtt;
     // --
 
     // -- servoanimation callbacks --
@@ -201,11 +258,46 @@ private:
 
 };
 
+// -- mqtt --
+extern volatile bool MQTT_MODE_ACTIVE;
+extern volatile bool did_autoconnect;
+extern volatile bool iot_publish_timer_flag;
+extern volatile bool iot_publish_10hz_flag;
+// --
+
+// -- state machine --
+extern volatile uint8_t MAX_STATE;
 extern volatile bool new_enter;
 extern volatile bool new_update;
 extern volatile bool enter_state;
 extern volatile bool update_state;
 extern volatile bool new_print;
+// --
+
+// -- servo calibration --
+extern volatile bool SERVO_CAL_MODE;
+extern volatile bool left_cal_dir;
+extern volatile int left_cal_mode;
+extern volatile bool right_cal_dir;
+extern volatile int right_cal_mode;
+extern volatile bool button_calib_changed;
+extern volatile int servo_calib_pos_left;
+extern volatile int servo_calib_pos_right;
+// --
+
+// -- startup --
+extern volatile bool BATTERY_AA_MODE;
+extern volatile long start_del;
+extern volatile bool hold_notif_action;
+// --
+
+// -- eeprom prefs --
+extern volatile bool eeprom_mode;
+extern volatile bool command_select;
+extern volatile bool entering_value;
+extern volatile char command_key;
+extern Preferences preferences;
+// --
 
 #endif
 

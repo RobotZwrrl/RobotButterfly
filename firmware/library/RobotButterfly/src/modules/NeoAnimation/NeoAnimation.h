@@ -14,6 +14,7 @@ struct NeoAnimation;
 
 // ----------- neoanim callbacks -----------
 typedef void (*NeoCallback)(struct NeoAnimation *a); // neo animation callback type
+extern NeoCallback onNeoAnimStartCallback;
 extern NeoCallback onNeoAnimDoneCallback;
 extern NeoCallback onNeoAnimLoopCallback;
 // -----------------------------------
@@ -172,6 +173,7 @@ void setNeoAnimBreatheMaxBrightness(struct NeoAnimation *a, int val);
 void setNeoAnimAmbiance(struct NeoAnimation *a, int id);
 void setNeoAnimUno(struct NeoAnimation *a, int uno);
 void setNeoAnimDuo(struct NeoAnimation *a, int duo);
+void copyNeoAnimations(struct NeoAnimation *source, struct NeoAnimation *destination);
 // -----------------------------------
 
 // ---------- rtos ------------
